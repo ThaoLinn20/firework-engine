@@ -3820,3 +3820,10 @@ export function layoutWord(word, options = {}) {
 
   return points;
 }
+
+export const TextGlyphAtlas = {
+  TEXT_GLYPHS,
+  sanitizeText,
+  splitCommentIntoWords,
+  layoutWord
+};

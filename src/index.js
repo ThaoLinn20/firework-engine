@@ -37,6 +37,7 @@ export {
 export { ShellPresetFactory } from './factories/ShellPresetFactory.js';
 export {
   TEXT_GLYPHS,
+  TextGlyphAtlas,
   layoutWord,
   splitCommentIntoWords,
   sanitizeText
