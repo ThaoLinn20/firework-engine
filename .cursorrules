@@ -1,0 +1,13 @@
+﻿# Firework Engine Architecture & Context Rules
+
+- **MANDATORY**: ALWAYS READ `.agents/AGENTS.md` and `.agents/skills/ds-create-shell/workflow.md` BEFORE modifying code or creating new fireworks.
+- **MANDATORY**: Adhere strictly to the Component-based Composition model:
+  - `BurstShapeGenerator.js`: Spatial geometry at t = 0 ONLY. Must NEVER contain physics or dynamics.
+  - `BurstEffectProcessor.js`: Particle kinematics, drag, drooping at t > 0 ONLY.
+  - `FireworkCompositionHelper.js`: Centralized taxonomy registry.
+  - `ShellPresetFactory.js`: Presets as composition templates.
+- **MANDATORY**: By default, NEVER automatically add smoke (`burstSmoke: false`, `launchSmoke: false`) unless explicitly commanded by the user.
+- **MANDATORY**: ALWAYS preserve `THREE.AdditiveBlending` for emissive firework particles. NEVER switch to `NormalBlending`.
+- **MANDATORY**: Keep all preset names in lowercase `snake_case` with primary category prefix (e.g. `strobe_dying_embers`, `willow_falling_comets`).
+- **MANDATORY**: After ANY modifications, ALWAYS execute `npm test` and `npm run build` to verify 100% test pass and successful bundle compilation.
+- **MANDATORY**: Do NOT use any icons or emojis in code, comments, documentation, or commit messages. Keep everything strictly professional and text-only.
