@@ -1506,6 +1506,8 @@ export class ShellPresetFactory {
       letterSpacing: options.letterSpacing ?? 1.5
     });
 
+    const scale = options.textScale ?? 0.38;
+    const spacing = options.letterSpacing ?? 1.5;
     return {
       ...this.basePreset(size),
       shellType: 'text_word',
@@ -1515,8 +1517,9 @@ export class ShellPresetFactory {
       color: options.color || 0xfde047,
       textWord: cleanWord,
       textPoints: textPts,
-      textScale: options.textScale ?? 0.38,
-      letterSpacing: options.letterSpacing ?? 1.5,
+      _glyphCacheKey: `${cleanWord}_${scale}_${spacing}`,
+      textScale: scale,
+      letterSpacing: spacing,
       tiltAngle: options.tiltAngle ?? 18,
       drag: 1.85,
       starLife: 2400 + size * 400,

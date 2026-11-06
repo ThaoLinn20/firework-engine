@@ -4411,13 +4411,13 @@ var g = {
 	}
 	static direction(t, n, r, i, a = null) {
 		if (t === "text_word") {
-			let t = a?.textWord || a?.word || "HELLO", n = a?.textPoints;
-			if (n && Array.isArray(n) && n.length !== 0 || (n = h(t, {
-				scale: a?.textScale ?? .38,
-				letterSpacing: a?.letterSpacing ?? 1.5
-			}), a && (a.textPoints = n)), !n || n.length === 0) return new e.Vector3(0, 1, 0);
-			let i = n[r % n.length], o = (a?.tiltAngle ?? 18) * (Math.PI / 180), s = Math.cos(o), c = Math.sin(o), l = i.y * s - i.z * c, u = i.y * c + i.z * s;
-			return new e.Vector3(i.x, l, u);
+			let t = a?.textWord || a?.word || "HELLO", n = a?.textScale ?? .38, i = a?.letterSpacing ?? 1.5, o = `${t}_${n}_${i}`, s = a?.textPoints;
+			if (s && Array.isArray(s) && s.length !== 0 && a?._glyphCacheKey === o || (s = h(t, {
+				scale: n,
+				letterSpacing: i
+			}), a && (a.textPoints = s, a._glyphCacheKey = o)), !s || s.length === 0) return new e.Vector3(0, 1, 0);
+			let c = s[r % s.length], l = (a?.tiltAngle ?? 18) * (Math.PI / 180), u = Math.cos(l), d = Math.sin(l), f = c.y * u - c.z * d, p = c.y * d + c.z * u;
+			return new e.Vector3(c.x, f, p);
 		}
 		if (t === "sparkling-branches" || t === "sparkling-comet-branches") {
 			let t = a?.branchCount || 5, n = a?.cometsPerBranch || 5, i = Math.floor(r / n) % t, o = i / t * Math.PI * 2, s = i % 3, c = s === 0 ? .65 : s === 1 ? .28 : -.12, l = new e.Vector3(Math.cos(o), c, Math.sin(o)).normalize(), u = Math.abs(l.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), d = new e.Vector3().crossVectors(l, u).normalize(), f = new e.Vector3().crossVectors(d, l).normalize(), p = .05 + Math.random() * .12, m = Math.random() * Math.PI * 2, h = .9 + Math.random() * .25;
@@ -7797,7 +7797,7 @@ var P = {
 		let n = p(t.word || t.textWord || "HELLO") || "HELLO", r = h(n, {
 			scale: t.textScale ?? .38,
 			letterSpacing: t.letterSpacing ?? 1.5
-		});
+		}), i = t.textScale ?? .38, a = t.letterSpacing ?? 1.5;
 		return {
 			...this.basePreset(e),
 			shellType: "text_word",
@@ -7807,8 +7807,9 @@ var P = {
 			color: t.color || 16638023,
 			textWord: n,
 			textPoints: r,
-			textScale: t.textScale ?? .38,
-			letterSpacing: t.letterSpacing ?? 1.5,
+			_glyphCacheKey: `${n}_${i}_${a}`,
+			textScale: i,
+			letterSpacing: a,
 			tiltAngle: t.tiltAngle ?? 18,
 			drag: 1.85,
 			starLife: 2400 + e * 400,
@@ -8520,7 +8521,7 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 	}
 	launchRandom(t = null, n = {}) {
 		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o, color: s, angleOffset: c = 0, effectOverrides: l } = n, u = t;
-		typeof t == "string" && (u = this.shellPresetFactory.createPresetByKey(t)), l && typeof l == "object" && (u = {
+		typeof t == "string" && (u = this.shellPresetFactory.createPresetByKey(t)), l && typeof l == "object" && (l.textWord && l.textWord !== u?.textWord && (l.textPoints = null, l._glyphCacheKey = null), u = {
 			...u,
 			...l
 		});
@@ -8918,11 +8919,11 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 	}
 	resolveBurstParticleCount(e, t, r) {
 		if (e === "text_word" || r?.textWord) {
-			let e = r?.textWord || r?.word || "HELLO", t = r?.textPoints;
-			return t && Array.isArray(t) && t.length !== 0 || (t = h(e, {
-				scale: r?.textScale ?? .38,
-				letterSpacing: r?.letterSpacing ?? 1.5
-			}), r && (r.textPoints = t)), t.length > 0 ? t.length : 60;
+			let e = r?.textWord || r?.word || "HELLO", t = r?.textScale ?? .38, n = r?.letterSpacing ?? 1.5, i = `${e}_${t}_${n}`, a = r?.textPoints;
+			return a && Array.isArray(a) && a.length !== 0 && r?._glyphCacheKey === i || (a = h(e, {
+				scale: t,
+				letterSpacing: n
+			}), r && (r.textPoints = a, r._glyphCacheKey = i)), a && a.length > 0 ? a.length : 60;
 		}
 		if (r?.isAscentChild) return Math.round((14 + Math.floor(Math.random() * 6)) * this.graphicsQualityMultiplier);
 		if (r?.shellType === "ringComet") return 10 + Math.floor(Math.random() * 6);

@@ -91,14 +91,19 @@ export class BurstShapeGenerator {
   static direction(shape, angle, index, count, preset = null) {
     if (shape === 'text_word') {
       const textWord = preset?.textWord || preset?.word || 'HELLO';
+      const textScale = preset?.textScale ?? 0.38;
+      const letterSpacing = preset?.letterSpacing ?? 1.5;
+      const cacheKey = `${textWord}_${textScale}_${letterSpacing}`;
+
       let points = preset?.textPoints;
-      if (!points || !Array.isArray(points) || points.length === 0) {
+      if (!points || !Array.isArray(points) || points.length === 0 || preset?._glyphCacheKey !== cacheKey) {
         points = layoutWord(textWord, {
-          scale: preset?.textScale ?? 0.38,
-          letterSpacing: preset?.letterSpacing ?? 1.5
+          scale: textScale,
+          letterSpacing: letterSpacing
         });
         if (preset) {
           preset.textPoints = points;
+          preset._glyphCacheKey = cacheKey;
         }
       }
 

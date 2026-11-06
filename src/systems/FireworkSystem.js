@@ -373,8 +373,12 @@ export class FireworkSystem {
 
     // Áp dụng hiệu ứng ghi đè (overrides) trực tiếp từ file cấu hình sequence
     if (effectOverrides && typeof effectOverrides === 'object') {
-      resolvedPreset = { ...resolvedPreset, ...effectOverrides };
-    }
+        if (effectOverrides.textWord && effectOverrides.textWord !== resolvedPreset?.textWord) {
+          effectOverrides.textPoints = null;
+          effectOverrides._glyphCacheKey = null;
+        }
+        resolvedPreset = { ...resolvedPreset, ...effectOverrides };
+      }
 
     const shellPreset = this.shellPresetFactory.validatePreset(resolvedPreset ?? this.shellPresetFactory.randomPreset());
     const shellId = ++this.shellSequence;
@@ -1678,17 +1682,22 @@ export class FireworkSystem {
   resolveBurstParticleCount(shape, effectType, preset) {
     if (shape === 'text_word' || preset?.textWord) {
       const textWord = preset?.textWord || preset?.word || 'HELLO';
+      const textScale = preset?.textScale ?? 0.38;
+      const letterSpacing = preset?.letterSpacing ?? 1.5;
+      const cacheKey = `${textWord}_${textScale}_${letterSpacing}`;
+
       let pts = preset?.textPoints;
-      if (!pts || !Array.isArray(pts) || pts.length === 0) {
+      if (!pts || !Array.isArray(pts) || pts.length === 0 || preset?._glyphCacheKey !== cacheKey) {
         pts = layoutWord(textWord, {
-          scale: preset?.textScale ?? 0.38,
-          letterSpacing: preset?.letterSpacing ?? 1.5
+          scale: textScale,
+          letterSpacing: letterSpacing
         });
         if (preset) {
           preset.textPoints = pts;
+          preset._glyphCacheKey = cacheKey;
         }
       }
-      return pts.length > 0 ? pts.length : 60;
+      return pts && pts.length > 0 ? pts.length : 60;
     }
     if (preset?.isAscentChild) {
       return Math.round((14 + Math.floor(Math.random() * 6)) * this.graphicsQualityMultiplier);
