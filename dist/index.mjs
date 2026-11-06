@@ -5482,6 +5482,15 @@ var y = n.BURST.baseDrag ?? 2.2, b = n.SYSTEM.baseBurstPointSize ?? 18, x = clas
 		},
 		effects: ["diamond-scintillation"]
 	},
+	text_word: {
+		shape: "text_word",
+		dynamics: "standard",
+		modifiers: {
+			pistil: !1,
+			instantBurst: !1
+		},
+		effects: []
+	},
 	horsetail_waterfall: {
 		shape: "horsetail",
 		dynamics: "horsetail",
@@ -6390,32 +6399,7 @@ var N = {
 			N.Gold,
 			N.White,
 			N.Blue
-		], this.shapeRegistry = /* @__PURE__ */ new Set([
-			"sphere",
-			"ring",
-			"heart",
-			"willow",
-			"willow-up",
-			"willow-arch",
-			"star",
-			"lightning",
-			"oval",
-			"flower",
-			"cat",
-			"fish",
-			"smiley",
-			"half-flash",
-			"split-flash",
-			"galaxy",
-			"upward-spray",
-			"double-helix",
-			"sparkling-branches",
-			"sphere_uniform",
-			"sphere-uniform",
-			"egg",
-			"sphere_rings",
-			"horsetail"
-		]), this.effectRegistry = /* @__PURE__ */ new Set(/* @__PURE__ */ "standard.crackle.flow.snow.wave.flower.floral.falling-leaves.falling-comets.falling-comets-glitter.crysanthemum-trail.crysanthemum-smoke.crysanthemum-spiral.crysanthemum-spiral-v2.crysanthemum-cc.crysanthemum_discrete_trail.crysanthemum-discrete-trail.ghost.ghost-kamuro.galaxy-spin.comet-ring.bouquet-comet.willow.sparking.sparking-v2.swimming-star.double-helix.strobe.white-strobe.glitter-strobe.heart.oval.no-trail.notrail.no-burst.crossette.sparkle-trail.sparkle-apex.sparkling-branch-comet.tadpole-spiral.sphere_rings_wave.sphere-rings-wave.horsetail.horsetail_waterfall".split(".")), this.presetMenuEntries = [
+		], this.shapeRegistry = /* @__PURE__ */ new Set(/* @__PURE__ */ "sphere.ring.heart.willow.willow-up.willow-arch.star.lightning.oval.flower.cat.fish.smiley.half-flash.split-flash.galaxy.upward-spray.double-helix.sparkling-branches.sphere_uniform.sphere-uniform.egg.sphere_rings.horsetail.text_word.text-word".split(".")), this.effectRegistry = /* @__PURE__ */ new Set(/* @__PURE__ */ "standard.crackle.flow.snow.wave.flower.floral.falling-leaves.falling-comets.falling-comets-glitter.crysanthemum-trail.crysanthemum-smoke.crysanthemum-spiral.crysanthemum-spiral-v2.crysanthemum-cc.crysanthemum_discrete_trail.crysanthemum-discrete-trail.ghost.ghost-kamuro.galaxy-spin.comet-ring.bouquet-comet.willow.sparking.sparking-v2.swimming-star.double-helix.strobe.white-strobe.glitter-strobe.heart.oval.no-trail.notrail.no-burst.crossette.sparkle-trail.sparkle-apex.sparkling-branch-comet.tadpole-spiral.sphere_rings_wave.sphere-rings-wave.horsetail.horsetail_waterfall".split(".")), this.presetMenuEntries = [
 			{
 				key: "random",
 				label: "Random"
@@ -6695,6 +6679,10 @@ var N = {
 			{
 				key: "horsetail_waterfall",
 				label: "Horsetail Waterfall"
+			},
+			{
+				key: "text_word",
+				label: "Text Word"
 			}
 		], this.presetsRegistry = /* @__PURE__ */ new Map(), this.initializePresetsRegistry();
 	}
@@ -6705,7 +6693,7 @@ var N = {
 		let e = (e, t, n) => {
 			this.presetsRegistry.set(e, n), t && t !== e && this.presetsRegistry.set(t, n);
 		};
-		e("crysanthemum", "crysanthemum", (e) => this.crysanthemumShell(e)), e("crysanthemum_sphere_rings", "crysanthemumSphereRings", (e) => this.crysanthemumSphereRingsShell(e)), e("sphere_rings_cascade", "sphereRingsCascade", (e) => this.sphereRingsCascadeShell(e)), e("sphere_rings_strobe", "sphereRingsStrobe", (e) => this.sphereRingsStrobeShell(e)), e("egg_crysanthemum", "egg_crysanthemum", (e) => this.eggChrysanthemumShell(e)), e("crysanthemum_uniform_sphere", "crysanthemum_uniform_sphere", (e) => this.crysanthemumUniformSphereShell(e)), e("crysanthemum_v2", "crysanthemumV2", (e) => this.crysanthemumV2Shell(e)), e("crysanthemum_smoke", "crysanthemumSmoke", (e) => this.crysanthemumSmokeShell(e)), e("crysanthemum_spiral", "crysanthemumSpiral", (e) => this.crysanthemumSpiralShell(e)), e("crysanthemum_spiral_v2", "crysanthemumSpiralV2", (e) => this.crysanthemumSpiralV2Shell(e)), e("crysanthemum_cc", "crysanthemumCC", (e) => this.crysanthemumCCShell(e)), e("crysanthemum_nested", "crysanthemumNested", (e) => this.crysanthemumNestedShell(e)), e("multi_nested", "multiNested", (e) => this.multiNestedShell(e)), e("sparking", "sparking", (e) => this.sparkingShell(e)), e("sparking_v2", "sparkingV2", (e) => this.sparkingV2Shell(e)), e("crackle", "crackle", (e) => this.crackleShell(e)), e("strobe", "strobe", (e) => this.strobeShell(e)), e("strobe_dying_embers", "strobeDyingEmbers", (e) => this.strobeDyingEmbersShell(e)), e("white_strobe", "whiteStrobe", (e) => this.whiteStrobeShell(e)), e("glitter_strobe", "glitterStrobe", (e) => this.glitterStrobeShell(e)), e("strobe_breathing_pulse", "strobeBreathingPulse", (e) => this.strobeBreathingPulseShell(e)), e("glitter_diamond_scintillation", "glitterDiamondScintillation", (e) => this.glitterDiamondScintillationShell(e)), e("weeping_willow_comets", "weepingWillowComets", (e) => this.weepingWillowCometsShell(e)), e("weeping_willow_comets_v2", "weepingWillowCometsV2", (e) => this.weepingWillowCometsV2Shell(e)), e("weeping_willow_comets_v3", "weepingWillowCometsV3", (e) => this.weepingWillowCometsV3Shell(e)), e("weeping_willow_arch", "weepingWillowArch", (e) => this.weepingWillowArchShell(e)), e("falling_leaves", "fallingLeaves", (e) => this.fallingLeavesShell(e)), e("floral", "floral", (e) => this.floralShell(e)), e("bouquet", "bouquet", (e) => this.bouquetShell(e)), e("bouquet_comet", "bouquetComet", (e) => this.bouquetCometShell(e)), e("bouquet_comet_sphere", "bouquetCometSphere", (e) => this.bouquetCometSphereShell(e)), e("bouquet_v2", "bouquetV2", (e) => this.bouquetV2Shell(e)), e("bouquet_v2_multicolor", "bouquetV2Multicolor", (e) => this.bouquetV2MulticolorShell(e)), e("rumble", "rumble", (e) => this.rumbleShell(e)), e("flower", "flower", (e) => this.flowerShell(e)), e("cat", "cat", (e) => this.catShell(e)), e("ring", "ring", (e) => this.ringShell(e)), e("ring_v2", "ringV2", (e) => this.ringShellV2(e)), e("ring_comet", "ringComet", (e) => this.cometRingShell(e)), e("oval", "oval", (e) => this.ovalShell(e)), e("snow", "snow", (e) => this.snowShell(e)), e("fish", "fish", (e) => this.fishShell(e)), e("fish_v2", "fishV2", (e) => this.fishV2Shell(e)), e("fish_v3", "fishV3", (e) => this.fishV3Shell(e)), e("smiley", "smiley", (e) => this.smileyShell(e)), e("wave", "wave", (e) => this.waveShell(e)), e("heart", "heart", (e) => this.hearthShell(e)), e("star", "star", (e) => this.starShell(e)), e("ghost", "ghost", (e) => this.ghostShell(e)), e("falling_comets", "falling-comets", (e) => this.fallingCometsShell(e)), e("half_flash", "halfFlash", (e) => this.halfFlashShell(e)), e("split_flash", "splitFlash", (e) => this.splitFlashShell(e)), e("comet_cluster", "comet_cluster", (e) => this.cometCluster(e)), e("comet_cluster_notrail", "comet_cluster_notrail", (e) => this.cometClusterNoTrail(e)), e("comet_cluster_cc", "comet_cluster_cc", (e) => this.cometClusterCC(e)), e("comet_cluster_thick", "comet_cluster_thick", (e) => this.cometClusterThick(e)), e("comet_cluster_detached", "comet_cluster_detached", (e) => this.cometClusterDetached(e)), e("comet_cluster_cascade", "comet_cluster_cascade", (e) => this.cometClusterCascade(e)), e("comet_single", "comet_single", (e) => this.cometSingle(e)), e("comet_single_beam", "comet_single_beam", (e) => this.cometSingle(e)), e("comet_tadpole_burst", "cometTadpoleBurst", (e) => this.cometTadpoleBurst(e)), e("chrysanthemum_tadpole_burst", "chrysanthemumTadpoleBurst", (e) => this.chrysanthemumTadpoleBurst(e)), e("sparkling_comet", "sparkling_comet", (e) => this.sparklingComet(e)), e("sparkling_comet_branches", "sparklingCometBranches", (e) => this.sparklingCometBranchesShell(e)), e("galaxy", "galaxy", (e) => this.galaxyShell(e)), e("ghost_kamuro", "ghostKamuro", (e) => this.ghostKamuroShell(e)), e("double_helix", "doubleHelix", (e) => this.doubleHelixShell(e)), e("crossette", "crossette", (e) => this.crossetteShell(e)), e("sphere_erratic_dart", "sphereErraticDart", (e) => this.sphereErraticDartShell(e)), e("horsetail_waterfall", "horsetailWaterfall", (e) => this.horsetailWaterfallShell(e)), e("horsetail", "horsetail", (e) => this.horsetailWaterfallShell(e));
+		e("crysanthemum", "crysanthemum", (e) => this.crysanthemumShell(e)), e("crysanthemum_sphere_rings", "crysanthemumSphereRings", (e) => this.crysanthemumSphereRingsShell(e)), e("sphere_rings_cascade", "sphereRingsCascade", (e) => this.sphereRingsCascadeShell(e)), e("sphere_rings_strobe", "sphereRingsStrobe", (e) => this.sphereRingsStrobeShell(e)), e("egg_crysanthemum", "egg_crysanthemum", (e) => this.eggChrysanthemumShell(e)), e("crysanthemum_uniform_sphere", "crysanthemum_uniform_sphere", (e) => this.crysanthemumUniformSphereShell(e)), e("crysanthemum_v2", "crysanthemumV2", (e) => this.crysanthemumV2Shell(e)), e("crysanthemum_smoke", "crysanthemumSmoke", (e) => this.crysanthemumSmokeShell(e)), e("crysanthemum_spiral", "crysanthemumSpiral", (e) => this.crysanthemumSpiralShell(e)), e("crysanthemum_spiral_v2", "crysanthemumSpiralV2", (e) => this.crysanthemumSpiralV2Shell(e)), e("crysanthemum_cc", "crysanthemumCC", (e) => this.crysanthemumCCShell(e)), e("crysanthemum_nested", "crysanthemumNested", (e) => this.crysanthemumNestedShell(e)), e("multi_nested", "multiNested", (e) => this.multiNestedShell(e)), e("sparking", "sparking", (e) => this.sparkingShell(e)), e("sparking_v2", "sparkingV2", (e) => this.sparkingV2Shell(e)), e("crackle", "crackle", (e) => this.crackleShell(e)), e("strobe", "strobe", (e) => this.strobeShell(e)), e("strobe_dying_embers", "strobeDyingEmbers", (e) => this.strobeDyingEmbersShell(e)), e("white_strobe", "whiteStrobe", (e) => this.whiteStrobeShell(e)), e("glitter_strobe", "glitterStrobe", (e) => this.glitterStrobeShell(e)), e("strobe_breathing_pulse", "strobeBreathingPulse", (e) => this.strobeBreathingPulseShell(e)), e("glitter_diamond_scintillation", "glitterDiamondScintillation", (e) => this.glitterDiamondScintillationShell(e)), e("weeping_willow_comets", "weepingWillowComets", (e) => this.weepingWillowCometsShell(e)), e("weeping_willow_comets_v2", "weepingWillowCometsV2", (e) => this.weepingWillowCometsV2Shell(e)), e("weeping_willow_comets_v3", "weepingWillowCometsV3", (e) => this.weepingWillowCometsV3Shell(e)), e("weeping_willow_arch", "weepingWillowArch", (e) => this.weepingWillowArchShell(e)), e("falling_leaves", "fallingLeaves", (e) => this.fallingLeavesShell(e)), e("floral", "floral", (e) => this.floralShell(e)), e("bouquet", "bouquet", (e) => this.bouquetShell(e)), e("bouquet_comet", "bouquetComet", (e) => this.bouquetCometShell(e)), e("bouquet_comet_sphere", "bouquetCometSphere", (e) => this.bouquetCometSphereShell(e)), e("bouquet_v2", "bouquetV2", (e) => this.bouquetV2Shell(e)), e("bouquet_v2_multicolor", "bouquetV2Multicolor", (e) => this.bouquetV2MulticolorShell(e)), e("rumble", "rumble", (e) => this.rumbleShell(e)), e("flower", "flower", (e) => this.flowerShell(e)), e("cat", "cat", (e) => this.catShell(e)), e("ring", "ring", (e) => this.ringShell(e)), e("ring_v2", "ringV2", (e) => this.ringShellV2(e)), e("ring_comet", "ringComet", (e) => this.cometRingShell(e)), e("oval", "oval", (e) => this.ovalShell(e)), e("snow", "snow", (e) => this.snowShell(e)), e("fish", "fish", (e) => this.fishShell(e)), e("fish_v2", "fishV2", (e) => this.fishV2Shell(e)), e("fish_v3", "fishV3", (e) => this.fishV3Shell(e)), e("smiley", "smiley", (e) => this.smileyShell(e)), e("wave", "wave", (e) => this.waveShell(e)), e("heart", "heart", (e) => this.hearthShell(e)), e("star", "star", (e) => this.starShell(e)), e("ghost", "ghost", (e) => this.ghostShell(e)), e("falling_comets", "falling-comets", (e) => this.fallingCometsShell(e)), e("half_flash", "halfFlash", (e) => this.halfFlashShell(e)), e("split_flash", "splitFlash", (e) => this.splitFlashShell(e)), e("comet_cluster", "comet_cluster", (e) => this.cometCluster(e)), e("comet_cluster_notrail", "comet_cluster_notrail", (e) => this.cometClusterNoTrail(e)), e("comet_cluster_cc", "comet_cluster_cc", (e) => this.cometClusterCC(e)), e("comet_cluster_thick", "comet_cluster_thick", (e) => this.cometClusterThick(e)), e("comet_cluster_detached", "comet_cluster_detached", (e) => this.cometClusterDetached(e)), e("comet_cluster_cascade", "comet_cluster_cascade", (e) => this.cometClusterCascade(e)), e("comet_single", "comet_single", (e) => this.cometSingle(e)), e("comet_single_beam", "comet_single_beam", (e) => this.cometSingle(e)), e("comet_tadpole_burst", "cometTadpoleBurst", (e) => this.cometTadpoleBurst(e)), e("chrysanthemum_tadpole_burst", "chrysanthemumTadpoleBurst", (e) => this.chrysanthemumTadpoleBurst(e)), e("sparkling_comet", "sparkling_comet", (e) => this.sparklingComet(e)), e("sparkling_comet_branches", "sparklingCometBranches", (e) => this.sparklingCometBranchesShell(e)), e("galaxy", "galaxy", (e) => this.galaxyShell(e)), e("ghost_kamuro", "ghostKamuro", (e) => this.ghostKamuroShell(e)), e("double_helix", "doubleHelix", (e) => this.doubleHelixShell(e)), e("crossette", "crossette", (e) => this.crossetteShell(e)), e("sphere_erratic_dart", "sphereErraticDart", (e) => this.sphereErraticDartShell(e)), e("horsetail_waterfall", "horsetailWaterfall", (e) => this.horsetailWaterfallShell(e)), e("text_word", "textWord", (e) => this.textWordShell(e)), e("horsetail", "horsetail", (e) => this.horsetailWaterfallShell(e));
 	}
 	randomPreset() {
 		let e = Math.random();
@@ -7799,6 +7787,27 @@ var N = {
 			pistil: !1,
 			launchTrail: !0,
 			burstSmoke: !1
+		};
+	}
+	textWordShell(e = 1) {
+		return {
+			...this.basePreset(e),
+			shellType: "text_word",
+			shapeType: "text_word",
+			dynamicsType: "standard",
+			effectType: "standard",
+			color: 16638023,
+			textWord: "HELLO",
+			textScale: .38,
+			letterSpacing: 1.5,
+			tiltAngle: 18,
+			drag: 1.85,
+			starLife: 2400 + e * 400,
+			starLifeMultiplier: 1.2,
+			pistil: !1,
+			instantBurst: !1,
+			burstSmoke: !1,
+			launchSmoke: !1
 		};
 	}
 }, F = [
@@ -8899,26 +8908,33 @@ var Oe = n.SYSTEM.crackleSparkColor, G = new e.Vector3(), ke = new e.Vector3(), 
 		});
 	}
 	resolveBurstParticleCount(e, t, r) {
+		if (e === "text_word" || r?.textWord) {
+			let e = r?.textWord || r?.word || "HELLO", t = r?.textPoints;
+			return t && Array.isArray(t) && t.length !== 0 || (t = h(e, {
+				scale: r?.textScale ?? .38,
+				letterSpacing: r?.letterSpacing ?? 1.5
+			}), r && (r.textPoints = t)), t.length > 0 ? t.length : 60;
+		}
 		if (r?.isAscentChild) return Math.round((14 + Math.floor(Math.random() * 6)) * this.graphicsQualityMultiplier);
 		if (r?.shellType === "ringComet") return 10 + Math.floor(Math.random() * 6);
 		if (r?.isNestedChild) return Math.round((10 + Math.floor(Math.random() * 3)) * this.graphicsQualityMultiplier);
 		let i = n.SHAPE_MULTIPLIERS, a = n.EFFECT_MULTIPLIERS, o = Math.max(.25, Math.min(3, r?.particleCountMultiplier ?? 1)), s = r?.shapeRenderMode === "outline" || r?.shapeRenderMode === "jupiter" ? 1.12 : 1, c = new Set(this.burstParticles.map((e) => e.shellId)).size, l = 1;
 		this.graphicsQuality !== "high" && (c > 12 ? l = .72 : c > 8 && (l = .86));
-		let u = Array.isArray(r?.effects) ? r.effects : [], d = !!r?.crossette || u.includes("crossette") || t === "crossette", f = d && t !== "crossette" ? .6 : 1, p = !!(r?.secondBurst?.enabled || r?.secondBurstEnabled), m = p ? .78 : 1, h = n.BURST?.throttling || {
+		let u = Array.isArray(r?.effects) ? r.effects : [], d = !!r?.crossette || u.includes("crossette") || t === "crossette", f = d && t !== "crossette" ? .6 : 1, p = !!(r?.secondBurst?.enabled || r?.secondBurstEnabled), m = p ? .78 : 1, g = n.BURST?.throttling || {
 			enabled: !0,
 			threshold: .7,
 			minFloor: .5,
 			outlineMinFloor: .7
-		}, g = 1;
-		if (h.enabled) {
+		}, _ = 1;
+		if (g.enabled) {
 			let t = (Array.isArray(this.burstParticles) ? this.burstParticles.length : 0) / Math.max(1, this.maxBurstParticles || 6e3);
-			if (t > h.threshold) {
-				let n = r?.shapeRenderMode === "outline" || e === "star" || e === "heart" || e === "ring" || e === "ring_v2" || e === "smiley" ? h.outlineMinFloor ?? .7 : h.minFloor ?? .5, i = Math.min(1, Math.max(0, (t - h.threshold) / (1 - h.threshold)));
-				g = 1 - (1 - n) * i;
+			if (t > g.threshold) {
+				let n = r?.shapeRenderMode === "outline" || e === "star" || e === "heart" || e === "ring" || e === "ring_v2" || e === "smiley" ? g.outlineMinFloor ?? .7 : g.minFloor ?? .5, i = Math.min(1, Math.max(0, (t - g.threshold) / (1 - g.threshold)));
+				_ = 1 - (1 - n) * i;
 			}
 		}
-		let _ = i[e] ?? 1, v = a[t] ?? 1, y = Math.max(.6, Math.min(6, r?.shellSize ?? 1)), b = e === "horsetail" || r?.shapeType === "horsetail" || r?.dynamicsType === "horsetail" || r?.shellType === "horsetail_waterfall" ? 16 : d || p ? Math.round(ge * .6) : ge, x = Math.round(b * this.graphicsQualityMultiplier), S = Math.round(_e * this.graphicsQualityMultiplier), C = W * _ * v * f * m * o * s * l * y * g * this.graphicsQualityMultiplier, w = Math.max(16, Math.round(x * Math.max(.65, g)));
-		return Math.max(w, Math.min(S, Math.round(C)));
+		let v = i[e] ?? 1, y = a[t] ?? 1, b = Math.max(.6, Math.min(6, r?.shellSize ?? 1)), x = e === "horsetail" || r?.shapeType === "horsetail" || r?.dynamicsType === "horsetail" || r?.shellType === "horsetail_waterfall" ? 16 : d || p ? Math.round(ge * .6) : ge, S = Math.round(x * this.graphicsQualityMultiplier), C = Math.round(_e * this.graphicsQualityMultiplier), w = W * v * y * f * m * o * s * l * b * _ * this.graphicsQualityMultiplier, T = Math.max(16, Math.round(S * Math.max(.65, _)));
+		return Math.max(T, Math.min(C, Math.round(w)));
 	}
 	createBurst(t, r, i = "sphere", a = null, o = null) {
 		let s = a?.shapeType || a?.shape || i || "sphere", c = g.resolveShape(s);
@@ -9034,7 +9050,7 @@ var Oe = n.SYSTEM.crackleSparkColor, G = new e.Vector3(), ke = new e.Vector3(), 
 			if (te) {
 				let t = r / Math.max(1, k - 1), n = t * 3.5 * Math.PI * 2, i = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * t)));
 				j = new e.Vector3(Math.sin(i) * Math.cos(n), Math.cos(i), Math.sin(i) * Math.sin(n)).applyQuaternion(h);
-			} else M = g.direction(s, v, u, f, i ? a : P), j = s === "willow-arch" || s === "willow-up" ? M.applyQuaternion(y) : M.applyQuaternion(h);
+			} else M = g.direction(s, v, u, f, i ? a : P), j = s === "willow-arch" || s === "willow-up" ? M.applyQuaternion(y) : s === "heart" || s === "text_word" ? M.clone() : M.applyQuaternion(h);
 			let B = !i && P?.shapeRenderMode === "outline" && (s === "ring" || s === "heart" || s === "star") || s === "half-flash" || s === "split-flash" || s === "galaxy" || s === "egg" || s === "sphere_rings";
 			B || j.normalize();
 			let H = .9 + Math.random() * .2, U = .5 + Math.random() * .8, me = .34 + Math.random() * .18, he = _.getDynamicsProfile(p, s, i ? a : P), W = he?.baseSpeed ?? ve, ge;
@@ -11028,7 +11044,7 @@ var it = new e.Vector3(), at = new e.Vector3(), ot = new e.Vector3(), st = new e
 	initializeDefaultHandlers() {
 		this.register("single", (e, t) => {
 			let n = e.effectOverrides;
-			(e.instantBurst !== void 0 || e.shellSize !== void 0 || e.starLifeMultiplier !== void 0 || e.shapeType !== void 0 || e.dynamicsType !== void 0 || e.pistil !== void 0 || e.effects !== void 0 || e.strobe !== void 0 || e["white-strobe"] !== void 0 || e["glitter-strobe"] !== void 0 || e.crackle !== void 0 || e.ghost !== void 0 || e["ghost-flare"] !== void 0 || e.ghostFlare !== void 0 || e.flow !== void 0 || e.crossette !== void 0 || e.noTrail !== void 0 || e["no-trail"] !== void 0 || e.noBurst !== void 0 || e["no-burst"] !== void 0 || e["sparkle-apex"] !== void 0 || e["burst-smoke"] !== void 0 || e.burstSmoke !== void 0 || e["apex-hang"] !== void 0 || e.apexHang !== void 0 || e["slow-burst"] !== void 0 || e.slowBurst !== void 0 || e.cometTrail !== void 0 || e.stages !== void 0 || e.nestingMode !== void 0 || e.multiNested !== void 0 || e.secondBurst !== void 0 || e.secondBurstEnabled !== void 0) && (n = { ...n || {} }, e.instantBurst !== void 0 && (n.instantBurst = e.instantBurst), e.shellSize !== void 0 && (n.shellSize = e.shellSize), e.starLifeMultiplier !== void 0 && (n.starLifeMultiplier = e.starLifeMultiplier), e.shapeType !== void 0 && (n.shapeType = e.shapeType), e.dynamicsType !== void 0 && (n.dynamicsType = e.dynamicsType), e.pistil !== void 0 && (n.pistil = e.pistil), e.effects !== void 0 && (n.effects = e.effects), e.strobe !== void 0 && (n.strobe = e.strobe), e["white-strobe"] !== void 0 && (n["white-strobe"] = e["white-strobe"]), e["glitter-strobe"] !== void 0 && (n["glitter-strobe"] = e["glitter-strobe"]), e.crackle !== void 0 && (n.crackle = e.crackle), e.ghost !== void 0 && (n.ghost = e.ghost), e["ghost-flare"] !== void 0 && (n["ghost-flare"] = e["ghost-flare"]), e.ghostFlare !== void 0 && (n["ghost-flare"] = e.ghostFlare), e.flow !== void 0 && (n.flow = e.flow), e.noTrail !== void 0 && (n.noTrail = e.noTrail), e["no-trail"] !== void 0 && (n.noTrail = e["no-trail"]), e["no-burst"] !== void 0 && (n.noBurst = e["no-burst"]), e.noBurst !== void 0 && (n.noBurst = e.noBurst), e.crossette !== void 0 && (n.crossette = e.crossette), e["sparkle-apex"] !== void 0 && (n["sparkle-apex"] = e["sparkle-apex"]), e["burst-smoke"] !== void 0 && (n["burst-smoke"] = e["burst-smoke"]), e.burstSmoke !== void 0 && (n["burst-smoke"] = e.burstSmoke), e["apex-hang"] !== void 0 && (n["apex-hang"] = e["apex-hang"]), e.apexHang !== void 0 && (n["apex-hang"] = e.apexHang), e["slow-burst"] !== void 0 && (n["slow-burst"] = e["slow-burst"]), e.slowBurst !== void 0 && (n["slow-burst"] = e.slowBurst), e.slow_burst !== void 0 && (n["slow-burst"] = e.slow_burst), e.stages !== void 0 && (n.stages = e.stages), e.nestingMode !== void 0 && (n.nestingMode = e.nestingMode), e.multiNested !== void 0 && (n.multiNested = e.multiNested), e.secondBurst !== void 0 && (n.secondBurst = e.secondBurst), e.secondBurstEnabled !== void 0 && (n.secondBurstEnabled = e.secondBurstEnabled), e.cometTrail !== void 0 && (e.cometTrail === "none" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.instantBurst = !0) : e.cometTrail === "thick" ? (n.launchTrail = !0, n.thickTrail = !0, n.thinTrail = !1) : e.cometTrail === "thin" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !0, n.detachedTrail = !1) : e.cometTrail === "detached" || e.cometTrail === "detached-trail" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !0, n.cometTrail = "detached") : e.cometTrail === "smoke" || e.cometTrail === "smoke_trail" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1, n.flightSmoke = !0, n.instantBurst = !1, n.cometTrail = "smoke") : e.cometTrail === "normal" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1) : e.cometTrail === "ascent-bursts" && (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.ascentBursts = !0, n.ascentSubShellType = e.ascentSubShellType || "random", n.ascentBurstCount = e.ascentBurstCount ? parseInt(e.ascentBurstCount, 10) : 4)), e.ascentSubShellType !== void 0 && (n.ascentSubShellType = e.ascentSubShellType), e.ascentBurstCount !== void 0 && (n.ascentBurstCount = parseInt(e.ascentBurstCount, 10)), (e.sound || e.launchSound || e.burstSound || e.crackleSound || e.soundVolume !== void 0) && (n.sound = {
+			(e.instantBurst !== void 0 || e.shellSize !== void 0 || e.starLifeMultiplier !== void 0 || e.shapeType !== void 0 || e.dynamicsType !== void 0 || e.pistil !== void 0 || e.effects !== void 0 || e.strobe !== void 0 || e["white-strobe"] !== void 0 || e["glitter-strobe"] !== void 0 || e.crackle !== void 0 || e.ghost !== void 0 || e["ghost-flare"] !== void 0 || e.ghostFlare !== void 0 || e.flow !== void 0 || e.crossette !== void 0 || e.noTrail !== void 0 || e["no-trail"] !== void 0 || e.noBurst !== void 0 || e["no-burst"] !== void 0 || e["sparkle-apex"] !== void 0 || e["burst-smoke"] !== void 0 || e.burstSmoke !== void 0 || e["apex-hang"] !== void 0 || e.apexHang !== void 0 || e["slow-burst"] !== void 0 || e.slowBurst !== void 0 || e.cometTrail !== void 0 || e.stages !== void 0 || e.nestingMode !== void 0 || e.multiNested !== void 0 || e.secondBurst !== void 0 || e.secondBurstEnabled !== void 0 || e.textWord !== void 0 || e.textScale !== void 0 || e.letterSpacing !== void 0 || e.tiltAngle !== void 0) && (n = { ...n || {} }, e.instantBurst !== void 0 && (n.instantBurst = e.instantBurst), e.shellSize !== void 0 && (n.shellSize = e.shellSize), e.starLifeMultiplier !== void 0 && (n.starLifeMultiplier = e.starLifeMultiplier), e.shapeType !== void 0 && (n.shapeType = e.shapeType), e.textWord !== void 0 && (n.textWord = e.textWord), e.textScale !== void 0 && (n.textScale = e.textScale), e.letterSpacing !== void 0 && (n.letterSpacing = e.letterSpacing), e.tiltAngle !== void 0 && (n.tiltAngle = e.tiltAngle), e.dynamicsType !== void 0 && (n.dynamicsType = e.dynamicsType), e.pistil !== void 0 && (n.pistil = e.pistil), e.effects !== void 0 && (n.effects = e.effects), e.strobe !== void 0 && (n.strobe = e.strobe), e["white-strobe"] !== void 0 && (n["white-strobe"] = e["white-strobe"]), e["glitter-strobe"] !== void 0 && (n["glitter-strobe"] = e["glitter-strobe"]), e.crackle !== void 0 && (n.crackle = e.crackle), e.ghost !== void 0 && (n.ghost = e.ghost), e["ghost-flare"] !== void 0 && (n["ghost-flare"] = e["ghost-flare"]), e.ghostFlare !== void 0 && (n["ghost-flare"] = e.ghostFlare), e.flow !== void 0 && (n.flow = e.flow), e.noTrail !== void 0 && (n.noTrail = e.noTrail), e["no-trail"] !== void 0 && (n.noTrail = e["no-trail"]), e["no-burst"] !== void 0 && (n.noBurst = e["no-burst"]), e.noBurst !== void 0 && (n.noBurst = e.noBurst), e.crossette !== void 0 && (n.crossette = e.crossette), e["sparkle-apex"] !== void 0 && (n["sparkle-apex"] = e["sparkle-apex"]), e["burst-smoke"] !== void 0 && (n["burst-smoke"] = e["burst-smoke"]), e.burstSmoke !== void 0 && (n["burst-smoke"] = e.burstSmoke), e["apex-hang"] !== void 0 && (n["apex-hang"] = e["apex-hang"]), e.apexHang !== void 0 && (n["apex-hang"] = e.apexHang), e["slow-burst"] !== void 0 && (n["slow-burst"] = e["slow-burst"]), e.slowBurst !== void 0 && (n["slow-burst"] = e.slowBurst), e.slow_burst !== void 0 && (n["slow-burst"] = e.slow_burst), e.stages !== void 0 && (n.stages = e.stages), e.nestingMode !== void 0 && (n.nestingMode = e.nestingMode), e.multiNested !== void 0 && (n.multiNested = e.multiNested), e.secondBurst !== void 0 && (n.secondBurst = e.secondBurst), e.secondBurstEnabled !== void 0 && (n.secondBurstEnabled = e.secondBurstEnabled), e.cometTrail !== void 0 && (e.cometTrail === "none" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.instantBurst = !0) : e.cometTrail === "thick" ? (n.launchTrail = !0, n.thickTrail = !0, n.thinTrail = !1) : e.cometTrail === "thin" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !0, n.detachedTrail = !1) : e.cometTrail === "detached" || e.cometTrail === "detached-trail" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !0, n.cometTrail = "detached") : e.cometTrail === "smoke" || e.cometTrail === "smoke_trail" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1, n.flightSmoke = !0, n.instantBurst = !1, n.cometTrail = "smoke") : e.cometTrail === "normal" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1) : e.cometTrail === "ascent-bursts" && (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.ascentBursts = !0, n.ascentSubShellType = e.ascentSubShellType || "random", n.ascentBurstCount = e.ascentBurstCount ? parseInt(e.ascentBurstCount, 10) : 4)), e.ascentSubShellType !== void 0 && (n.ascentSubShellType = e.ascentSubShellType), e.ascentBurstCount !== void 0 && (n.ascentBurstCount = parseInt(e.ascentBurstCount, 10)), (e.sound || e.launchSound || e.burstSound || e.crackleSound || e.soundVolume !== void 0) && (n.sound = {
 				launch: e.sound?.launch || e.launchSound || void 0,
 				burst: e.sound?.burst || e.burstSound || void 0,
 				crackle: e.sound?.crackle || e.crackleSound || void 0,
@@ -11438,6 +11454,17 @@ var it = new e.Vector3(), at = new e.Vector3(), ot = new e.Vector3(), st = new e
 		videoUrl: "previews/shapes/split-flash.mp4",
 		tags: ["Quadrant Split", "Alternating Sectors"],
 		summary: "Geometric quadrants bursting in alternating directional flashes."
+	},
+	text_word: {
+		name: "Text Word",
+		category: $.SHAPE,
+		videoUrl: "previews/shapes/text_word.mp4",
+		tags: [
+			"Alphabet Glyphs",
+			"Typography Pattern",
+			"Custom Text"
+		],
+		summary: "Planar typography layout projecting glowing text and alphabet characters into the sky."
 	},
 	strobe: {
 		name: "Strobe",

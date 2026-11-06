@@ -356,6 +356,13 @@ export const EFFECT_PREVIEW_METADATA = {
     summary: 'Geometric quadrants bursting in alternating directional flashes.'
   },
 
+  'text_word': {
+    name: 'Text Word',
+    category: PREVIEW_CATEGORIES.SHAPE,
+    videoUrl: 'previews/shapes/text_word.mp4',
+    tags: ['Alphabet Glyphs', 'Typography Pattern', 'Custom Text'],
+    summary: 'Planar typography layout projecting glowing text and alphabet characters into the sky.'
+  },
   // Optical & Modifier Effects
   'strobe': {
     name: 'Strobe',

@@ -104,6 +104,12 @@ export const PRESET_TEMPLATES = {
     modifiers: { pistil: false, instantBurst: false },
     effects: ['diamond-scintillation']
   },
+  text_word: {
+    shape: 'text_word',
+    dynamics: 'standard',
+    modifiers: { pistil: false, instantBurst: false },
+    effects: []
+  },
   horsetail_waterfall: {
     shape: 'horsetail',
     dynamics: 'horsetail',

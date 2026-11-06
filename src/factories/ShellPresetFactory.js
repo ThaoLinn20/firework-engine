@@ -41,7 +41,9 @@ export class ShellPresetFactory {
       'sphere-uniform',
       'egg',
       'sphere_rings',
-      'horsetail'
+      'horsetail',
+      'text_word',
+      'text-word'
     ]);
     this.effectRegistry = new Set([
       'standard',
@@ -159,7 +161,8 @@ export class ShellPresetFactory {
       { key: 'double_helix', label: 'Double Helix' },
       { key: 'crossette', label: 'Crossette' },
       { key: 'sphere_erratic_dart', label: 'Sphere Erratic Dart' },
-      { key: 'horsetail_waterfall', label: 'Horsetail Waterfall' }
+      { key: 'horsetail_waterfall', label: 'Horsetail Waterfall' },
+      { key: 'text_word', label: 'Text Word' }
     ];
 
     // Registry for dynamic preset strategies (OCP compliance)
@@ -253,6 +256,7 @@ export class ShellPresetFactory {
     registerWithAlias('crossette', 'crossette', (size) => this.crossetteShell(size));
     registerWithAlias('sphere_erratic_dart', 'sphereErraticDart', (size) => this.sphereErraticDartShell(size));
     registerWithAlias('horsetail_waterfall', 'horsetailWaterfall', (size) => this.horsetailWaterfallShell(size));
+    registerWithAlias('text_word', 'textWord', (size) => this.textWordShell(size));
     registerWithAlias('horsetail', 'horsetail', (size) => this.horsetailWaterfallShell(size));
   }
 
@@ -1490,6 +1494,28 @@ export class ShellPresetFactory {
       pistil: false,
       launchTrail: true,
       burstSmoke: false
+    };
+  }
+
+  textWordShell(size = 1) {
+    return {
+      ...this.basePreset(size),
+      shellType: 'text_word',
+      shapeType: 'text_word',
+      dynamicsType: 'standard',
+      effectType: 'standard',
+      color: 0xfde047,
+      textWord: 'HELLO',
+      textScale: 0.38,
+      letterSpacing: 1.5,
+      tiltAngle: 18,
+      drag: 1.85,
+      starLife: 2400 + size * 400,
+      starLifeMultiplier: 1.2,
+      pistil: false,
+      instantBurst: false,
+      burstSmoke: false,
+      launchSmoke: false
     };
   }
 }
