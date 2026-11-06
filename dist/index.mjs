@@ -8521,10 +8521,10 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 	}
 	launchRandom(t = null, n = {}) {
 		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o, color: s, angleOffset: c = 0, effectOverrides: l } = n, u = t;
-		typeof t == "string" && (u = this.shellPresetFactory.createPresetByKey(t)), l && typeof l == "object" && (l.textWord && l.textWord !== u?.textWord && (l.textPoints = null, l._glyphCacheKey = null), u = {
+		typeof t == "string" && (u = this.shellPresetFactory.createPresetByKey(t)), l && typeof l == "object" && (l.textWord && (l.textPoints = null, l._glyphCacheKey = null), u = {
 			...u,
 			...l
-		});
+		}, (l.textWord || l.textScale || l.letterSpacing) && (u.textPoints = null, u._glyphCacheKey = null));
 		let d = this.shellPresetFactory.validatePreset(u ?? this.shellPresetFactory.randomPreset()), f = ++this.shellSequence, p = this.resolveLaunchPosition(r, a, o), m = this.resolveBurstHeight(d, i), h = e.MathUtils.clamp((m - this.launchZone.minBurstY) / Math.max(this.launchZone.maxBurstY - this.launchZone.minBurstY, 1), 0, 1), g = e.MathUtils.lerp(.6, 1, h);
 		d.shellSize = (d.shellSize ?? 1) * g;
 		let _ = this.resolveLaunchVelocity(m, c), v = !!s || !!l?.color || !!d.hasCustomColor || !!d.customColor;

@@ -373,11 +373,15 @@ export class FireworkSystem {
 
     // Áp dụng hiệu ứng ghi đè (overrides) trực tiếp từ file cấu hình sequence
     if (effectOverrides && typeof effectOverrides === 'object') {
-        if (effectOverrides.textWord && effectOverrides.textWord !== resolvedPreset?.textWord) {
+        if (effectOverrides.textWord) {
           effectOverrides.textPoints = null;
           effectOverrides._glyphCacheKey = null;
         }
         resolvedPreset = { ...resolvedPreset, ...effectOverrides };
+        if (effectOverrides.textWord || effectOverrides.textScale || effectOverrides.letterSpacing) {
+          resolvedPreset.textPoints = null;
+          resolvedPreset._glyphCacheKey = null;
+        }
       }
 
     const shellPreset = this.shellPresetFactory.validatePreset(resolvedPreset ?? this.shellPresetFactory.randomPreset());
