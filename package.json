@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@shell-drone/firework-engine",
   "version": "1.0.0",
   "description": "Core Firework Simulation, Mathematics & Shaders Engine for WebGL & Three.js",
@@ -21,7 +21,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "test": "vitest run"
+    "test": "vitest run",`r`n    "prepare": "vite build"
   },
   "peerDependencies": {
     "three": ">=0.160.0"
