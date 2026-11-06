@@ -1,3 +1,4 @@
+import { sanitizeText, layoutWord } from './TextGlyphAtlas.js';
 const COLOR = {
   Red: 'red',
   Gold: 'gold',
@@ -1497,18 +1498,26 @@ export class ShellPresetFactory {
     };
   }
 
-  textWordShell(size = 1) {
+  textWordShell(size = 1, options = {}) {
+    const word = options.word || options.textWord || 'HELLO';
+    const cleanWord = sanitizeText(word) || 'HELLO';
+    const textPts = layoutWord(cleanWord, {
+      scale: options.textScale ?? 0.38,
+      letterSpacing: options.letterSpacing ?? 1.5
+    });
+
     return {
       ...this.basePreset(size),
       shellType: 'text_word',
       shapeType: 'text_word',
       dynamicsType: 'standard',
-      effectType: 'standard',
-      color: 0xfde047,
-      textWord: 'HELLO',
-      textScale: 0.38,
-      letterSpacing: 1.5,
-      tiltAngle: 18,
+      effectType: options.effectType ?? 'standard',
+      color: options.color || 0xfde047,
+      textWord: cleanWord,
+      textPoints: textPts,
+      textScale: options.textScale ?? 0.38,
+      letterSpacing: options.letterSpacing ?? 1.5,
+      tiltAngle: options.tiltAngle ?? 18,
       drag: 1.85,
       starLife: 2400 + size * 400,
       starLifeMultiplier: 1.2,

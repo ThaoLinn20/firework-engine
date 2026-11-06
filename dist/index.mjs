@@ -7793,18 +7793,23 @@ var P = {
 			burstSmoke: !1
 		};
 	}
-	textWordShell(e = 1) {
+	textWordShell(e = 1, t = {}) {
+		let n = p(t.word || t.textWord || "HELLO") || "HELLO", r = h(n, {
+			scale: t.textScale ?? .38,
+			letterSpacing: t.letterSpacing ?? 1.5
+		});
 		return {
 			...this.basePreset(e),
 			shellType: "text_word",
 			shapeType: "text_word",
 			dynamicsType: "standard",
-			effectType: "standard",
-			color: 16638023,
-			textWord: "HELLO",
-			textScale: .38,
-			letterSpacing: 1.5,
-			tiltAngle: 18,
+			effectType: t.effectType ?? "standard",
+			color: t.color || 16638023,
+			textWord: n,
+			textPoints: r,
+			textScale: t.textScale ?? .38,
+			letterSpacing: t.letterSpacing ?? 1.5,
+			tiltAngle: t.tiltAngle ?? 18,
 			drag: 1.85,
 			starLife: 2400 + e * 400,
 			starLifeMultiplier: 1.2,
@@ -9055,10 +9060,11 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 				let t = r / Math.max(1, k - 1), n = t * 3.5 * Math.PI * 2, i = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * t)));
 				j = new e.Vector3(Math.sin(i) * Math.cos(n), Math.cos(i), Math.sin(i) * Math.sin(n)).applyQuaternion(h);
 			} else N = _.direction(s, g, u, f, i ? a : F), j = s === "willow-arch" || s === "willow-up" ? N.applyQuaternion(y) : s === "heart" || s === "text_word" ? N.clone() : N.applyQuaternion(h);
-			let V = !i && F?.shapeRenderMode === "outline" && (s === "ring" || s === "heart" || s === "star") || s === "half-flash" || s === "split-flash" || s === "galaxy" || s === "egg" || s === "sphere_rings";
+			let V = !i && F?.shapeRenderMode === "outline" && (s === "ring" || s === "heart" || s === "star") || s === "half-flash" || s === "split-flash" || s === "galaxy" || s === "egg" || s === "sphere_rings" || s === "text_word";
 			V || j.normalize();
 			let pe = .9 + Math.random() * .2, me = .5 + Math.random() * .8, U = .34 + Math.random() * .18, he = v.getDynamicsProfile(p, s, i ? a : F), ge = he?.baseSpeed ?? ye, _e;
 			if (i) _e = ge * U;
+			else if (s === "text_word") _e = ge * (.98 + (Math.random() - .5) * .04);
 			else if (s === "ring" || s === "heart" || s === "star") {
 				let e = .12;
 				(a?.shellType === "ring" || a?.shellType === "ringV2" || a?.shellType === "ring_v2") && (e = .015), _e = ge * (1 + (Math.random() - .5) * e);
@@ -9069,7 +9075,7 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 				let e = Math.max(f, 1);
 				_e = ge * (.9 + (u + .5) / e * .2 + (Math.random() - .5) * .05);
 			} else _e = s === "sphere" || s === "half-flash" || s === "split-flash" ? ge * (s === "half-flash" || s === "split-flash" ? .97 + Math.random() * .06 : pe) : ge * me;
-			let ve = Math.max(.6, Math.min(6, a?.shellSize ?? 1)), W = a?.shellType === "strobeDyingEmbers" && Math.random() < .5 || Math.random() < .05, xe = he?.speedJitter ?? we, De = 1 + (Math.random() - .5) * (xe * 2), Oe = ae ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, G = oe ? (n.DYNAMICS_PROFILES?.floating?.baseSpeed ?? 36) / (n.BURST?.baseSpeed ?? 74) : 1, K = _e * (V ? 1.15 : 1) * ve * De * (W ? .85 : 1) * Oe * G, ke = j.clone().normalize(), q = j.multiplyScalar(K), Ae = w;
+			let ve = Math.max(.6, Math.min(6, a?.shellSize ?? 1)), W = a?.shellType === "strobeDyingEmbers" && Math.random() < .5 || Math.random() < .05, xe = he?.speedJitter ?? we, De = s === "text_word" ? 1 : 1 + (Math.random() - .5) * (xe * 2), Oe = ae ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, G = oe ? (n.DYNAMICS_PROFILES?.floating?.baseSpeed ?? 36) / (n.BURST?.baseSpeed ?? 74) : 1, K = _e * (V ? 1.15 : 1) * ve * De * (W ? .85 : 1) * Oe * G, ke = j.clone().normalize(), q = j.multiplyScalar(K), Ae = w;
 			if (i) {
 				let t = new e.Color(Ee[Math.random() * Ee.length | 0]);
 				Ae = (a?.pistilColor ? new e.Color(a.pistilColor) : t).lerp(T, .08 + Math.random() * .12);
@@ -9100,7 +9106,7 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 				let e = he?.lifeJitter ?? Te;
 				X = be * (1 + (Math.random() - .5) * (e * 2)) * (le ? ce : W ? 2 * ce : (ae ? 1.35 : 1) * ce);
 			}
-			let Pe = a?.drag === void 0 ? he?.baseDrag ?? Se : a.drag, Fe = he?.dragJitter ?? Ce, Ie = 1 + (Math.random() - .5) * (Fe * 2), Le = Math.max(.1, Pe * Ie), Re = B && !W && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), Z = n.COMET_TADPOLE?.variance || {}, ze = Math.random() < (Z.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((Z.deflectionMax ?? 3.2) - 1.8) : (Z.deflectionMin ?? .25) + Math.random() * .75, Be = (Z.sizeMin ?? .55) + Math.random() * ((Z.sizeMax ?? 1.65) - (Z.sizeMin ?? .55)), Ve = (Z.densityMin ?? .5) + Math.random() * ((Z.densityMax ?? 1.8) - (Z.densityMin ?? .5)), He = re && !W && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), Ue = S.createParticle({
+			let Pe = a?.drag === void 0 ? he?.baseDrag ?? Se : a.drag, Fe = he?.dragJitter ?? Ce, Ie = s === "text_word" ? 1 : 1 + (Math.random() - .5) * (Fe * 2), Le = Math.max(.1, Pe * Ie), Re = B && !W && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), Z = n.COMET_TADPOLE?.variance || {}, ze = Math.random() < (Z.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((Z.deflectionMax ?? 3.2) - 1.8) : (Z.deflectionMin ?? .25) + Math.random() * .75, Be = (Z.sizeMin ?? .55) + Math.random() * ((Z.sizeMax ?? 1.65) - (Z.sizeMin ?? .55)), Ve = (Z.densityMin ?? .5) + Math.random() * ((Z.densityMax ?? 1.8) - (Z.densityMin ?? .5)), He = re && !W && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), Ue = S.createParticle({
 				position: t,
 				velocity: Ne,
 				color: J,

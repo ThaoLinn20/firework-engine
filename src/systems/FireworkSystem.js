@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+﻿import * as THREE from 'three';
 import { LAUNCH_ZONE_CONFIG } from '../config/launchZone.js';
 import { ShellEntity } from '../entities/ShellEntity.js';
 import { ShellPresetFactory } from '../factories/ShellPresetFactory.js';
@@ -2169,7 +2169,7 @@ export class FireworkSystem {
         }
       }
 
-      const useContourMagnitude = (!isCoreParticle && ringPreset?.shapeRenderMode === 'outline' && (particleShape === 'ring' || particleShape === 'heart' || particleShape === 'star')) || (particleShape === 'half-flash') || (particleShape === 'split-flash') || (particleShape === 'galaxy') || (particleShape === 'egg') || (particleShape === 'sphere_rings');
+      const useContourMagnitude = (!isCoreParticle && ringPreset?.shapeRenderMode === 'outline' && (particleShape === 'ring' || particleShape === 'heart' || particleShape === 'star')) || (particleShape === 'half-flash') || (particleShape === 'split-flash') || (particleShape === 'galaxy') || (particleShape === 'egg') || (particleShape === 'sphere_rings') || (particleShape === 'text_word');
       if (!useContourMagnitude) {
         direction.normalize();
       }
@@ -2188,6 +2188,9 @@ export class FireworkSystem {
       let baseSpeed;
       if (isCoreParticle) {
         baseSpeed = profileBaseSpeed * coreSpeedBand;
+      } else if (particleShape === 'text_word') {
+        const wordSpeedBand = 0.98 + (Math.random() - 0.5) * 0.04;
+        baseSpeed = profileBaseSpeed * wordSpeedBand;
       } else if (particleShape === 'ring' || particleShape === 'heart' || particleShape === 'star') {
         let speedVariance = 0.12; // Mặc định méo tự nhiên cho heart và star
         if (
@@ -2232,7 +2235,9 @@ export class FireworkSystem {
         (preset?.shellType === 'strobeDyingEmbers' && Math.random() < 0.5) ||
         Math.random() < 0.05;
       const speedJitter = dynamicsProfile?.speedJitter ?? BURST_SPEED_JITTER;
-      const speedJitterScale = 1.0 + (Math.random() - 0.5) * (speedJitter * 2);
+      const speedJitterScale = (particleShape === 'text_word')
+        ? 1.0
+        : (1.0 + (Math.random() - 0.5) * (speedJitter * 2));
       const apexSpeedMul = isApexHang
         ? (FIREWORK_CONFIG.BURST?.apexSpeedMultiplier ?? 3.0)
         : 1.0;
@@ -2341,7 +2346,9 @@ export class FireworkSystem {
         ? preset.drag
         : (dynamicsProfile?.baseDrag ?? BURST_BASE_DRAG);
       const dragJitter = dynamicsProfile?.dragJitter ?? BURST_DRAG_JITTER;
-      const dragJitterScale = 1.0 + (Math.random() - 0.5) * (dragJitter * 2);
+      const dragJitterScale = (particleShape === 'text_word')
+        ? 1.0
+        : (1.0 + (Math.random() - 0.5) * (dragJitter * 2));
       const particleDrag = Math.max(
         0.1,
         baseParticleDrag * dragJitterScale
