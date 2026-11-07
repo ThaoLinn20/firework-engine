@@ -48,6 +48,10 @@ const _crossetteScratchBranchDirs = [
 ];
 
 // Scratch objects phục vụ render loop Zero-Allocation trong updateBurstParticles
+const _waveScratchAxisZ = new THREE.Vector3(0, 0, 1);
+const _waveScratchUp = new THREE.Vector3(0, 1, 0);
+const _waveScratchVector = new THREE.Vector3(0, 1, 0);
+const _waveQuat = new THREE.Quaternion();
 const _sharedColorOptions = {
   strobeFreqMultiplier: 1.0,
   isSpiralIgnited: true,
@@ -2033,8 +2037,8 @@ export class FireworkSystem {
       : (FIREWORK_CONFIG.CASCADE_WAVE?.defaultDuration ?? 0.60);
     const cascadeMode = preset?.cascadeMode || preset?.cascadeDirection || (FIREWORK_CONFIG.CASCADE_WAVE?.defaultMode ?? 'radial-outward');
 
-    let waveVector = new THREE.Vector3(0, 1, 0);
-    const waveQuat = new THREE.Quaternion();
+    const waveVector = _waveScratchVector.set(0, 1, 0);
+    const waveQuat = _waveQuat.identity();
     let isRandomShuffle = false;
     let ringShuffleMap = null;
 
@@ -2051,7 +2055,7 @@ export class FireworkSystem {
         const randAngle = Math.random() * Math.PI * 2;
         const randZ = (Math.random() - 0.5) * 0.4;
         const planarFactor = Math.sqrt(Math.max(0, 1.0 - randZ * randZ));
-        waveVector = new THREE.Vector3(
+        waveVector.set(
           -Math.sin(randAngle) * planarFactor,
           Math.cos(randAngle) * planarFactor,
           randZ
@@ -2061,23 +2065,23 @@ export class FireworkSystem {
         || cascadeMode === 'parallel-rings-bottom-up'
         || cascadeMode === 'parallel_rings_bottom_up'
       ) {
-        waveVector = new THREE.Vector3(0, -1, 0);
+        waveVector.set(0, -1, 0);
       } else if (
         cascadeMode === 'left-to-right'
         || cascadeMode === 'horizontal-left-right'
         || cascadeMode === 'horizontal_left_right'
       ) {
-        waveVector = new THREE.Vector3(-1, 0, 0);
+        waveVector.set(-1, 0, 0);
       } else if (
         cascadeMode === 'right-to-left'
         || cascadeMode === 'horizontal-right-left'
         || cascadeMode === 'horizontal_right_left'
       ) {
-        waveVector = new THREE.Vector3(1, 0, 0);
+        waveVector.set(1, 0, 0);
       } else if (cascadeMode === 'diagonal-down' || cascadeMode === 'diagonal_down') {
-        waveVector = new THREE.Vector3(-1, 1, 0).normalize();
+        waveVector.set(-1, 1, 0).normalize();
       } else if (cascadeMode === 'diagonal-up' || cascadeMode === 'diagonal_up') {
-        waveVector = new THREE.Vector3(-1, -1, 0).normalize();
+        waveVector.set(-1, -1, 0).normalize();
       } else if (
         cascadeMode === 'custom-angle'
         || cascadeMode === 'custom_angle'
@@ -2085,7 +2089,7 @@ export class FireworkSystem {
       ) {
         const angleDeg = Number(preset?.cascadeAngle) || 0;
         const angleRad = (angleDeg * Math.PI) / 180.0;
-        waveVector = new THREE.Vector3(
+        waveVector.set(
           -Math.sin(angleRad),
           Math.cos(angleRad),
           0
@@ -2110,9 +2114,9 @@ export class FireworkSystem {
 
       if (Math.abs(waveVector.y - 1.0) > 0.0001) {
         if (Math.abs(waveVector.y + 1.0) < 0.0001) {
-          waveQuat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI);
+          waveQuat.setFromAxisAngle(_waveScratchAxisZ, Math.PI);
         } else {
-          waveQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), waveVector);
+          waveQuat.setFromUnitVectors(_waveScratchUp, waveVector);
         }
       }
     }
@@ -4453,17 +4457,21 @@ export class FireworkSystem {
         baseOpacity *= 0.85;
       }
 
-      const dissolveThreshold = p.hasCascadeWave
-        ? (FIREWORK_CONFIG.CASCADE_WAVE?.dissolveStart ?? 0.92)
-        : (p.isLongBurn
-          ? (profile?.longBurnDissolveStart ?? FIREWORK_CONFIG.BURST?.longBurnDissolveStart ?? 0.72)
-          : (profile?.dissolveStart ?? BURST_DISSOLVE_START));
+      const dissolveThreshold = p.dissolveThreshold !== undefined
+        ? p.dissolveThreshold
+        : (p.hasCascadeWave
+          ? (FIREWORK_CONFIG.CASCADE_WAVE?.dissolveStart ?? 0.92)
+          : (p.isLongBurn
+            ? (profile?.longBurnDissolveStart ?? FIREWORK_CONFIG.BURST?.longBurnDissolveStart ?? 0.72)
+            : (profile?.dissolveStart ?? BURST_DISSOLVE_START)));
 
-      const attenuationStart = p.hasCascadeWave
-        ? (FIREWORK_CONFIG.CASCADE_WAVE?.attenuationStart ?? 0.75)
-        : (profile?.attenuationStart
-          ?? FIREWORK_CONFIG.BURST?.attenuationStart
-          ?? 0.35);
+      const attenuationStart = p.attenuationStart !== undefined
+        ? p.attenuationStart
+        : (p.hasCascadeWave
+          ? (FIREWORK_CONFIG.CASCADE_WAVE?.attenuationStart ?? 0.75)
+          : (profile?.attenuationStart
+            ?? FIREWORK_CONFIG.BURST?.attenuationStart
+            ?? 0.35));
 
       if (lifeRatio > attenuationStart && lifeRatio <= dissolveThreshold) {
         // Giai đoạn bắt đầu đạt đỉnh và rơi xuống: ánh sáng dịu bớt êm ái
@@ -4475,10 +4483,15 @@ export class FireworkSystem {
           0,
           1
         );
-        const fadeExp = p.hasCascadeWave ? 1.5 : (profile?.dissolveExponent ?? BURST_FADE_EXPONENT);
+        const fadeExp = p.fadeExp !== undefined
+          ? p.fadeExp
+          : (p.hasCascadeWave ? 1.5 : (profile?.dissolveExponent ?? BURST_FADE_EXPONENT));
+        const minFloor = p.minDissolveFloor !== undefined
+          ? p.minDissolveFloor
+          : (p.hasCascadeWave ? 0.0 : 0.08);
         baseOpacity = Math.max(
           Math.pow(1 - dissolveT, fadeExp) * (brightnessOpacityScale * 0.85),
-          p.hasCascadeWave ? 0.0 : ((1 - dissolveT) * 0.08)
+          (1 - dissolveT) * minFloor
         );
       }
 

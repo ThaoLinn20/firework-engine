@@ -530,6 +530,31 @@ export class BurstParticleFactory {
       effectWindows['sync-strobe'] = syncStrobeTimings;
     }
 
+    const isCascade = Boolean(hasCascadeWave || pDelay > 0);
+    const resolvedDissolveThreshold = options.dissolveThreshold !== undefined
+      ? options.dissolveThreshold
+      : (isCascade
+        ? (FIREWORK_CONFIG.CASCADE_WAVE?.dissolveStart ?? 0.92)
+        : (isLongBurn
+          ? (dynamicsProfile?.longBurnDissolveStart ?? FIREWORK_CONFIG.BURST?.longBurnDissolveStart ?? 0.72)
+          : (dynamicsProfile?.dissolveStart ?? FIREWORK_CONFIG.BURST?.dissolveStart ?? 0.85)));
+
+    const resolvedAttenuationStart = options.attenuationStart !== undefined
+      ? options.attenuationStart
+      : (isCascade
+        ? (FIREWORK_CONFIG.CASCADE_WAVE?.attenuationStart ?? 0.75)
+        : (dynamicsProfile?.attenuationStart ?? FIREWORK_CONFIG.BURST?.attenuationStart ?? 0.35));
+
+    const resolvedFadeExp = options.fadeExp !== undefined
+      ? options.fadeExp
+      : (isCascade
+        ? 1.5
+        : (dynamicsProfile?.dissolveExponent ?? FIREWORK_CONFIG.SYSTEM?.burstFadeExponent ?? 2.8));
+
+    const resolvedMinDissolveFloor = options.minDissolveFloor !== undefined
+      ? options.minDissolveFloor
+      : (isCascade ? 0.0 : 0.08);
+
     return {
       position: position.clone(),
       prevPosition: position.clone(),
@@ -615,7 +640,11 @@ export class BurstParticleFactory {
       ringIndex: ringIndex !== null ? Number(ringIndex) : null,
       frictionHeat: Number(frictionHeat) || 0.0,
       phaseDelay: pDelay,
-      hasCascadeWave: Boolean(hasCascadeWave || pDelay > 0),
+      hasCascadeWave: isCascade,
+      dissolveThreshold: resolvedDissolveThreshold,
+      attenuationStart: resolvedAttenuationStart,
+      fadeExp: resolvedFadeExp,
+      minDissolveFloor: resolvedMinDissolveFloor,
       lastVelocity: velocity ? velocity.clone() : new THREE.Vector3()
     };
   }

@@ -1,6 +1,80 @@
 import * as THREE from 'three';
 import { layoutWord } from './TextGlyphAtlas.js';
 
+// Cache mảng phân vị vòng đai để triệt tiêu hoàn toàn cấp phát heap GC khi bắn sphere_rings
+const SPHERE_RINGS_CACHE = new Map();
+const MAX_SPHERE_RINGS_CACHE_SIZE = 128;
+
+function getSphereRingsPartition(ringCount, safeCount) {
+  const cacheKey = `${ringCount}_${safeCount}`;
+  let cached = SPHERE_RINGS_CACHE.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const maxLat = 70 * (Math.PI / 180);
+  const latitudes = new Float32Array(ringCount);
+  const weights = new Float32Array(ringCount);
+
+  for (let k = 0; k < ringCount; k++) {
+    const lat = ringCount === 1
+      ? 0
+      : maxLat - (2 * maxLat * k) / (ringCount - 1);
+    latitudes[k] = lat;
+    weights[k] = Math.max(0.2, Math.cos(lat));
+  }
+
+  let totalWeight = 0;
+  for (let k = 0; k < ringCount; k++) {
+    totalWeight += weights[k];
+  }
+
+  const ringCounts = new Int32Array(ringCount);
+  let accumulatedCount = 0;
+
+  for (let k = 0; k < ringCount; k++) {
+    const countForRing = Math.max(
+      4,
+      Math.round((safeCount * weights[k]) / totalWeight)
+    );
+    ringCounts[k] = countForRing;
+    accumulatedCount += countForRing;
+  }
+
+  const countDiff = safeCount - accumulatedCount;
+  if (countDiff !== 0) {
+    let maxWeightIdx = 0;
+    for (let k = 1; k < ringCount; k++) {
+      if (weights[k] > weights[maxWeightIdx]) {
+        maxWeightIdx = k;
+      }
+    }
+    ringCounts[maxWeightIdx] = Math.max(4, ringCounts[maxWeightIdx] + countDiff);
+  }
+
+  const ringThresholds = new Int32Array(ringCount);
+  let runningSum = 0;
+  for (let k = 0; k < ringCount; k++) {
+    runningSum += ringCounts[k];
+    ringThresholds[k] = runningSum;
+  }
+
+  cached = {
+    ringCount,
+    safeCount,
+    latitudes,
+    ringCounts,
+    ringThresholds
+  };
+
+  if (SPHERE_RINGS_CACHE.size >= MAX_SPHERE_RINGS_CACHE_SIZE) {
+    const firstKey = SPHERE_RINGS_CACHE.keys().next().value;
+    SPHERE_RINGS_CACHE.delete(firstKey);
+  }
+  SPHERE_RINGS_CACHE.set(cacheKey, cached);
+  return cached;
+}
+
 export class BurstShapeGenerator {
   static heartPoint(t) {
     const x = 16 * Math.pow(Math.sin(t), 3);
@@ -568,53 +642,10 @@ export class BurstShapeGenerator {
         Math.round(Number(rawRingCount) || 5)
       );
 
-      // Max latitude angle: 70 degrees (~1.2217 rad).
-      // sin(70 deg) = ~0.940, covering 94% of the vertical spherical shell
-      // from south polar cap to north polar cap without hollow poles.
-      const maxLat = 70 * (Math.PI / 180);
-      const latitudes = [];
-      const weights = [];
-
-      // k = 0 is North Pole (+maxLat), k = ringCount - 1 is South Pole (-maxLat)
-      for (let k = 0; k < ringCount; k++) {
-        const lat = ringCount === 1
-          ? 0
-          : maxLat - (2 * maxLat * k) / (ringCount - 1);
-        latitudes.push(lat);
-        weights.push(Math.max(0.2, Math.cos(lat)));
-      }
-
-      const totalWeight = weights.reduce((acc, w) => acc + w, 0);
-      const ringCounts = [];
-      let accumulatedCount = 0;
-
-      for (let k = 0; k < ringCount; k++) {
-        const countForRing = Math.max(
-          4,
-          Math.round((safeCount * weights[k]) / totalWeight)
-        );
-        ringCounts.push(countForRing);
-        accumulatedCount += countForRing;
-      }
-
-      // Balance rounding differences on the equator ring (largest weight) so sum === safeCount
-      const countDiff = safeCount - accumulatedCount;
-      if (countDiff !== 0) {
-        let maxWeightIdx = 0;
-        for (let k = 1; k < ringCount; k++) {
-          if (weights[k] > weights[maxWeightIdx]) {
-            maxWeightIdx = k;
-          }
-        }
-        ringCounts[maxWeightIdx] = Math.max(4, ringCounts[maxWeightIdx] + countDiff);
-      }
-
-      const ringThresholds = [];
-      let runningSum = 0;
-      for (let k = 0; k < ringCount; k++) {
-        runningSum += ringCounts[k];
-        ringThresholds.push(runningSum);
-      }
+      const partition = getSphereRingsPartition(ringCount, safeCount);
+      const ringThresholds = partition.ringThresholds;
+      const ringCounts = partition.ringCounts;
+      const latitudes = partition.latitudes;
 
       let ringIndex = 0;
       let ringStartIndex = 0;
