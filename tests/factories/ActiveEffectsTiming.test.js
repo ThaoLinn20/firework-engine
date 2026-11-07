@@ -263,4 +263,127 @@ describe('Active Effects Timeline Custom Timing Windows', () => {
     particle.age = 1.6;
     expect(BurstEffectProcessor.isEffectActive(particle, 'strobe')).toBe(false);
   });
+
+  it('should darken particles and eliminate white core during dark_phase window, and restore baseColor upon completion', () => {
+    const scene = new THREE.Scene();
+    const system = new FireworkSystem(scene);
+
+    const baseColor = new THREE.Color(0.2, 0.7, 1.0);
+    system.createBurst(
+      new THREE.Vector3(0, 100, 0),
+      baseColor,
+      'sphere',
+      {
+        effects: [
+          { type: 'dark_phase', start: 0.4, end: 1.0 }
+        ]
+      }
+    );
+
+    const particles = system.burstParticles;
+    expect(particles.length).toBeGreaterThan(0);
+    const p = particles[0];
+
+    expect(p.darkPhaseStart).toBe(0.4);
+    expect(p.darkPhaseEnd).toBe(1.0);
+
+    // 1. Before window (age = 0.2s): normal bright appearance
+    system.update(0.20);
+    expect(BurstEffectProcessor.isEffectActive(p, 'dark_phase')).toBe(false);
+    expect(p.renderSize).toBeGreaterThan(0);
+    expect(p.renderOpacity).toBeGreaterThan(0);
+    expect(p.color.r).toBeGreaterThan(0.01);
+
+    // 2. Inside window (step past 0.4s to age = 0.6s): particles must be completely dark
+    system.update(0.40);
+    expect(BurstEffectProcessor.isEffectActive(p, 'dark_phase')).toBe(true);
+    expect(p.renderSize).toBe(0);
+    expect(p.renderOpacity).toBe(0);
+    expect(p.color.r).toBe(0);
+    expect(p.color.g).toBe(0);
+    expect(p.color.b).toBe(0);
+
+    // 3. After window (step past 1.0s to age = 1.2s): particles light back up to original base color
+    system.update(0.60);
+    expect(BurstEffectProcessor.isEffectActive(p, 'dark_phase')).toBe(false);
+    expect(p.renderSize).toBeGreaterThan(0);
+    expect(p.renderOpacity).toBeGreaterThan(0);
+    expect(p.color.g).toBeGreaterThan(0.01); // baseColor green restored
+
+    system.clear();
+  });
+
+  it('should synchronously flash all burst particles in unison without random phase offset during sync_strobe window', () => {
+    const scene = new THREE.Scene();
+    const system = new FireworkSystem(scene);
+
+    system.createBurst(
+      new THREE.Vector3(0, 100, 0),
+      new THREE.Color(1.0, 0.8, 0.1),
+      'sphere',
+      {
+        effects: [
+          { type: 'sync_strobe', start: 0.3, end: 1.5 }
+        ]
+      }
+    );
+
+    const particles = system.burstParticles;
+    expect(particles.length).toBeGreaterThan(10);
+
+    // Advance to inside sync_strobe window (age = 0.5s)
+    system.update(0.50);
+
+    // Verify all particles share the exact same active status
+    particles.forEach((p) => {
+      expect(BurstEffectProcessor.isEffectActive(p, 'sync_strobe')).toBe(true);
+    });
+
+    // Check that across multiple animation frames, all particles are either 100% ON together or 100% OFF together
+    let sawAllOn = false;
+    let sawAllOff = false;
+
+    for (let frame = 0; frame < 20; frame++) {
+      system.update(0.02); // 20ms steps
+      const p0State = particles[0].renderSize > 0;
+      // All other particles must match p0State exactly (coherent sync)
+      for (let i = 1; i < particles.length; i++) {
+        const piState = particles[i].renderSize > 0;
+        expect(piState).toBe(p0State);
+      }
+      if (p0State) sawAllOn = true;
+      if (!p0State) sawAllOff = true;
+    }
+
+    expect(sawAllOn).toBe(true);
+    expect(sawAllOff).toBe(true);
+
+    system.clear();
+  });
+
+  it('should allow dark_phase to take precedence over sync_strobe and keep particles dark', () => {
+    const particle = BurstParticleFactory.createParticle({
+      effects: [
+        { type: 'sync_strobe', start: 0.2, end: 2.0 },
+        { type: 'dark_phase', start: 0.5, end: 1.0 }
+      ],
+      maxLife: 2.5,
+      color: new THREE.Color(1, 0, 0)
+    });
+
+    // At age 0.7s: both sync_strobe and dark_phase are active
+    particle.age = 0.7;
+    expect(BurstEffectProcessor.isEffectActive(particle, 'sync_strobe')).toBe(true);
+    expect(BurstEffectProcessor.isEffectActive(particle, 'dark_phase')).toBe(true);
+
+    const resolvedColor = BurstEffectProcessor.resolveParticleColor(particle, 0.7 / 2.5, {
+      strobeFreqMultiplier: 1.0,
+      profile: { thermalCooling: false }
+    });
+
+    // Dark phase must strictly zero out the color even when sync_strobe is blinking
+    expect(resolvedColor.r).toBe(0);
+    expect(resolvedColor.g).toBe(0);
+    expect(resolvedColor.b).toBe(0);
+  });
 });

@@ -1,4 +1,4 @@
-﻿import * as THREE from 'three';
+import * as THREE from 'three';
 import { LAUNCH_ZONE_CONFIG } from '../config/launchZone.js';
 import { ShellEntity } from '../entities/ShellEntity.js';
 import { ShellPresetFactory } from '../factories/ShellPresetFactory.js';
@@ -3958,12 +3958,16 @@ export class FireworkSystem {
         || (!hasNoTrailTiming && Boolean(p.preset?.noTrail))
         || p.effectType === 'no-trail'
         || p.effectType === 'notrail';
+      const isDarkPhaseForTrail = BurstEffectProcessor.isEffectActive(p, 'dark_phase')
+        || BurstEffectProcessor.isEffectActive(p, 'dark-phase')
+        || Boolean(p.preset?.darkPhase || p.preset?.['dark-phase'] || p.preset?.dark_phase);
       const allowTrail = spawnTrail
         && (!isChrysanthemumSpiral || isSpiralIgnited)
         && (!isSphereRingsWave || isRingWaveIgnited)
         && !isGhostFlareNoTrail
         && !isGhostInvisible
-        && !hasNoTrailActive;
+        && !hasNoTrailActive
+        && !isDarkPhaseForTrail;
 
       if (allowTrail && p.baseColor.r + p.baseColor.g + p.baseColor.b > 0.01) {
         const isHalfFlashTentacle = p.effectState?.shapeType === 'half-flash'
@@ -4281,7 +4285,7 @@ export class FireworkSystem {
         }
       }
 
-      const opacity = BurstEffectProcessor.materialOpacity(
+      let opacity = BurstEffectProcessor.materialOpacity(
         effTypeForOpacity,
         p.age,
         p.maxLife,
@@ -4344,6 +4348,30 @@ export class FireworkSystem {
         const frictionScale = 1.0 + Math.min(0.25, (p.frictionHeat || 0) * 0.2);
         renderSize = baseSize * sizeDecay * frictionScale;
       }
+
+      const isDarkPhaseActive = BurstEffectProcessor.isEffectActive(p, 'dark_phase')
+        || BurstEffectProcessor.isEffectActive(p, 'dark-phase')
+        || Boolean(p.preset?.darkPhase || p.preset?.['dark-phase'] || p.preset?.dark_phase);
+
+      const isSyncStrobeActive = BurstEffectProcessor.isEffectActive(p, 'sync_strobe')
+        || BurstEffectProcessor.isEffectActive(p, 'sync-strobe')
+        || Boolean(p.preset?.syncStrobe || p.preset?.['sync-strobe'] || p.preset?.sync_strobe);
+
+      let syncStrobeBlinking = false;
+      if (isSyncStrobeActive) {
+        const timeMs = p.age * 1000;
+        const strobeFreq = 140 * strobeFreqMultiplier;
+        syncStrobeBlinking = Math.floor(timeMs / strobeFreq) % 3 === 0;
+      }
+
+      if (isDarkPhaseActive) {
+        renderSize = 0;
+        opacity = 0;
+      } else if (isSyncStrobeActive && !syncStrobeBlinking) {
+        renderSize = 0;
+        opacity = 0;
+      }
+
       const sVar = p.sizeVariance ?? 1.0;
       p.renderSize = renderSize * sVar;
       p.renderOpacity = opacity;

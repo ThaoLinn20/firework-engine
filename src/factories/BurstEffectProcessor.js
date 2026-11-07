@@ -104,7 +104,11 @@ export class BurstEffectProcessor {
         ? 'tadpole-flurry'
         : (effectName === 'erratic_dart')
           ? 'erratic-dart'
-          : effectName;
+          : (effectName === 'dark-phase' || effectName === 'darkPhase')
+            ? 'dark_phase'
+            : (effectName === 'sync-strobe' || effectName === 'syncStrobe')
+              ? 'sync_strobe'
+              : effectName;
 
     // Check multi-interval effectWindows first if attached to particle
     if (particle.effectWindows && particle.effectWindows[normKey]) {
@@ -121,6 +125,14 @@ export class BurstEffectProcessor {
     if (effectName === 'strobe' || effectName === 'white-strobe' || effectName === 'glitter-strobe') {
       if (particle.strobeStart !== undefined) {
         return age >= particle.strobeStart && age <= particle.strobeEnd;
+      }
+    } else if (effectName === 'sync_strobe' || effectName === 'sync-strobe' || effectName === 'syncStrobe') {
+      if (particle.syncStrobeStart !== undefined) {
+        return age >= particle.syncStrobeStart && age <= particle.syncStrobeEnd;
+      }
+    } else if (effectName === 'dark_phase' || effectName === 'dark-phase' || effectName === 'darkPhase') {
+      if (particle.darkPhaseStart !== undefined) {
+        return age >= particle.darkPhaseStart && age <= particle.darkPhaseEnd;
       }
     } else if (effectName === 'ghost') {
       if (particle.ghostStart !== undefined) {
@@ -163,19 +175,33 @@ export class BurstEffectProcessor {
 
     const normTarget = (effectName === 'noTrail' || effectName === 'notrail')
       ? 'no-trail'
-      : effectName;
+      : (effectName === 'dark-phase' || effectName === 'darkPhase')
+        ? 'dark_phase'
+        : (effectName === 'sync-strobe' || effectName === 'syncStrobe')
+          ? 'sync_strobe'
+          : effectName;
 
     for (let i = 0; i < effects.length; i++) {
       const eff = effects[i];
       if (typeof eff === 'string') {
         const normEff = (eff === 'noTrail' || eff === 'notrail')
           ? 'no-trail'
-          : eff;
+          : (eff === 'dark-phase' || eff === 'darkPhase')
+            ? 'dark_phase'
+            : (eff === 'sync-strobe' || eff === 'syncStrobe')
+              ? 'sync_strobe'
+              : eff;
         if (normEff === normTarget) return true;
       } else if (eff && typeof eff === 'object') {
         let type = eff.type || eff.key;
         if (type === 'noTrail' || type === 'notrail') {
           type = 'no-trail';
+        }
+        if (type === 'dark-phase' || type === 'darkPhase') {
+          type = 'dark_phase';
+        }
+        if (type === 'sync-strobe' || type === 'syncStrobe') {
+          type = 'sync_strobe';
         }
         if (type === normTarget) {
           let start = eff.start !== undefined ? Number(eff.start) : 0;
@@ -207,6 +233,10 @@ export class BurstEffectProcessor {
     'strobe',
     'white-strobe',
     'glitter-strobe',
+    'sync_strobe',
+    'sync-strobe',
+    'dark_phase',
+    'dark-phase',
     'heart',
     'oval',
     'falling-comets',
@@ -646,6 +676,14 @@ export class BurstEffectProcessor {
     let g = particle.baseColor.g;
     let b = particle.baseColor.b;
 
+    const hasSyncStrobe = BurstEffectProcessor.isEffectActive(particle, 'sync_strobe')
+      || BurstEffectProcessor.isEffectActive(particle, 'sync-strobe')
+      || Boolean(particle.preset?.syncStrobe || particle.preset?.['sync-strobe'] || particle.preset?.sync_strobe);
+
+    const hasDarkPhase = BurstEffectProcessor.isEffectActive(particle, 'dark_phase')
+      || BurstEffectProcessor.isEffectActive(particle, 'dark-phase')
+      || Boolean(particle.preset?.darkPhase || particle.preset?.['dark-phase'] || particle.preset?.dark_phase);
+
     if (particle.hasErraticDart && particle.erraticDartTriggered) {
       // Dau hat giu nguyen do sang va mau sac ban dau trong suot pha vut
       const hasWhiteStrobe = particle.effectType === 'white-strobe'
@@ -657,6 +695,13 @@ export class BurstEffectProcessor {
         g = THREE.MathUtils.lerp(g, 2.2, strobeT);
         b = THREE.MathUtils.lerp(b, 2.2, strobeT);
       }
+      // Giai đoạn tối màu (Dark Phase): Triệt tiêu toàn bộ phát xạ quang học trong cửa sổ hiệu ứng
+      if (hasDarkPhase) {
+        r = 0;
+        g = 0;
+        b = 0;
+      }
+
       if (target) {
         target.r = r;
         target.g = g;
@@ -666,8 +711,8 @@ export class BurstEffectProcessor {
       return { r, g, b };
     }
 
-    const hasStrobeTiming = (particle.effectWindows && (particle.effectWindows.strobe || particle.effectWindows['white-strobe'] || particle.effectWindows['glitter-strobe']))
-      || (Array.isArray(particle.effects) && particle.effects.some((e) => typeof e === 'object' && e !== null && ['strobe', 'white-strobe', 'glitter-strobe'].includes(e.type || e.key)));
+    const hasStrobeTiming = (particle.effectWindows && (particle.effectWindows.strobe || particle.effectWindows['white-strobe'] || particle.effectWindows['glitter-strobe'] || particle.effectWindows.sync_strobe || particle.effectWindows['sync-strobe']))
+      || (Array.isArray(particle.effects) && particle.effects.some((e) => typeof e === 'object' && e !== null && ['strobe', 'white-strobe', 'glitter-strobe', 'sync_strobe', 'sync-strobe'].includes(e.type || e.key)));
 
     const hasWhiteStrobe = BurstEffectProcessor.isEffectActive(particle, 'white-strobe');
 
@@ -770,6 +815,22 @@ export class BurstEffectProcessor {
           g = particle.baseColor.g * blink;
           b = particle.baseColor.b * blink;
         }
+      }
+    } else if (hasSyncStrobe) {
+      // Synchronized strobe: All particles in the burst share age without random phase jitter
+      const timeMs = particle.age * 1000;
+      const strobeFreq = 140 * strobeFreqMultiplier;
+      const isBlinking = Math.floor(timeMs / strobeFreq) % 3 === 0;
+      const blink = isBlinking ? 1.0 : 0.0;
+
+      if (particle.preset?.shellType === 'sync_strobe' || particle.preset?.shellType === 'strobe') {
+        r = blink;
+        g = blink;
+        b = blink;
+      } else {
+        r = particle.baseColor.r * blink;
+        g = particle.baseColor.g * blink;
+        b = particle.baseColor.b * blink;
       }
     } else if (hasGhost) {
       let intensity = 0.0;
@@ -1018,6 +1079,13 @@ export class BurstEffectProcessor {
       r = THREE.MathUtils.lerp(r, Math.max(r, 2.2), heat * 0.75);
       g = THREE.MathUtils.lerp(g, Math.max(g, 2.1), heat * 0.75);
       b = THREE.MathUtils.lerp(b, Math.max(b, 1.8), heat * 0.75);
+    }
+
+    // Giai đoạn tối màu (Dark Phase): Triệt tiêu toàn bộ phát xạ quang học trong cửa sổ hiệu ứng
+    if (hasDarkPhase) {
+      r = 0;
+      g = 0;
+      b = 0;
     }
 
     if (target) {

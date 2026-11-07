@@ -421,6 +421,20 @@ export class BurstParticleFactory {
       ? noTrailTiming.end
       : (effectiveHasNoTrail ? maxLife : undefined);
 
+    const darkPhaseTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'dark_phase', maxLife)
+      || BurstParticleFactory.getEffectTiming(effectsArray, 'dark-phase', maxLife);
+    const darkPhaseStart = darkPhaseTiming ? darkPhaseTiming.start : undefined;
+    const darkPhaseEnd = darkPhaseTiming && darkPhaseTiming.end !== null
+      ? darkPhaseTiming.end
+      : (darkPhaseTiming ? maxLife : undefined);
+
+    const syncStrobeTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'sync_strobe', maxLife)
+      || BurstParticleFactory.getEffectTiming(effectsArray, 'sync-strobe', maxLife);
+    const syncStrobeStart = syncStrobeTiming ? syncStrobeTiming.start : undefined;
+    const syncStrobeEnd = syncStrobeTiming && syncStrobeTiming.end !== null
+      ? syncStrobeTiming.end
+      : (syncStrobeTiming ? maxLife : undefined);
+
     const strobeTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'strobe', maxLife);
     const whiteStrobeTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'white-strobe', maxLife);
     const glitterStrobeTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'glitter-strobe', maxLife);
@@ -439,6 +453,14 @@ export class BurstParticleFactory {
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'erratic-dart', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'erratic_dart', maxLife)
     ];
+    const darkPhaseTimings = [
+      ...BurstParticleFactory.getEffectTimings(effectsArray, 'dark_phase', maxLife),
+      ...BurstParticleFactory.getEffectTimings(effectsArray, 'dark-phase', maxLife)
+    ];
+    const syncStrobeTimings = [
+      ...BurstParticleFactory.getEffectTimings(effectsArray, 'sync_strobe', maxLife),
+      ...BurstParticleFactory.getEffectTimings(effectsArray, 'sync-strobe', maxLife)
+    ];
 
     const effectWindows = {};
     if (strobeTimings.length > 0) effectWindows.strobe = strobeTimings;
@@ -449,6 +471,14 @@ export class BurstParticleFactory {
     if (noTrailTimings.length > 0) effectWindows['no-trail'] = noTrailTimings;
     if (tadpoleTimings.length > 0) effectWindows['tadpole-flurry'] = tadpoleTimings;
     if (dartTimings.length > 0) effectWindows['erratic-dart'] = dartTimings;
+    if (darkPhaseTimings.length > 0) {
+      effectWindows.dark_phase = darkPhaseTimings;
+      effectWindows['dark-phase'] = darkPhaseTimings;
+    }
+    if (syncStrobeTimings.length > 0) {
+      effectWindows.sync_strobe = syncStrobeTimings;
+      effectWindows['sync-strobe'] = syncStrobeTimings;
+    }
 
     return {
       position: position.clone(),
@@ -522,6 +552,10 @@ export class BurstParticleFactory {
       isSecondBurstChild: Boolean(isSecondBurstChild),
       strobeStart,
       strobeEnd,
+      syncStrobeStart,
+      syncStrobeEnd,
+      darkPhaseStart,
+      darkPhaseEnd,
       ghostStart,
       ghostEnd,
       hasNoTrail: Boolean(effectiveHasNoTrail),

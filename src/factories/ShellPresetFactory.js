@@ -205,6 +205,8 @@ export class ShellPresetFactory {
     registerWithAlias('sparking_v2', 'sparkingV2', (size) => this.sparkingV2Shell(size));
     registerWithAlias('crackle', 'crackle', (size) => this.crackleShell(size));
     registerWithAlias('strobe', 'strobe', (size) => this.strobeShell(size));
+    registerWithAlias('sync_strobe', 'syncStrobe', (size) => this.syncStrobeShell(size));
+    registerWithAlias('dark_phase', 'darkPhase', (size) => this.darkPhaseShell(size));
     registerWithAlias('strobe_dying_embers', 'strobeDyingEmbers', (size) => this.strobeDyingEmbersShell(size));
     registerWithAlias('white_strobe', 'whiteStrobe', (size) => this.whiteStrobeShell(size));
     registerWithAlias('glitter_strobe', 'glitterStrobe', (size) => this.glitterStrobeShell(size));
@@ -762,6 +764,38 @@ export class ShellPresetFactory {
       starLife: 1000 + size * 150,
       particleCountMultiplier: 1.25,
       pistil: Math.random() < 0.4
+    };
+  }
+
+  syncStrobeShell(size = 1.25) {
+    return {
+      ...this.basePreset(size),
+      shellType: 'sync_strobe',
+      shapeType: 'sphere',
+      effectType: 'standard',
+      effects: ['sync_strobe'],
+      starLife: 1000 + size * 150,
+      particleCountMultiplier: 1.25,
+      pistil: Math.random() < 0.4
+    };
+  }
+
+  darkPhaseShell(size = 1.25) {
+    return {
+      ...this.basePreset(size),
+      shellType: 'dark_phase',
+      shapeType: 'sphere',
+      effectType: 'standard',
+      effects: [
+        {
+          type: 'dark_phase',
+          startRatio: 0.3,
+          endRatio: 0.6
+        }
+      ],
+      starLife: 1200 + size * 150,
+      particleCountMultiplier: 1.25,
+      pistil: false
     };
   }
 

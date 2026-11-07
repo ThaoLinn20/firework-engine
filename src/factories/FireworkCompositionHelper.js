@@ -75,7 +75,11 @@ export const TIMED_EFFECT_TAGS = [
   'tadpole-flurry',
   'erratic-dart',
   'breathing-pulse',
-  'diamond-scintillation'
+  'diamond-scintillation',
+  'sync_strobe',
+  'sync-strobe',
+  'dark_phase',
+  'dark-phase'
 ];
 
 export const TOGGLE_MODIFIER_TAGS = [
@@ -361,6 +365,18 @@ export const PRESET_TEMPLATES = {
     dynamics: 'standard',
     modifiers: { pistil: false, instantBurst: false },
     effects: ['glitter-strobe']
+  },
+  sync_strobe: {
+    shape: 'sphere',
+    dynamics: 'standard',
+    modifiers: { pistil: false, instantBurst: false },
+    effects: ['sync_strobe']
+  },
+  dark_phase: {
+    shape: 'sphere',
+    dynamics: 'standard',
+    modifiers: { pistil: false, instantBurst: false },
+    effects: ['dark_phase']
   },
   weepingWillowComets: {
     shape: 'willow',
