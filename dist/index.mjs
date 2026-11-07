@@ -9197,7 +9197,7 @@ var Ae = n.SYSTEM.crackleSparkColor, je = new e.Vector3(), Me = new e.Vector3(),
 			dynamicsType: p
 		}), de = a?.cascadeDuration !== void 0 && !isNaN(Number(a.cascadeDuration)) ? Math.max(.05, Number(a.cascadeDuration)) : n.CASCADE_WAVE?.defaultDuration ?? .6, B = a?.cascadeMode || a?.cascadeDirection || (n.CASCADE_WAVE?.defaultMode ?? "radial-outward"), V = new e.Vector3(0, 1, 0), fe = new e.Quaternion(), pe = !1, H = null;
 		if (ue) {
-			if (B === "random" || B === "random-direction" || B === "random_direction") {
+			if (B === "random" || B === "random-direction" || B === "random_direction" || B === "parallel-rings" || B === "parallel_rings" || B === "parallel-rings-top-down" || B === "parallel_rings_top_down") {
 				let t = Math.random() * Math.PI * 2, n = (Math.random() - .5) * .4, r = Math.sqrt(Math.max(0, 1 - n * n));
 				V = new e.Vector3(-Math.sin(t) * r, Math.cos(t) * r, n).normalize();
 			} else if (B === "bottom-up" || B === "parallel-rings-bottom-up" || B === "parallel_rings_bottom_up") V = new e.Vector3(0, -1, 0);

@@ -2043,6 +2043,10 @@ export class FireworkSystem {
         cascadeMode === 'random'
         || cascadeMode === 'random-direction'
         || cascadeMode === 'random_direction'
+        || cascadeMode === 'parallel-rings'
+        || cascadeMode === 'parallel_rings'
+        || cascadeMode === 'parallel-rings-top-down'
+        || cascadeMode === 'parallel_rings_top_down'
       ) {
         const randAngle = Math.random() * Math.PI * 2;
         const randZ = (Math.random() - 0.5) * 0.4;
