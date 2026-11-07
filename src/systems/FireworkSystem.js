@@ -2385,8 +2385,13 @@ export class FireworkSystem {
           particlePhase = Math.max(0, Math.min(1, 1.0 - speedNorm));
         } else {
           // radial-outward (default)
-          const speedRatio = Math.max(0, Math.min(1, (baseSpeed - profileBaseSpeed * 0.3) / Math.max(0.01, profileBaseSpeed * 1.0)));
-          particlePhase = (isCoreParticle ? 0.0 : 0.35) + speedRatio * 0.65;
+          if (isCompositeCore) {
+            particlePhase = isCoreParticle
+              ? (i / Math.max(1, coreCount - 1)) * 0.35
+              : 0.35 + ((i - coreCount) / Math.max(1, burstParticleCount - coreCount - 1)) * 0.65;
+          } else {
+            particlePhase = i / Math.max(1, burstParticleCount - 1);
+          }
           particlePhase = Math.max(0, Math.min(1, particlePhase));
         }
       }

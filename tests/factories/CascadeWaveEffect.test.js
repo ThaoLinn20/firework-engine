@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { BurstParticleFactory } from '../../src/factories/BurstParticleFactory.js';
 import { BurstEffectProcessor } from '../../src/factories/BurstEffectProcessor.js';
 import { FireworkSystem } from '../../src/systems/FireworkSystem.js';
+import { ShowEventDispatcher } from '../../src/directors/ShowEventDispatcher.js';
 
 describe('Cascade Wave Spatial-Temporal Sequence Modifier', () => {
   it('should detect hasCascadeWave from effects array or preset flags', () => {
@@ -223,5 +224,34 @@ describe('Cascade Wave Spatial-Temporal Sequence Modifier', () => {
     expect(topParticle.phaseDelay).toBeLessThan(bottomParticle.phaseDelay);
 
     fireworkSystem.destroy();
+  });
+
+  it('should propagate cascadeWave and active effect overrides through ShowEventDispatcher', () => {
+    const dispatcher = new ShowEventDispatcher();
+    let launchedOverrides = null;
+    const mockContext = {
+      fireworkSystem: {
+        launchRandom: (preset, options) => {
+          launchedOverrides = options.effectOverrides;
+        }
+      }
+    };
+
+    dispatcher.dispatch({
+      type: 'single',
+      preset: 'peony',
+      cascadeWave: true,
+      cascadeDuration: 0.8,
+      cascadeMode: 'clockwise',
+      syncStrobe: true,
+      darkPhase: true
+    }, mockContext);
+
+    expect(launchedOverrides).toBeDefined();
+    expect(launchedOverrides.cascadeWave).toBe(true);
+    expect(launchedOverrides.cascadeDuration).toBe(0.8);
+    expect(launchedOverrides.cascadeMode).toBe('clockwise');
+    expect(launchedOverrides.syncStrobe).toBe(true);
+    expect(launchedOverrides.darkPhase).toBe(true);
   });
 });

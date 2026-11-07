@@ -49,6 +49,17 @@ export class ShowEventDispatcher {
         || evt.apexHang !== undefined
         || evt['slow-burst'] !== undefined
         || evt.slowBurst !== undefined
+        || evt.cascadeWave !== undefined
+        || evt['cascade-wave'] !== undefined
+        || evt.cascade_wave !== undefined
+        || evt.cascadeDuration !== undefined
+        || evt.cascadeMode !== undefined
+        || evt.syncStrobe !== undefined
+        || evt['sync-strobe'] !== undefined
+        || evt.sync_strobe !== undefined
+        || evt.darkPhase !== undefined
+        || evt['dark-phase'] !== undefined
+        || evt.dark_phase !== undefined
         || evt.cometTrail !== undefined
         || evt.stages !== undefined
         || evt.nestingMode !== undefined
@@ -93,6 +104,17 @@ export class ShowEventDispatcher {
         if (evt['slow-burst'] !== undefined) overrides['slow-burst'] = evt['slow-burst'];
         if (evt.slowBurst !== undefined) overrides['slow-burst'] = evt.slowBurst;
         if (evt.slow_burst !== undefined) overrides['slow-burst'] = evt.slow_burst;
+        if (evt.cascadeWave !== undefined) overrides.cascadeWave = evt.cascadeWave;
+        if (evt['cascade-wave'] !== undefined) overrides.cascadeWave = evt['cascade-wave'];
+        if (evt.cascade_wave !== undefined) overrides.cascadeWave = evt.cascade_wave;
+        if (evt.cascadeDuration !== undefined) overrides.cascadeDuration = evt.cascadeDuration;
+        if (evt.cascadeMode !== undefined) overrides.cascadeMode = evt.cascadeMode;
+        if (evt.syncStrobe !== undefined) overrides.syncStrobe = evt.syncStrobe;
+        if (evt['sync-strobe'] !== undefined) overrides.syncStrobe = evt['sync-strobe'];
+        if (evt.sync_strobe !== undefined) overrides.syncStrobe = evt.sync_strobe;
+        if (evt.darkPhase !== undefined) overrides.darkPhase = evt.darkPhase;
+        if (evt['dark-phase'] !== undefined) overrides.darkPhase = evt['dark-phase'];
+        if (evt.dark_phase !== undefined) overrides.darkPhase = evt.dark_phase;
         if (evt.stages !== undefined) overrides.stages = evt.stages;
         if (evt.nestingMode !== undefined) overrides.nestingMode = evt.nestingMode;
         if (evt.multiNested !== undefined) overrides.multiNested = evt.multiNested;
