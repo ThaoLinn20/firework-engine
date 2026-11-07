@@ -4278,13 +4278,17 @@ export class FireworkSystem {
         baseOpacity *= 0.85;
       }
 
-      const dissolveThreshold = p.isLongBurn
-        ? (profile?.longBurnDissolveStart ?? FIREWORK_CONFIG.BURST?.longBurnDissolveStart ?? 0.72)
-        : (profile?.dissolveStart ?? BURST_DISSOLVE_START);
+      const dissolveThreshold = p.hasCascadeWave
+        ? (FIREWORK_CONFIG.CASCADE_WAVE?.dissolveStart ?? 0.92)
+        : (p.isLongBurn
+          ? (profile?.longBurnDissolveStart ?? FIREWORK_CONFIG.BURST?.longBurnDissolveStart ?? 0.72)
+          : (profile?.dissolveStart ?? BURST_DISSOLVE_START));
 
-      const attenuationStart = profile?.attenuationStart
-        ?? FIREWORK_CONFIG.BURST?.attenuationStart
-        ?? 0.35;
+      const attenuationStart = p.hasCascadeWave
+        ? (FIREWORK_CONFIG.CASCADE_WAVE?.attenuationStart ?? 0.75)
+        : (profile?.attenuationStart
+          ?? FIREWORK_CONFIG.BURST?.attenuationStart
+          ?? 0.35);
 
       if (lifeRatio > attenuationStart && lifeRatio <= dissolveThreshold) {
         // Giai đoạn bắt đầu đạt đỉnh và rơi xuống: ánh sáng dịu bớt êm ái
@@ -4296,10 +4300,10 @@ export class FireworkSystem {
           0,
           1
         );
-        const fadeExp = profile?.dissolveExponent ?? BURST_FADE_EXPONENT;
+        const fadeExp = p.hasCascadeWave ? 1.5 : (profile?.dissolveExponent ?? BURST_FADE_EXPONENT);
         baseOpacity = Math.max(
           Math.pow(1 - dissolveT, fadeExp) * (brightnessOpacityScale * 0.85),
-          (1 - dissolveT) * 0.08
+          p.hasCascadeWave ? 0.0 : ((1 - dissolveT) * 0.08)
         );
       }
 

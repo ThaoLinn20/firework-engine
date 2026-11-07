@@ -629,6 +629,8 @@ export const FIREWORK_CONFIG = {
     minDuration: 0.10,
     maxDuration: 2.00,
     defaultMode: 'radial-outward',
-    lifeJitter: 0.02
+    lifeJitter: 0.02,
+    dissolveStart: 0.92,
+    attenuationStart: 0.75
   }
 };

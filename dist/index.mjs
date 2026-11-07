@@ -439,7 +439,9 @@ var t = {
 		minDuration: .1,
 		maxDuration: 2,
 		defaultMode: "radial-outward",
-		lifeJitter: .02
+		lifeJitter: .02,
+		dissolveStart: .92,
+		attenuationStart: .75
 	}
 }, r = Object.freeze({
 	particleCountMultiplier: Object.freeze({
@@ -9947,13 +9949,13 @@ var Ae = n.SYSTEM.crackleSparkColor, je = new e.Vector3(), J = new e.Vector3(), 
 				brightnessMultiplier: 1
 			}, he = Math.min(Math.max(.82 + (me.brightnessMultiplier - 1) * .24, .72), 1.15), ge = he;
 			s.isSecondBurstChild && (ge *= .85);
-			let V = s.isLongBurn ? O?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : O?.dissolveStart ?? we, H = O?.attenuationStart ?? n.BURST?.attenuationStart ?? .35;
+			let V = s.hasCascadeWave ? n.CASCADE_WAVE?.dissolveStart ?? .92 : s.isLongBurn ? O?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : O?.dissolveStart ?? we, H = s.hasCascadeWave ? n.CASCADE_WAVE?.attenuationStart ?? .75 : O?.attenuationStart ?? n.BURST?.attenuationStart ?? .35;
 			if (C > H && C <= V) {
 				let e = (C - H) / (V - H);
 				ge *= 1 - e * .15;
 			} else if (C > V) {
-				let t = e.MathUtils.clamp((C - V) / (1 - V), 0, 1), n = O?.dissolveExponent ?? K;
-				ge = Math.max((1 - t) ** n * (he * .85), (1 - t) * .08);
+				let t = e.MathUtils.clamp((C - V) / (1 - V), 0, 1), n = s.hasCascadeWave ? 1.5 : O?.dissolveExponent ?? K;
+				ge = Math.max((1 - t) ** n * (he * .85), s.hasCascadeWave ? 0 : (1 - t) * .08);
 			}
 			if (s.hasErraticDart && s.erraticDartTriggered) {
 				let e = n.ERRATIC_DART?.boostLifeDuration ?? .95, t = (s.maxLife - s.age) / e;
