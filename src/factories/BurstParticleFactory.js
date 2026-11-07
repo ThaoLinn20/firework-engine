@@ -170,6 +170,24 @@ export class BurstParticleFactory {
       || normDynamics === 'diamond_scintillation'
     );
 
+    const hasCascadeWave = Boolean(
+      preset?.cascadeWave
+      || preset?.['cascade-wave']
+      || preset?.cascade_wave
+      || effectsList.includes('cascade-wave')
+      || effectsList.includes('cascade_wave')
+      || effectsList.includes('cascadeWave')
+      || (Array.isArray(preset?.effects) && (
+        preset.effects.includes('cascade-wave')
+        || preset.effects.includes('cascade_wave')
+        || preset.effects.includes('cascadeWave')
+        || preset.effects.some((e) => (typeof e === 'object' && ['cascade-wave', 'cascade_wave', 'cascadeWave'].includes(e.type || e.key)))
+      ))
+      || normDynamics === 'cascade-wave'
+      || normDynamics === 'cascade_wave'
+      || normDynamics === 'cascadewave'
+    );
+
     return {
       isCrossetteShell,
       isTadpoleFlurryShell,
@@ -183,6 +201,7 @@ export class BurstParticleFactory {
       hasNoTrail,
       hasBreathingPulse,
       hasDiamondScintillation,
+      hasCascadeWave,
       effectsList
     };
   }
@@ -313,6 +332,8 @@ export class BurstParticleFactory {
       isApexHang = false,
       isSlowBurst = false,
       hasNoTrail = false,
+      hasCascadeWave = false,
+      phaseDelay = 0.0,
       frictionHeat = 0.0,
       ringIndex = null,
       sizeVariance = null,
@@ -338,75 +359,89 @@ export class BurstParticleFactory {
       ? velocity.clone().normalize()
       : new THREE.Vector3(0, 1, 0);
 
+    const pDelay = Number(phaseDelay) || 0.0;
+
     const effectsArray = Array.isArray(effects) && effects.length > 0
       ? effects
       : (Array.isArray(preset?.effects) ? preset.effects : []);
 
     const crackleTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'crackle', maxLife);
     const hasCrackle = options.crackle !== undefined ? Boolean(options.crackle) : (crackleTiming !== null);
-    const crackleStart = crackleTiming
+    const rawCrackleStart = crackleTiming
       ? crackleTiming.start
       : (hasCrackle ? maxLife * 0.65 : undefined);
-    const crackleEnd = crackleTiming && crackleTiming.end !== null
+    const rawCrackleEnd = crackleTiming && crackleTiming.end !== null
       ? crackleTiming.end
       : (hasCrackle ? maxLife : undefined);
+    const crackleStart = rawCrackleStart !== undefined ? rawCrackleStart + pDelay : undefined;
+    const crackleEnd = rawCrackleEnd !== undefined ? rawCrackleEnd + pDelay : undefined;
 
     const tadpoleTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'tadpole-flurry', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'tadpole_flurry', maxLife);
     const effectiveHasTadpoleFlurry = options.hasTadpoleFlurry !== undefined
       ? Boolean(options.hasTadpoleFlurry)
       : (tadpoleTiming !== null);
-    const tadpoleStart = tadpoleTiming
+    const rawTadpoleStart = tadpoleTiming
       ? tadpoleTiming.start
       : (effectiveHasTadpoleFlurry ? maxLife * 0.18 : undefined);
-    const tadpoleEnd = tadpoleTiming && tadpoleTiming.end !== null
+    const rawTadpoleEnd = tadpoleTiming && tadpoleTiming.end !== null
       ? tadpoleTiming.end
       : (effectiveHasTadpoleFlurry ? maxLife * 0.85 : undefined);
+    const tadpoleStart = rawTadpoleStart !== undefined ? rawTadpoleStart + pDelay : undefined;
+    const tadpoleEnd = rawTadpoleEnd !== undefined ? rawTadpoleEnd + pDelay : undefined;
 
     const dartTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'erratic-dart', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'erratic_dart', maxLife);
     const effectiveHasErraticDart = options.hasErraticDart !== undefined
       ? Boolean(options.hasErraticDart)
       : (dartTiming !== null);
-    const erraticDartTriggerTime = (dartTiming && dartTiming.start > 0)
+    const rawErraticDartTriggerTime = (dartTiming && dartTiming.start > 0)
       ? dartTiming.start
       : (effectiveHasErraticDart ? maxLife * erraticDartTriggerRatio : undefined);
-    const erraticDartEnd = dartTiming && dartTiming.end !== null
+    const rawErraticDartEnd = dartTiming && dartTiming.end !== null
       ? dartTiming.end
       : (effectiveHasErraticDart ? maxLife : undefined);
+    const erraticDartTriggerTime = rawErraticDartTriggerTime !== undefined ? rawErraticDartTriggerTime + pDelay : undefined;
+    const erraticDartEnd = rawErraticDartEnd !== undefined ? rawErraticDartEnd + pDelay : undefined;
 
     const crossetteTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'crossette', maxLife);
     const effectiveIsCrossette = options.isCrossette !== undefined
       ? Boolean(options.isCrossette)
       : (crossetteTiming !== null);
-    const resolvedCrossetteSplitTime = (crossetteTiming && crossetteTiming.start > 0)
+    const resolvedCrossetteSplitTime = ((crossetteTiming && crossetteTiming.start > 0)
       ? crossetteTiming.start
-      : (crossetteSplitTime > 0 ? crossetteSplitTime : maxLife * 0.5);
+      : (crossetteSplitTime > 0 ? crossetteSplitTime : maxLife * 0.5)) + pDelay;
 
     const smokeTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'burst-smoke', maxLife);
     const effectiveHasBurstSmoke = options.hasBurstSmoke !== undefined
       ? Boolean(options.hasBurstSmoke)
       : (smokeTiming !== null);
-    const burstSmokeStart = smokeTiming
+    const rawBurstSmokeStart = smokeTiming
       ? smokeTiming.start
       : (effectiveHasBurstSmoke ? 0 : undefined);
-    const burstSmokeEnd = smokeTiming && smokeTiming.end !== null
+    const rawBurstSmokeEnd = smokeTiming && smokeTiming.end !== null
       ? smokeTiming.end
       : (effectiveHasBurstSmoke ? maxLife * (burstSmokeLimit ?? 0.33) : undefined);
+    const burstSmokeStart = rawBurstSmokeStart !== undefined ? rawBurstSmokeStart + pDelay : undefined;
+    const burstSmokeEnd = rawBurstSmokeEnd !== undefined ? rawBurstSmokeEnd + pDelay : undefined;
 
     const strobeTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'strobe', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'white-strobe', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'glitter-strobe', maxLife);
-    const strobeStart = strobeTiming ? strobeTiming.start : undefined;
-    const strobeEnd = strobeTiming && strobeTiming.end !== null
+    const rawStrobeStart = strobeTiming ? strobeTiming.start : undefined;
+    const rawStrobeEnd = strobeTiming && strobeTiming.end !== null
       ? strobeTiming.end
       : (strobeTiming ? maxLife : undefined);
+    const strobeStart = rawStrobeStart !== undefined ? rawStrobeStart + pDelay : undefined;
+    const strobeEnd = rawStrobeEnd !== undefined ? rawStrobeEnd + pDelay : undefined;
 
     const ghostTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'ghost', maxLife);
-    const ghostStart = ghostTiming ? ghostTiming.start : undefined;
-    const ghostEnd = ghostTiming && ghostTiming.end !== null
+    const rawGhostStart = ghostTiming ? ghostTiming.start : undefined;
+    const rawGhostEnd = ghostTiming && ghostTiming.end !== null
       ? ghostTiming.end
       : (ghostTiming ? maxLife : undefined);
+    const ghostStart = rawGhostStart !== undefined ? rawGhostStart + pDelay : undefined;
+    const ghostEnd = rawGhostEnd !== undefined ? rawGhostEnd + pDelay : undefined;
 
     const noTrailTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'no-trail', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'notrail', maxLife)
@@ -414,53 +449,68 @@ export class BurstParticleFactory {
     const effectiveHasNoTrail = options.hasNoTrail !== undefined
       ? Boolean(options.hasNoTrail)
       : (preset?.noTrail || noTrailTiming !== null);
-    const noTrailStart = noTrailTiming
+    const rawNoTrailStart = noTrailTiming
       ? noTrailTiming.start
       : (effectiveHasNoTrail ? 0 : undefined);
-    const noTrailEnd = noTrailTiming && noTrailTiming.end !== null
+    const rawNoTrailEnd = noTrailTiming && noTrailTiming.end !== null
       ? noTrailTiming.end
       : (effectiveHasNoTrail ? maxLife : undefined);
+    const noTrailStart = rawNoTrailStart !== undefined ? rawNoTrailStart + pDelay : undefined;
+    const noTrailEnd = rawNoTrailEnd !== undefined ? rawNoTrailEnd + pDelay : undefined;
 
     const darkPhaseTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'dark_phase', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'dark-phase', maxLife);
-    const darkPhaseStart = darkPhaseTiming ? darkPhaseTiming.start : undefined;
-    const darkPhaseEnd = darkPhaseTiming && darkPhaseTiming.end !== null
+    const rawDarkPhaseStart = darkPhaseTiming ? darkPhaseTiming.start : undefined;
+    const rawDarkPhaseEnd = darkPhaseTiming && darkPhaseTiming.end !== null
       ? darkPhaseTiming.end
       : (darkPhaseTiming ? maxLife : undefined);
+    const darkPhaseStart = rawDarkPhaseStart !== undefined ? rawDarkPhaseStart + pDelay : undefined;
+    const darkPhaseEnd = rawDarkPhaseEnd !== undefined ? rawDarkPhaseEnd + pDelay : undefined;
 
     const syncStrobeTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'sync_strobe', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'sync-strobe', maxLife);
-    const syncStrobeStart = syncStrobeTiming ? syncStrobeTiming.start : undefined;
-    const syncStrobeEnd = syncStrobeTiming && syncStrobeTiming.end !== null
+    const rawSyncStrobeStart = syncStrobeTiming ? syncStrobeTiming.start : undefined;
+    const rawSyncStrobeEnd = syncStrobeTiming && syncStrobeTiming.end !== null
       ? syncStrobeTiming.end
       : (syncStrobeTiming ? maxLife : undefined);
+    const syncStrobeStart = rawSyncStrobeStart !== undefined ? rawSyncStrobeStart + pDelay : undefined;
+    const syncStrobeEnd = rawSyncStrobeEnd !== undefined ? rawSyncStrobeEnd + pDelay : undefined;
 
-    const strobeTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'strobe', maxLife);
-    const whiteStrobeTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'white-strobe', maxLife);
-    const glitterStrobeTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'glitter-strobe', maxLife);
-    const ghostTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'ghost', maxLife);
-    const crackleTimings = BurstParticleFactory.getEffectTimings(effectsArray, 'crackle', maxLife);
-    const noTrailTimings = [
+    const shiftWindows = (timings) => {
+      if (pDelay === 0 || !Array.isArray(timings)) return timings;
+      return timings.map((t) => ({
+        ...t,
+        start: t.start + pDelay,
+        end: t.end !== null && t.end !== undefined ? t.end + pDelay : null
+      }));
+    };
+
+    const strobeTimings = shiftWindows(BurstParticleFactory.getEffectTimings(effectsArray, 'strobe', maxLife));
+    const whiteStrobeTimings = shiftWindows(BurstParticleFactory.getEffectTimings(effectsArray, 'white-strobe', maxLife));
+    const glitterStrobeTimings = shiftWindows(BurstParticleFactory.getEffectTimings(effectsArray, 'glitter-strobe', maxLife));
+    const ghostTimings = shiftWindows(BurstParticleFactory.getEffectTimings(effectsArray, 'ghost', maxLife));
+    const crackleTimings = shiftWindows(BurstParticleFactory.getEffectTimings(effectsArray, 'crackle', maxLife));
+    const noTrailTimings = shiftWindows([
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'no-trail', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'notrail', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'noTrail', maxLife)
-    ];
-    const tadpoleTimings = [
+    ]);
+    const tadpoleTimings = shiftWindows([
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'tadpole-flurry', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'tadpole_flurry', maxLife)
-    ];
-    const dartTimings = [
+    ]);
+    const dartTimings = shiftWindows([
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'erratic-dart', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'erratic_dart', maxLife)
-    ];
-    const darkPhaseTimings = [
+    ]);
+    const darkPhaseTimings = shiftWindows([
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'dark_phase', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'dark-phase', maxLife)
-    ];
-    const syncStrobeTimings = [
+    ]);
+    const syncStrobeTimings = shiftWindows([
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'sync_strobe', maxLife),
       ...BurstParticleFactory.getEffectTimings(effectsArray, 'sync-strobe', maxLife)
-    ];
+    ]);
 
     const effectWindows = {};
     if (strobeTimings.length > 0) effectWindows.strobe = strobeTimings;
@@ -564,6 +614,8 @@ export class BurstParticleFactory {
       effectWindows,
       ringIndex: ringIndex !== null ? Number(ringIndex) : null,
       frictionHeat: Number(frictionHeat) || 0.0,
+      phaseDelay: pDelay,
+      hasCascadeWave: Boolean(hasCascadeWave || pDelay > 0),
       lastVelocity: velocity ? velocity.clone() : new THREE.Vector3()
     };
   }

@@ -2020,12 +2020,18 @@ export class FireworkSystem {
       isLongBurn,
       isApexHang,
       isSlowBurst,
-      hasNoTrail
+      hasNoTrail,
+      hasCascadeWave
     } = BurstParticleFactory.resolveActiveEffectFlags({
       preset,
       effects: effectsList,
       dynamicsType: normalizedEffect
     });
+
+    const cascadeDuration = (preset?.cascadeDuration !== undefined && !isNaN(Number(preset.cascadeDuration)))
+      ? Math.max(0.05, Number(preset.cascadeDuration))
+      : (FIREWORK_CONFIG.CASCADE_WAVE?.defaultDuration ?? 0.60);
+    const cascadeMode = preset?.cascadeMode || preset?.cascadeDirection || (FIREWORK_CONFIG.CASCADE_WAVE?.defaultMode ?? 'radial-outward');
 
     const baseLifeMul = (preset?.starLifeMultiplier !== undefined && !isNaN(Number(preset.starLifeMultiplier)))
       ? Math.max(0.01, Number(preset.starLifeMultiplier))
@@ -2266,9 +2272,10 @@ export class FireworkSystem {
           preset?.shellSize ?? 1
         )
       );
-      const isDyingEmber =
+      const isDyingEmber = !hasCascadeWave && (
         (preset?.shellType === 'strobeDyingEmbers' && Math.random() < 0.5) ||
-        Math.random() < 0.05;
+        Math.random() < 0.05
+      );
       const speedJitter = dynamicsProfile?.speedJitter ?? BURST_SPEED_JITTER;
       const speedJitterScale = (particleShape === 'text_word')
         ? 1.0
@@ -2359,6 +2366,32 @@ export class FireworkSystem {
       let particleMaxLife;
       let particleVelocity = velocityVal;
 
+      let particlePhase = 0;
+      if (hasCascadeWave && burstParticleCount > 1) {
+        if (cascadeMode === 'clockwise' || cascadeMode === 'clockwise_sweep') {
+          const theta = Math.atan2(direction.z, direction.x);
+          particlePhase = (theta + Math.PI) / (Math.PI * 2.0);
+        } else if (cascadeMode === 'counter-clockwise' || cascadeMode === 'counter_clockwise_sweep') {
+          const theta = Math.atan2(direction.z, direction.x);
+          particlePhase = 1.0 - (theta + Math.PI) / (Math.PI * 2.0);
+        } else if (cascadeMode === 'top-down' || cascadeMode === 'top_down') {
+          particlePhase = Math.max(0, Math.min(1, (1.0 - direction.y) * 0.5));
+        } else if (cascadeMode === 'bottom-up' || cascadeMode === 'bottom_up') {
+          particlePhase = Math.max(0, Math.min(1, (direction.y + 1.0) * 0.5));
+        } else if (cascadeMode === 'sequential' || cascadeMode === 'index') {
+          particlePhase = i / Math.max(1, burstParticleCount - 1);
+        } else if (cascadeMode === 'radial-inward' || cascadeMode === 'radial_inward') {
+          const speedNorm = baseSpeed / (profileBaseSpeed * 1.5 || 1.0);
+          particlePhase = Math.max(0, Math.min(1, 1.0 - speedNorm));
+        } else {
+          // radial-outward (default)
+          const speedRatio = Math.max(0, Math.min(1, (baseSpeed - profileBaseSpeed * 0.3) / Math.max(0.01, profileBaseSpeed * 1.0)));
+          particlePhase = (isCoreParticle ? 0.0 : 0.35) + speedRatio * 0.65;
+          particlePhase = Math.max(0, Math.min(1, particlePhase));
+        }
+      }
+      const particlePhaseDelay = hasCascadeWave ? (particlePhase * cascadeDuration) : 0.0;
+
       if (isNestedTrigger) {
         // Tất cả hạt pháo con có cùng chính xác thời gian sống để nổ đồng loạt
         particleMaxLife = nestedBurstDelay;
@@ -2367,14 +2400,16 @@ export class FireworkSystem {
           triggerSpeed
         );
       } else {
-        const lifeJitter = dynamicsProfile?.lifeJitter ?? BURST_LIFE_JITTER;
+        const lifeJitter = hasCascadeWave
+          ? (FIREWORK_CONFIG.CASCADE_WAVE?.lifeJitter ?? 0.02)
+          : (dynamicsProfile?.lifeJitter ?? BURST_LIFE_JITTER);
         const lifeJitterScale = 1.0 + (Math.random() - 0.5) * (lifeJitter * 2);
         const baseMaxLife = BURST_LIFE * lifeJitterScale;
         const apexLifeMul = isApexHang ? 1.35 : 1.0;
         const lifeMultiplier = isEffectiveLongBurn
           ? baseLifeMul
           : (isDyingEmber ? 2.0 * baseLifeMul : apexLifeMul * baseLifeMul);
-        particleMaxLife = baseMaxLife * lifeMultiplier;
+        particleMaxLife = (baseMaxLife * lifeMultiplier) + particlePhaseDelay;
       }
 
       const baseParticleDrag = (preset?.drag !== undefined)
@@ -2476,7 +2511,9 @@ export class FireworkSystem {
         erraticDartWiggleFreq: (FIREWORK_CONFIG.ERRATIC_DART?.wobbleFreq ?? 22.0)
           * (0.85 + Math.random() * 0.30),
         erraticDartWiggleAmp: (FIREWORK_CONFIG.ERRATIC_DART?.wobbleAmp ?? 26.0)
-          * (0.85 + Math.random() * 0.30)
+          * (0.85 + Math.random() * 0.30),
+        phaseDelay: particlePhaseDelay,
+        hasCascadeWave
       });
 
       newParticles.push(particle);

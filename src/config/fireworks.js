@@ -621,5 +621,14 @@ export const FIREWORK_CONFIG = {
     trailIntensity: 0.90,
     horizontalDragFactor: 0.995,
     gravityScale: 0.38
+  },
+
+  // Cấu hình làn sóng kích hoạt tuần tự (Cascade Wave)
+  CASCADE_WAVE: {
+    defaultDuration: 0.60,
+    minDuration: 0.10,
+    maxDuration: 2.00,
+    defaultMode: 'radial-outward',
+    lifeJitter: 0.02
   }
 };

@@ -58,7 +58,10 @@ export const AVAILABLE_DYNAMICS = [
 
 export const AVAILABLE_MODIFIERS = [
   'pistil',
-  'instantBurst'
+  'instantBurst',
+  'cascade-wave',
+  'cascade_wave',
+  'cascadeWave'
 ];
 
 export const TIMED_EFFECT_TAGS = [
@@ -87,7 +90,10 @@ export const TOGGLE_MODIFIER_TAGS = [
   'pistil',
   'apex-hang',
   'long-burn',
-  'slow-burst'
+  'slow-burst',
+  'cascade-wave',
+  'cascade_wave',
+  'cascadeWave'
 ];
 
 export const AVAILABLE_EFFECT_TAGS = [
