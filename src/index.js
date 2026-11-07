@@ -1,6 +1,12 @@
 // Core Configurations
 export { BASE_BURST_PROFILE, FIREWORK_CONFIG } from './config/fireworks.js';
 export {
+  PARAMETER_DESCRIPTORS,
+  getParameterDescriptor,
+  normalizeParameter,
+  normalizePresetParameters
+} from './config/parameterDescriptors.js';
+export {
   LAYER_DEFAULT,
   LAYER_REFLECTION,
   LAYER_WATER

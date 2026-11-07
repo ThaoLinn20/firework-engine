@@ -1,3 +1,4 @@
+import { normalizePresetParameters } from '../config/parameterDescriptors.js';
 import { sanitizeText, layoutWord } from './TextGlyphAtlas.js';
 const COLOR = {
   Red: 'red',
@@ -1279,7 +1280,7 @@ export class ShellPresetFactory {
       warnings.push(`[ShellPresetFactory] Unknown effectType "${effectType}". Falling back to standard.`);
     }
 
-    return {
+    return normalizePresetParameters({
       ...preset,
       shapeType: shapeFallback ? 'sphere' : shapeType,
       effectType: effectFallback ? 'standard' : effectType,
@@ -1290,7 +1291,7 @@ export class ShellPresetFactory {
         effectFallback,
         warnings
       }
-    };
+    });
   }
 
   weepingWillowCometsShell(size = 1) {

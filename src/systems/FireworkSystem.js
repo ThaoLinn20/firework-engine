@@ -508,7 +508,7 @@ export class FireworkSystem {
         || Boolean(shellPreset.strobe);
       const isDyingEmberManual = Boolean(shellPreset.isDyingEmber);
       const instantLifeMul = (shellPreset?.starLifeMultiplier !== undefined && !isNaN(Number(shellPreset.starLifeMultiplier)))
-        ? Math.max(0.2, Number(shellPreset.starLifeMultiplier))
+        ? Math.max(0.01, Number(shellPreset.starLifeMultiplier))
         : 1.0;
       const hasBurstSmoke = !hasNoBurst && (
         (Array.isArray(shellPreset.effects) && shellPreset.effects.some(
@@ -1582,8 +1582,8 @@ export class FireworkSystem {
 
       const stageEffects = Array.isArray(stage.effects) ? stage.effects : [];
       const stageEffectKeys = stageEffects.map((e) => (typeof e === 'object' && e !== null ? (e.type || e.key) : e));
-      const stageParticleMultiplier = stage.particleCountMultiplier !== undefined
-        ? Math.max(0.25, Math.min(3.0, Number(stage.particleCountMultiplier) || 1.0))
+      const stageParticleMultiplier = (stage.particleCountMultiplier !== undefined && !isNaN(Number(stage.particleCountMultiplier)))
+        ? Math.max(0, Number(stage.particleCountMultiplier))
         : 1.0;
       const stagePreset = {
         ...preset,
@@ -1733,7 +1733,14 @@ export class FireworkSystem {
 
     const effectMultiplier = FIREWORK_CONFIG.EFFECT_MULTIPLIERS;
 
-    const presetMultiplier = Math.max(0.25, Math.min(3.0, preset?.particleCountMultiplier ?? 1));
+    const hasCustomMultiplier = preset?.particleCountMultiplier !== undefined && !isNaN(Number(preset.particleCountMultiplier));
+        const presetMultiplier = hasCustomMultiplier
+          ? Math.max(0, Number(preset.particleCountMultiplier))
+          : 1.0;
+    
+        if (presetMultiplier === 0) {
+          return 0;
+        }
     const renderModeMultiplier = (
       preset?.shapeRenderMode === 'outline'
       || preset?.shapeRenderMode === 'jupiter'
@@ -1809,13 +1816,15 @@ export class FireworkSystem {
       ? 16
       : ((isCrossetteActive || isSecondBurstActive) ? Math.round(MIN_BURST_PARTICLES * 0.6) : MIN_BURST_PARTICLES);
     const minParticles = Math.round(baseMin * this.graphicsQualityMultiplier);
-    const maxParticles = Math.round(MAX_BURST_PARTICLES * this.graphicsQualityMultiplier);
+    const maxParticles = Math.round(MAX_BURST_PARTICLES * Math.max(1.0, presetMultiplier) * this.graphicsQualityMultiplier);
     const rawCount = BASE_BURST_PARTICLES * resolvedShapeMultiplier * resolvedEffectMultiplier * crossetteScale * secondBurstScale * presetMultiplier * renderModeMultiplier * performanceScale * sizeMultiplier * throttlingScale * this.graphicsQualityMultiplier;
 
-    const effectiveMin = Math.max(
-      16,
-      Math.round(minParticles * Math.max(0.65, throttlingScale))
-    );
+    const effectiveMin = hasCustomMultiplier && presetMultiplier < 1.0
+      ? Math.max(1, Math.round(minParticles * presetMultiplier))
+      : Math.max(
+          16,
+          Math.round(minParticles * Math.max(0.65, throttlingScale))
+        );
     return Math.max(effectiveMin, Math.min(maxParticles, Math.round(rawCount)));
   }
 
@@ -2019,7 +2028,7 @@ export class FireworkSystem {
     });
 
     const baseLifeMul = (preset?.starLifeMultiplier !== undefined && !isNaN(Number(preset.starLifeMultiplier)))
-      ? Math.max(0.2, Number(preset.starLifeMultiplier))
+      ? Math.max(0.01, Number(preset.starLifeMultiplier))
       : (isLongBurn ? (FIREWORK_CONFIG.BURST?.longBurnMultiplier ?? 2.2) : 1.0);
     const isEffectiveLongBurn = isLongBurn || baseLifeMul >= 1.5;
 
@@ -2558,7 +2567,7 @@ export class FireworkSystem {
     });
 
     const childLifeMul = (cfg?.starLifeMultiplier !== undefined && !isNaN(Number(cfg.starLifeMultiplier)))
-      ? Math.max(0.2, Number(cfg.starLifeMultiplier))
+      ? Math.max(0.01, Number(cfg.starLifeMultiplier))
       : (isContourLongBurn ? (FIREWORK_CONFIG.BURST?.longBurnMultiplier ?? 2.2) : 1.0);
 
     let childColor2 = null;
@@ -3385,7 +3394,7 @@ export class FireworkSystem {
       || Boolean(item.preset?.strobe);
     const isDyingEmber = Boolean(item.preset?.isDyingEmber);
     const flightLifeMul = (item.preset?.starLifeMultiplier !== undefined && !isNaN(Number(item.preset.starLifeMultiplier)))
-      ? Math.max(0.2, Number(item.preset.starLifeMultiplier))
+      ? Math.max(0.01, Number(item.preset.starLifeMultiplier))
       : 1.0;
 
     this.emitFireworkEvent('firework:burst', {
