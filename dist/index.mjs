@@ -11944,4 +11944,88 @@ var at = new e.Vector3(), ot = new e.Vector3(), st = new e.Vector3(), ct = new e
 		summary: "Continuous sustained barrage of shells firing in relentless rapid succession."
 	}
 };
-export { A as AVAILABLE_CHILD_PRESETS, w as AVAILABLE_DYNAMICS, D as AVAILABLE_EFFECT_TAGS, T as AVAILABLE_MODIFIERS, C as AVAILABLE_SHAPES, u as AtmosphereManager, v as BurstEffectProcessor, S as BurstParticleFactory, _ as BurstShapeGenerator, L as COLOR_PALETTES, U as CometEntity, bt as CometSystem, j as DEFAULT_SECOND_BURST_CHILD_CONFIG, M as DEFAULT_SECOND_BURST_CONFIG, Dt as EFFECT_PREVIEW_METADATA, c as EventBus, n as FIREWORK_CONFIG, ze as FireworkSystem, Ye as InstancedCometRenderer, he as InstancedShellRenderer, o as LAUNCH_ZONE_CONFIG, r as LAYER_DEFAULT, i as LAYER_REFLECTION, a as LAYER_WATER, O as PRESET_TEMPLATES, $ as PREVIEW_CATEGORIES, z as ProceduralShellGenerator, ae as ShellEntity, I as ShellPresetFactory, Et as ShowEventDispatcher, Tt as SkyLightReactionSystem, wt as SmokeSystem, f as TEXT_GLYPHS, R as TIER_BUDGETS, E as TIMED_EFFECT_TAGS, ee as TOGGLE_MODIFIER_TAGS, g as TextGlyphAtlas, We as TrailSystem, d as atmosphereManager, k as getTemplateForPreset, l as globalEventBus, h as layoutWord, ne as proceduralShellGenerator, s as renderingConfig, te as resolveFireworkComposition, N as resolveSecondBurstConfig, p as sanitizeText, m as splitCommentIntoWords };
+function Ot(e) {
+	return e ? String(e).trim().replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/_/g, "-").toLowerCase() : "";
+}
+var kt = {
+	breathing_pulse: "breathing-pulse",
+	breathingPulse: "breathing-pulse",
+	breathing: "breathing-pulse",
+	diamond_scintillation: "diamond-scintillation",
+	diamondScintillation: "diamond-scintillation",
+	scintillation: "diamond-scintillation",
+	strobeBreathingPulse: "strobe_breathing_pulse",
+	"strobe-breathing-pulse": "strobe_breathing_pulse",
+	glitterDiamondScintillation: "glitter_diamond_scintillation",
+	"glitter-diamond-scintillation": "glitter_diamond_scintillation",
+	spiral: "crysanthemum-spiral",
+	smoke: "crysanthemum-smoke",
+	trail: "crysanthemum-trail",
+	chrysanthemum: "crysanthemum-trail",
+	"chrysanthemum-spiral": "crysanthemum-spiral",
+	"chrysanthemum-spiral-v2": "crysanthemum-spiral-v2",
+	"chrysanthemum-smoke": "crysanthemum-smoke",
+	"chrysanthemum-trail": "crysanthemum-trail",
+	"chrysanthemum-v2": "crysanthemum-spiral-v2",
+	crysanthemum: "crysanthemum-trail",
+	"crysanthemum-v2": "crysanthemum-spiral-v2",
+	"crysanthemum-cc": "crysanthemum-trail",
+	"crysanthemum-nested": "crysanthemum-trail",
+	"crysanthemum-spiral": "crysanthemum-spiral",
+	"crysanthemum-smoke": "crysanthemum-smoke",
+	"crysanthemum-trail": "crysanthemum-trail",
+	crysanthemumspiral: "crysanthemum-spiral",
+	crysanthemumsmoke: "crysanthemum-smoke",
+	crysanthemumtrail: "crysanthemum-trail",
+	crysanthemumspiralv2: "crysanthemum-spiral-v2",
+	"willow-gold": "willow",
+	"bouquet-cluster": "bouquet-comet",
+	peony: "standard",
+	"chrysanthemum-discrete-trail": "crysanthemum-discrete-trail",
+	chrysanthemum_discrete_trail: "crysanthemum-discrete-trail",
+	"chrysanthemum-uniform-sphere": "crysanthemum_uniform_sphere",
+	chrysanthemum_uniform_sphere: "crysanthemum_uniform_sphere",
+	"egg-chrysanthemum": "egg_crysanthemum",
+	egg_chrysanthemum: "egg_crysanthemum",
+	"crysanthemum-sphere-rings": "crysanthemum_sphere_rings",
+	crysanthemum_sphere_rings: "crysanthemum_sphere_rings",
+	"chrysanthemum-sphere-rings": "crysanthemum_sphere_rings",
+	chrysanthemum_sphere_rings: "crysanthemum_sphere_rings",
+	"sphere-rings-wave": "sphere_rings_wave",
+	sphere_rings_wave: "sphere_rings_wave",
+	"sphere-rings-cascade": "sphere_rings_cascade",
+	sphere_rings_cascade: "sphere_rings_cascade",
+	"sphere-rings-strobe": "sphere_rings_strobe",
+	sphere_rings_strobe: "sphere_rings_strobe",
+	"slow-burst": "slow-burst",
+	slow_burst: "slow-burst",
+	slowburst: "slow-burst",
+	waterfall: "horsetail",
+	horsetail_waterfall: "horsetail_waterfall",
+	"horsetail-waterfall": "horsetail_waterfall"
+};
+function At(e, t = $.DYNAMICS) {
+	if (!e) return null;
+	let n = String(e).trim(), r = Ot(e), i = kt[r] || kt[n.toLowerCase()] || r, a = Dt[i] || Dt[r] || Dt[n.toLowerCase()];
+	if (a) {
+		let e = [
+			a.videoUrl,
+			`previews/${a.category || t}s/${i}.mp4`,
+			`previews/${a.category || t}s/${r}.mp4`
+		];
+		return i.includes("crysanthemum-") && (e.push(`previews/dynamics/${i.replace("crysanthemum-", "")}.mp4`), e.push(`previews/dynamics/${i.replace("crysanthemum-", "chrysanthemum-")}.mp4`)), {
+			...a,
+			candidateUrls: [...new Set(e)]
+		};
+	}
+	let o = `previews/${t}s/${r}.mp4`;
+	return {
+		name: e.charAt(0).toUpperCase() + e.slice(1),
+		category: t,
+		videoUrl: o,
+		candidateUrls: [o],
+		tags: ["Firework Effect"],
+		summary: `Effect preview for ${e}.`
+	};
+}
+export { A as AVAILABLE_CHILD_PRESETS, w as AVAILABLE_DYNAMICS, D as AVAILABLE_EFFECT_TAGS, T as AVAILABLE_MODIFIERS, C as AVAILABLE_SHAPES, u as AtmosphereManager, t as BASE_BURST_PROFILE, v as BurstEffectProcessor, S as BurstParticleFactory, _ as BurstShapeGenerator, L as COLOR_PALETTES, U as CometEntity, bt as CometSystem, j as DEFAULT_SECOND_BURST_CHILD_CONFIG, M as DEFAULT_SECOND_BURST_CONFIG, Dt as EFFECT_PREVIEW_METADATA, c as EventBus, n as FIREWORK_CONFIG, ze as FireworkSystem, Ye as InstancedCometRenderer, he as InstancedShellRenderer, o as LAUNCH_ZONE_CONFIG, r as LAYER_DEFAULT, i as LAYER_REFLECTION, a as LAYER_WATER, O as PRESET_TEMPLATES, $ as PREVIEW_CATEGORIES, z as ProceduralShellGenerator, ae as ShellEntity, I as ShellPresetFactory, Et as ShowEventDispatcher, Tt as SkyLightReactionSystem, wt as SmokeSystem, f as TEXT_GLYPHS, R as TIER_BUDGETS, E as TIMED_EFFECT_TAGS, ee as TOGGLE_MODIFIER_TAGS, g as TextGlyphAtlas, We as TrailSystem, d as atmosphereManager, At as getEffectPreview, k as getTemplateForPreset, l as globalEventBus, h as layoutWord, Ot as normalizePreviewKey, ne as proceduralShellGenerator, s as renderingConfig, te as resolveFireworkComposition, N as resolveSecondBurstConfig, p as sanitizeText, m as splitCommentIntoWords };

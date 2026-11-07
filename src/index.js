@@ -1,5 +1,5 @@
 // Core Configurations
-export { FIREWORK_CONFIG } from './config/fireworks.js';
+export { BASE_BURST_PROFILE, FIREWORK_CONFIG } from './config/fireworks.js';
 export {
   LAYER_DEFAULT,
   LAYER_REFLECTION,
@@ -63,4 +63,4 @@ export { InstancedShellRenderer } from './render/InstancedShellRenderer.js';
 export { InstancedCometRenderer } from './render/InstancedCometRenderer.js';
 
 export { ShowEventDispatcher } from './directors/ShowEventDispatcher.js';
-export { EFFECT_PREVIEW_METADATA, PREVIEW_CATEGORIES } from './config/effectPreviews.js';
+export * from './config/effectPreviews.js';
