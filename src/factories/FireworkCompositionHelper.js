@@ -82,7 +82,11 @@ export const TIMED_EFFECT_TAGS = [
   'sync_strobe',
   'sync-strobe',
   'dark_phase',
-  'dark-phase'
+  'dark-phase',
+  'terminal_flare',
+  'terminal-flare',
+  'burnout_flash',
+  'burnout-flash'
 ];
 
 export const TOGGLE_MODIFIER_TAGS = [
@@ -93,7 +97,11 @@ export const TOGGLE_MODIFIER_TAGS = [
   'slow-burst',
   'cascade-wave',
   'cascade_wave',
-  'cascadeWave'
+  'cascadeWave',
+  'terminal_flare',
+  'terminal-flare',
+  'burnout_flash',
+  'burnout-flash'
 ];
 
 export const AVAILABLE_EFFECT_TAGS = [
@@ -733,6 +741,9 @@ export function resolveFireworkComposition(eventOrPreset) {
     }
     if ((eventOrPreset.slowBurst || eventOrPreset['slow-burst'] || eventOrPreset.slow_burst) && !effects.includes('slow-burst')) {
       effects.push('slow-burst');
+    }
+    if ((eventOrPreset.terminalFlare || eventOrPreset['terminal-flare'] || eventOrPreset.terminal_flare || eventOrPreset.burnoutFlash || eventOrPreset['burnout-flash'] || eventOrPreset.burnout_flash) && !effects.includes('terminal_flare')) {
+      effects.push('terminal_flare');
     }
   }
 

@@ -2025,7 +2025,8 @@ export class FireworkSystem {
       isApexHang,
       isSlowBurst,
       hasNoTrail,
-      hasCascadeWave
+      hasCascadeWave,
+      hasTerminalFlare
     } = BurstParticleFactory.resolveActiveEffectFlags({
       preset,
       effects: effectsList,
@@ -2697,7 +2698,12 @@ export class FireworkSystem {
         erraticDartWiggleAmp: (FIREWORK_CONFIG.ERRATIC_DART?.wobbleAmp ?? 26.0)
           * (0.85 + Math.random() * 0.30),
         phaseDelay: particlePhaseDelay,
-        hasCascadeWave
+        hasCascadeWave,
+        hasTerminalFlare,
+        terminalFlareTriggerRatio: preset?.terminalFlareTriggerRatio,
+        terminalFlareDuration: preset?.terminalFlareDuration,
+        terminalFlareIntensity: preset?.terminalFlareIntensity,
+        terminalFlareSizeMultiplier: preset?.terminalFlareSizeMultiplier
       });
 
       newParticles.push(particle);
@@ -4581,6 +4587,26 @@ export class FireworkSystem {
         }
         const frictionScale = 1.0 + Math.min(0.25, (p.frictionHeat || 0) * 0.2);
         renderSize = baseSize * sizeDecay * frictionScale;
+      }
+
+      if (p.hasTerminalFlare && lifeRatio >= p.terminalFlareTriggerRatio) {
+        const flareProg = (lifeRatio - p.terminalFlareTriggerRatio) / Math.max(0.01, p.terminalFlareDuration);
+        if (flareProg >= 0.0 && flareProg <= 1.0) {
+          // Asymmetric flare curve: fast rise (30%), smooth decay
+          const flareFactor = flareProg < 0.30
+            ? (flareProg / 0.30)
+            : Math.max(0.0, (1.0 - flareProg) / 0.70);
+          if (flareFactor > 0.0) {
+            opacity = Math.min(1.5, opacity * (1.0 + flareFactor * (p.terminalFlareIntensity - 1.0)));
+            renderSize *= (1.0 + flareFactor * (p.terminalFlareSizeMultiplier - 1.0));
+            if (flareFactor > 0.05) {
+              const whiteMix = flareFactor * 0.65;
+              p.color.r = THREE.MathUtils.lerp(p.color.r, 1.0, whiteMix);
+              p.color.g = THREE.MathUtils.lerp(p.color.g, 1.0, whiteMix);
+              p.color.b = THREE.MathUtils.lerp(p.color.b, 1.0, whiteMix);
+            }
+          }
+        }
       }
 
       const isDarkPhaseActive = BurstEffectProcessor.isEffectActive(p, 'dark_phase')

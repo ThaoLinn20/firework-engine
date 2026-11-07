@@ -75,6 +75,54 @@ export const PARAMETER_DESCRIPTORS = Object.freeze({
     hardMax: 30.0,
     unit: 's',
     formatValue: (v) => `${Number(v).toFixed(2)}s`
+  }),
+  terminalFlareTriggerRatio: Object.freeze({
+    name: 'terminalFlareTriggerRatio',
+    labelKey: 'terminalFlareTriggerRatio',
+    defaultValue: 0.85,
+    softMin: 0.70,
+    softMax: 0.95,
+    softStep: 0.01,
+    hardMin: 0.50,
+    hardMax: 0.99,
+    unit: '',
+    formatValue: (v) => `${Math.round(Number(v) * 100)}%`
+  }),
+  terminalFlareDuration: Object.freeze({
+    name: 'terminalFlareDuration',
+    labelKey: 'terminalFlareDuration',
+    defaultValue: 0.15,
+    softMin: 0.05,
+    softMax: 0.35,
+    softStep: 0.01,
+    hardMin: 0.01,
+    hardMax: 1.0,
+    unit: 's',
+    formatValue: (v) => `${Number(v).toFixed(2)}s`
+  }),
+  terminalFlareIntensity: Object.freeze({
+    name: 'terminalFlareIntensity',
+    labelKey: 'terminalFlareIntensity',
+    defaultValue: 2.2,
+    softMin: 1.0,
+    softMax: 3.5,
+    softStep: 0.1,
+    hardMin: 1.0,
+    hardMax: 8.0,
+    unit: 'x',
+    formatValue: (v) => `${Number(v).toFixed(1)}x`
+  }),
+  terminalFlareSizeMultiplier: Object.freeze({
+    name: 'terminalFlareSizeMultiplier',
+    labelKey: 'terminalFlareSizeMultiplier',
+    defaultValue: 1.25,
+    softMin: 1.0,
+    softMax: 1.8,
+    softStep: 0.05,
+    hardMin: 0.5,
+    hardMax: 4.0,
+    unit: 'x',
+    formatValue: (v) => `${Number(v).toFixed(2)}x`
   })
 });
 
@@ -113,6 +161,18 @@ export function normalizePresetParameters(preset) {
   }
   if (preset.cascadeDuration !== undefined) {
     preset.cascadeDuration = normalizeParameter('cascadeDuration', preset.cascadeDuration);
+  }
+  if (preset.terminalFlareTriggerRatio !== undefined) {
+    preset.terminalFlareTriggerRatio = normalizeParameter('terminalFlareTriggerRatio', preset.terminalFlareTriggerRatio);
+  }
+  if (preset.terminalFlareDuration !== undefined) {
+    preset.terminalFlareDuration = normalizeParameter('terminalFlareDuration', preset.terminalFlareDuration);
+  }
+  if (preset.terminalFlareIntensity !== undefined) {
+    preset.terminalFlareIntensity = normalizeParameter('terminalFlareIntensity', preset.terminalFlareIntensity);
+  }
+  if (preset.terminalFlareSizeMultiplier !== undefined) {
+    preset.terminalFlareSizeMultiplier = normalizeParameter('terminalFlareSizeMultiplier', preset.terminalFlareSizeMultiplier);
   }
   return preset;
 }

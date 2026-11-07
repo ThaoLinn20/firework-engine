@@ -188,6 +188,32 @@ export class BurstParticleFactory {
       || normDynamics === 'cascadewave'
     );
 
+    const hasTerminalFlare = Boolean(
+      preset?.terminalFlare
+      || preset?.['terminal-flare']
+      || preset?.terminal_flare
+      || preset?.burnoutFlash
+      || preset?.['burnout-flash']
+      || preset?.burnout_flash
+      || effectsList.includes('terminal-flare')
+      || effectsList.includes('terminal_flare')
+      || effectsList.includes('terminalFlare')
+      || effectsList.includes('burnout-flash')
+      || effectsList.includes('burnout_flash')
+      || (Array.isArray(preset?.effects) && (
+        preset.effects.includes('terminal-flare')
+        || preset.effects.includes('terminal_flare')
+        || preset.effects.includes('terminalFlare')
+        || preset.effects.includes('burnout-flash')
+        || preset.effects.includes('burnout_flash')
+        || preset.effects.some((e) => (typeof e === 'object' && ['terminal-flare', 'terminal_flare', 'terminalFlare', 'burnout-flash', 'burnout_flash'].includes(e.type || e.key)))
+      ))
+      || normDynamics === 'terminal-flare'
+      || normDynamics === 'terminal_flare'
+      || normDynamics === 'burnout-flash'
+      || normDynamics === 'burnout_flash'
+    );
+
     return {
       isCrossetteShell,
       isTadpoleFlurryShell,
@@ -202,6 +228,7 @@ export class BurstParticleFactory {
       hasBreathingPulse,
       hasDiamondScintillation,
       hasCascadeWave,
+      hasTerminalFlare,
       effectsList
     };
   }
@@ -337,7 +364,12 @@ export class BurstParticleFactory {
       frictionHeat = 0.0,
       ringIndex = null,
       sizeVariance = null,
-      brightnessVariance = null
+      brightnessVariance = null,
+      hasTerminalFlare = false,
+      terminalFlareTriggerRatio = null,
+      terminalFlareDuration = null,
+      terminalFlareIntensity = null,
+      terminalFlareSizeMultiplier = null
     } = options;
 
     const sizeSpread = FIREWORK_CONFIG.BURST?.starSizeVariance ?? 0.06;
@@ -531,6 +563,39 @@ export class BurstParticleFactory {
     }
 
     const isCascade = Boolean(hasCascadeWave || pDelay > 0);
+    const flareTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'terminal-flare', maxLife)
+      || BurstParticleFactory.getEffectTiming(effectsArray, 'terminal_flare', maxLife)
+      || BurstParticleFactory.getEffectTiming(effectsArray, 'burnout-flash', maxLife)
+      || BurstParticleFactory.getEffectTiming(effectsArray, 'burnout_flash', maxLife);
+
+    const effectiveHasTerminalFlare = options.hasTerminalFlare !== undefined
+      ? Boolean(options.hasTerminalFlare)
+      : (Boolean(preset?.terminalFlare || preset?.['terminal-flare'] || preset?.terminal_flare) || flareTiming !== null);
+
+    const resolvedTerminalFlareTriggerRatio = options.terminalFlareTriggerRatio !== null && options.terminalFlareTriggerRatio !== undefined
+      ? Number(options.terminalFlareTriggerRatio)
+      : (preset?.terminalFlareTriggerRatio !== undefined
+        ? Number(preset.terminalFlareTriggerRatio)
+        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultTriggerRatio ?? 0.85));
+
+    const resolvedTerminalFlareDuration = options.terminalFlareDuration !== null && options.terminalFlareDuration !== undefined
+      ? Number(options.terminalFlareDuration)
+      : (preset?.terminalFlareDuration !== undefined
+        ? Number(preset.terminalFlareDuration)
+        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultDuration ?? 0.15));
+
+    const resolvedTerminalFlareIntensity = options.terminalFlareIntensity !== null && options.terminalFlareIntensity !== undefined
+      ? Number(options.terminalFlareIntensity)
+      : (preset?.terminalFlareIntensity !== undefined
+        ? Number(preset.terminalFlareIntensity)
+        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultIntensity ?? 2.2));
+
+    const resolvedTerminalFlareSizeMultiplier = options.terminalFlareSizeMultiplier !== null && options.terminalFlareSizeMultiplier !== undefined
+      ? Number(options.terminalFlareSizeMultiplier)
+      : (preset?.terminalFlareSizeMultiplier !== undefined
+        ? Number(preset.terminalFlareSizeMultiplier)
+        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.25));
+
     const resolvedDissolveThreshold = options.dissolveThreshold !== undefined
       ? options.dissolveThreshold
       : (isCascade
@@ -645,6 +710,11 @@ export class BurstParticleFactory {
       attenuationStart: resolvedAttenuationStart,
       fadeExp: resolvedFadeExp,
       minDissolveFloor: resolvedMinDissolveFloor,
+      hasTerminalFlare: effectiveHasTerminalFlare,
+      terminalFlareTriggerRatio: resolvedTerminalFlareTriggerRatio,
+      terminalFlareDuration: resolvedTerminalFlareDuration,
+      terminalFlareIntensity: resolvedTerminalFlareIntensity,
+      terminalFlareSizeMultiplier: resolvedTerminalFlareSizeMultiplier,
       lastVelocity: velocity ? velocity.clone() : new THREE.Vector3()
     };
   }

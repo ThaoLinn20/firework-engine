@@ -638,5 +638,21 @@ export const FIREWORK_CONFIG = {
     lifeJitter: 0.0,
     dissolveStart: 0.92,
     attenuationStart: 0.75
+  },
+
+  // Cấu hình bùng sáng cuối vòng đời (Terminal Flare / Burnout Flash)
+  TERMINAL_FLARE: {
+    defaultTriggerRatio: 0.85,
+    minTriggerRatio: 0.60,
+    maxTriggerRatio: 0.98,
+    defaultDuration: 0.15,
+    minDuration: 0.05,
+    maxDuration: 0.40,
+    defaultIntensity: 2.2,
+    minIntensity: 1.0,
+    maxIntensity: 5.0,
+    defaultSizeMultiplier: 1.25,
+    minSizeMultiplier: 1.0,
+    maxSizeMultiplier: 2.0
   }
 };
