@@ -437,7 +437,7 @@ var t = {
 	CASCADE_WAVE: {
 		defaultDuration: .8,
 		minDuration: .1,
-		maxDuration: 2,
+		maxDuration: 6,
 		defaultMode: "parallel-rings",
 		defaultRings: 8,
 		minRings: 3,
@@ -509,6 +509,18 @@ var t = {
 		hardMax: 10,
 		unit: "x",
 		formatValue: (e) => `${Number(e).toFixed(2)}x`
+	}),
+	cascadeDuration: Object.freeze({
+		name: "cascadeDuration",
+		labelKey: "cascadeDuration",
+		defaultValue: .8,
+		softMin: .1,
+		softMax: 6,
+		softStep: .05,
+		hardMin: .05,
+		hardMax: 30,
+		unit: "s",
+		formatValue: (e) => `${Number(e).toFixed(2)}s`
 	})
 });
 function i(e) {
@@ -525,7 +537,7 @@ function a(e, t) {
 	return Math.max(n.hardMin, Math.min(n.hardMax, i));
 }
 function o(e) {
-	return !e || typeof e != "object" || (e.particleCountMultiplier !== void 0 && (e.particleCountMultiplier = a("particleCountMultiplier", e.particleCountMultiplier)), e.starLifeMultiplier !== void 0 && (e.starLifeMultiplier = a("starLifeMultiplier", e.starLifeMultiplier)), e.shellSize !== void 0 && (e.shellSize = a("shellSize", e.shellSize)), e.soundVolume !== void 0 && (e.soundVolume = a("soundVolume", e.soundVolume))), e;
+	return !e || typeof e != "object" || (e.particleCountMultiplier !== void 0 && (e.particleCountMultiplier = a("particleCountMultiplier", e.particleCountMultiplier)), e.starLifeMultiplier !== void 0 && (e.starLifeMultiplier = a("starLifeMultiplier", e.starLifeMultiplier)), e.shellSize !== void 0 && (e.shellSize = a("shellSize", e.shellSize)), e.soundVolume !== void 0 && (e.soundVolume = a("soundVolume", e.soundVolume)), e.cascadeDuration !== void 0 && (e.cascadeDuration = a("cascadeDuration", e.cascadeDuration))), e;
 }
 // src/config/layers.js
 var s = 0, c = 1, l = 2, u = {

@@ -12,10 +12,15 @@ describe('Centralized Parameter Descriptors and Normalization', () => {
     expect(PARAMETER_DESCRIPTORS.starLifeMultiplier).toBeDefined();
     expect(PARAMETER_DESCRIPTORS.shellSize).toBeDefined();
     expect(PARAMETER_DESCRIPTORS.soundVolume).toBeDefined();
+    expect(PARAMETER_DESCRIPTORS.cascadeDuration).toBeDefined();
 
     expect(PARAMETER_DESCRIPTORS.particleCountMultiplier.softMin).toBe(0.25);
     expect(PARAMETER_DESCRIPTORS.particleCountMultiplier.softMax).toBe(3.0);
     expect(PARAMETER_DESCRIPTORS.particleCountMultiplier.hardMin).toBe(0.0);
+
+    expect(PARAMETER_DESCRIPTORS.cascadeDuration.softMin).toBe(0.1);
+    expect(PARAMETER_DESCRIPTORS.cascadeDuration.softMax).toBe(6.0);
+    expect(PARAMETER_DESCRIPTORS.cascadeDuration.hardMin).toBe(0.05);
   });
 
   it('should retrieve descriptor by name using getParameterDescriptor', () => {

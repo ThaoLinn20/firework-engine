@@ -627,7 +627,7 @@ export const FIREWORK_CONFIG = {
   CASCADE_WAVE: {
     defaultDuration: 0.80,
     minDuration: 0.10,
-    maxDuration: 2.00,
+    maxDuration: 6.00,
     defaultMode: 'parallel-rings',
     defaultRings: 8,
     minRings: 3,

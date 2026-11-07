@@ -63,6 +63,18 @@ export const PARAMETER_DESCRIPTORS = Object.freeze({
     hardMax: 10.0,
     unit: 'x',
     formatValue: (v) => `${Number(v).toFixed(2)}x`
+  }),
+  cascadeDuration: Object.freeze({
+    name: 'cascadeDuration',
+    labelKey: 'cascadeDuration',
+    defaultValue: 0.8,
+    softMin: 0.1,
+    softMax: 6.0,
+    softStep: 0.05,
+    hardMin: 0.05,
+    hardMax: 30.0,
+    unit: 's',
+    formatValue: (v) => `${Number(v).toFixed(2)}s`
   })
 });
 
@@ -98,6 +110,9 @@ export function normalizePresetParameters(preset) {
   }
   if (preset.soundVolume !== undefined) {
     preset.soundVolume = normalizeParameter('soundVolume', preset.soundVolume);
+  }
+  if (preset.cascadeDuration !== undefined) {
+    preset.cascadeDuration = normalizeParameter('cascadeDuration', preset.cascadeDuration);
   }
   return preset;
 }
