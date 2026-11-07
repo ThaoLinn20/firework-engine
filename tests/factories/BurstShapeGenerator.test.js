@@ -127,6 +127,54 @@ describe('BurstShapeGenerator', () => {
     // Equator (ring 2) should have more particles than extreme poles (rings 0 and 4)
     expect(ringCounts[2]).toBeGreaterThan(ringCounts[0]);
     expect(ringCounts[2]).toBeGreaterThan(ringCounts[4]);
+
+    // Top ring (0) has positive Y, bottom ring (4) has negative Y, equator (2) is near 0
+    const ring0Particles = vectors.filter((v) => v.ringIndex === 0);
+    const ring4Particles = vectors.filter((v) => v.ringIndex === 4);
+    const ring2Particles = vectors.filter((v) => v.ringIndex === 2);
+
+    expect(ring0Particles[0].y).toBeGreaterThan(0.85);
+    expect(ring4Particles[0].y).toBeLessThan(-0.85);
+    expect(Math.abs(ring2Particles[0].y)).toBeLessThan(0.001);
+
+    // Each ring is planar: all particles in the same ring have identical Y
+    ring0Particles.forEach((p) => {
+      expect(p.y).toBeCloseTo(ring0Particles[0].y, 5);
+    });
+    ring2Particles.forEach((p) => {
+      expect(p.y).toBeCloseTo(ring2Particles[0].y, 5);
+    });
+    ring4Particles.forEach((p) => {
+      expect(p.y).toBeCloseTo(ring4Particles[0].y, 5);
+    });
+
+    // Sum of particles matches totalCount exactly
+    const sumAllocated = ringCounts.reduce((a, b) => a + b, 0);
+    expect(sumAllocated).toBe(totalCount);
+  });
+
+  it('should support dynamic ringCount via cascadeRings or ringCount in preset', () => {
+    const totalCount = 140;
+    const ringCount = 7;
+    const vectors = [];
+
+    for (let i = 0; i < totalCount; i++) {
+      const angle = (i / totalCount) * Math.PI * 2;
+      const dir = BurstShapeGenerator.direction(
+        'sphere_rings',
+        angle,
+        i,
+        totalCount,
+        { cascadeRings: ringCount }
+      );
+      expect(dir.ringIndex).toBeGreaterThanOrEqual(0);
+      expect(dir.ringIndex).toBeLessThan(ringCount);
+      expect(dir.ringCount).toBe(ringCount);
+      vectors.push(dir);
+    }
+
+    const uniqueRings = new Set(vectors.map((v) => v.ringIndex));
+    expect(uniqueRings.size).toBe(ringCount);
   });
 
   it('should generate spaced upward dome vectors for horsetail shape', () => {

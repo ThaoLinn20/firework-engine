@@ -2203,7 +2203,21 @@ export class FireworkSystem {
           particleCount,
           isCoreParticle ? preset : ringPreset
         );
-        if (particleShape === 'willow-arch' || particleShape === 'willow-up') {
+        const isParallelCascade = hasCascadeWave && (
+          cascadeMode === 'parallel-rings'
+          || cascadeMode === 'parallel_rings'
+          || cascadeMode === 'parallel-rings-top-down'
+          || cascadeMode === 'parallel_rings_top_down'
+          || cascadeMode === 'parallel-rings-bottom-up'
+          || cascadeMode === 'parallel_rings_bottom_up'
+        );
+        if (
+          particleShape === 'willow-arch'
+          || particleShape === 'willow-up'
+          || particleShape === 'sphere_rings'
+          || particleShape === 'sphere-rings'
+          || isParallelCascade
+        ) {
           direction = rawDir.applyQuaternion(burstYawQuat);
         } else {
           direction = (particleShape === 'heart' || particleShape === 'text_word') ? rawDir.clone() : rawDir.applyQuaternion(burstRotation);
@@ -2277,7 +2291,11 @@ export class FireworkSystem {
         Math.random() < 0.05
       );
       const speedJitter = dynamicsProfile?.speedJitter ?? BURST_SPEED_JITTER;
-      const speedJitterScale = (particleShape === 'text_word')
+      const speedJitterScale = (
+        particleShape === 'text_word' ||
+        particleShape === 'sphere_rings' ||
+        particleShape === 'sphere-rings'
+      )
         ? 1.0
         : (1.0 + (Math.random() - 0.5) * (speedJitter * 2));
       const apexSpeedMul = isApexHang
@@ -2376,18 +2394,43 @@ export class FireworkSystem {
         ) {
           const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
           const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
-          const normY = Math.max(0, Math.min(1, (1.0 - direction.y) * 0.5));
-          const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
-          particlePhase = ringIndex / Math.max(1, ringCount - 1);
+          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
+            const actualRingCount = rawDir?.ringCount ?? ringCount;
+            particlePhase = rawDir.ringIndex / Math.max(1, actualRingCount - 1);
+          } else {
+            const normY = Math.max(0, Math.min(1, (1.0 - direction.y) * 0.5));
+            const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
+            particlePhase = ringIndex / Math.max(1, ringCount - 1);
+          }
         } else if (
           cascadeMode === 'parallel-rings-bottom-up'
           || cascadeMode === 'parallel_rings_bottom_up'
         ) {
           const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
           const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
-          const normY = Math.max(0, Math.min(1, (direction.y + 1.0) * 0.5));
-          const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
-          particlePhase = ringIndex / Math.max(1, ringCount - 1);
+          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
+            const actualRingCount = rawDir?.ringCount ?? ringCount;
+            particlePhase = 1.0 - (rawDir.ringIndex / Math.max(1, actualRingCount - 1));
+          } else {
+            const normY = Math.max(0, Math.min(1, (direction.y + 1.0) * 0.5));
+            const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
+            particlePhase = ringIndex / Math.max(1, ringCount - 1);
+          }
+        } else if (
+          cascadeMode === 'parallel-rings-equator-out'
+          || cascadeMode === 'parallel_rings_equator_out'
+        ) {
+          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
+          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
+          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
+            const actualRingCount = rawDir?.ringCount ?? ringCount;
+            const mid = (actualRingCount - 1) / 2.0;
+            particlePhase = Math.abs(rawDir.ringIndex - mid) / Math.max(0.5, mid);
+          } else {
+            const normDist = Math.abs(direction.y);
+            const ringIndex = Math.min(ringCount - 1, Math.floor(normDist * ringCount));
+            particlePhase = ringIndex / Math.max(1, ringCount - 1);
+          }
         } else if (cascadeMode === 'clockwise' || cascadeMode === 'clockwise_sweep') {
           const theta = Math.atan2(direction.z, direction.x);
           particlePhase = (theta + Math.PI) / (Math.PI * 2.0);

@@ -562,21 +562,30 @@ export class BurstShapeGenerator {
 
     if (shape === 'sphere_rings' || shape === 'sphere-rings') {
       const safeCount = Math.max(1, count);
-      const ringCount = preset?.ringCount || 5;
-      const maxLat = 58 * (Math.PI / 180);
+      const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? 5;
+      const ringCount = Math.max(
+        2,
+        Math.round(Number(rawRingCount) || 5)
+      );
+
+      // Max latitude angle: 70 degrees (~1.2217 rad).
+      // sin(70 deg) = ~0.940, covering 94% of the vertical spherical shell
+      // from south polar cap to north polar cap without hollow poles.
+      const maxLat = 70 * (Math.PI / 180);
       const latitudes = [];
       const weights = [];
 
+      // k = 0 is North Pole (+maxLat), k = ringCount - 1 is South Pole (-maxLat)
       for (let k = 0; k < ringCount; k++) {
         const lat = ringCount === 1
           ? 0
-          : -maxLat + (2 * maxLat * k) / (ringCount - 1);
+          : maxLat - (2 * maxLat * k) / (ringCount - 1);
         latitudes.push(lat);
-        weights.push(Math.cos(lat));
+        weights.push(Math.max(0.2, Math.cos(lat)));
       }
 
       const totalWeight = weights.reduce((acc, w) => acc + w, 0);
-      const ringThresholds = [];
+      const ringCounts = [];
       let accumulatedCount = 0;
 
       for (let k = 0; k < ringCount; k++) {
@@ -584,8 +593,27 @@ export class BurstShapeGenerator {
           4,
           Math.round((safeCount * weights[k]) / totalWeight)
         );
+        ringCounts.push(countForRing);
         accumulatedCount += countForRing;
-        ringThresholds.push(accumulatedCount);
+      }
+
+      // Balance rounding differences on the equator ring (largest weight) so sum === safeCount
+      const countDiff = safeCount - accumulatedCount;
+      if (countDiff !== 0) {
+        let maxWeightIdx = 0;
+        for (let k = 1; k < ringCount; k++) {
+          if (weights[k] > weights[maxWeightIdx]) {
+            maxWeightIdx = k;
+          }
+        }
+        ringCounts[maxWeightIdx] = Math.max(4, ringCounts[maxWeightIdx] + countDiff);
+      }
+
+      const ringThresholds = [];
+      let runningSum = 0;
+      for (let k = 0; k < ringCount; k++) {
+        runningSum += ringCounts[k];
+        ringThresholds.push(runningSum);
       }
 
       let ringIndex = 0;
@@ -598,7 +626,7 @@ export class BurstShapeGenerator {
         }
       }
 
-      const ringTotal = (ringIndex === ringCount - 1 ? safeCount : ringThresholds[ringIndex]) - ringStartIndex;
+      const ringTotal = ringCounts[ringIndex] || Math.max(1, safeCount);
       const ringParticleIndex = index - ringStartIndex;
       const lat = latitudes[ringIndex];
       const ringRadius = Math.cos(lat);
@@ -607,14 +635,16 @@ export class BurstShapeGenerator {
       // Golden ratio phase offset per ring to prevent aligned vertical seams
       const phaseOffset = ringIndex * 1.6180339887;
       const theta = (ringParticleIndex / Math.max(1, ringTotal)) * Math.PI * 2 + phaseOffset;
-      const thicknessJitter = 1.0 + (Math.random() - 0.5) * 0.04;
+      const radialJitter = 1.0 + (Math.random() - 0.5) * 0.02;
 
       const vec = new THREE.Vector3(
-        ringRadius * Math.cos(theta) * thicknessJitter,
-        y * thicknessJitter,
-        ringRadius * Math.sin(theta) * thicknessJitter
+        ringRadius * Math.cos(theta) * radialJitter,
+        y,
+        ringRadius * Math.sin(theta) * radialJitter
       );
       vec.ringIndex = ringIndex;
+      vec.ringCount = ringCount;
+      vec.latitude = lat;
       return vec;
     }
 
