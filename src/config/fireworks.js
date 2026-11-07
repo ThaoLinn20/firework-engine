@@ -648,11 +648,11 @@ export const FIREWORK_CONFIG = {
     defaultDuration: 0.15,
     minDuration: 0.05,
     maxDuration: 0.40,
-    defaultIntensity: 2.2,
+    defaultIntensity: 2.5,
     minIntensity: 1.0,
-    maxIntensity: 5.0,
-    defaultSizeMultiplier: 1.25,
+    maxIntensity: 6.0,
+    defaultSizeMultiplier: 1.35,
     minSizeMultiplier: 1.0,
-    maxSizeMultiplier: 2.0
+    maxSizeMultiplier: 2.5
   }
 };

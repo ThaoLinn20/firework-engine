@@ -103,12 +103,22 @@ describe('Terminal Flare Active Effect', () => {
     system.updateBurstParticles(0.016);
     expect(particle.renderOpacity).toBeLessThanOrEqual(1.0);
 
-    // Test flare peak (around triggerRatio + 30% of duration = 0.80 + 0.15 * 0.30 = 0.845)
-    particle.age = particle.maxLife * 0.845;
+    // Test flare peak (around triggerRatio + 25% of duration = 0.80 + 0.15 * 0.25 = 0.8375)
+    particle.age = particle.maxLife * 0.8375;
     system.updateBurstParticles(0.016);
-    // At flare peak, opacity and render size are active
-    expect(particle.renderOpacity).toBeGreaterThan(0.0);
+    // At flare peak, opacity is significantly brighter than explosion (> 1.0)
+    expect(particle.renderOpacity).toBeGreaterThan(1.0);
     expect(particle.renderSize).toBeGreaterThan(0.0);
+    // Actinic whitening: red particle (#ff0000) transitions to brilliant white (r, g, b close to 1.0)
+    expect(particle.color.r).toBeCloseTo(1.0, 1);
+    expect(particle.color.g).toBeCloseTo(1.0, 1);
+    expect(particle.color.b).toBeCloseTo(1.0, 1);
+
+    // Test burnout complete (lifeRatio > 0.80 + 0.15 = 0.95 -> 0.98)
+    particle.age = particle.maxLife * 0.98;
+    system.updateBurstParticles(0.016);
+    expect(particle.renderOpacity).toBe(0.0);
+    expect(particle.renderSize).toBe(0.0);
 
     system.destroy();
   });

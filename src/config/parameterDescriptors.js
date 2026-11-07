@@ -103,24 +103,24 @@ export const PARAMETER_DESCRIPTORS = Object.freeze({
   terminalFlareIntensity: Object.freeze({
     name: 'terminalFlareIntensity',
     labelKey: 'terminalFlareIntensity',
-    defaultValue: 2.2,
+    defaultValue: 2.5,
     softMin: 1.0,
-    softMax: 3.5,
+    softMax: 4.5,
     softStep: 0.1,
     hardMin: 1.0,
-    hardMax: 8.0,
+    hardMax: 10.0,
     unit: 'x',
     formatValue: (v) => `${Number(v).toFixed(1)}x`
   }),
   terminalFlareSizeMultiplier: Object.freeze({
     name: 'terminalFlareSizeMultiplier',
     labelKey: 'terminalFlareSizeMultiplier',
-    defaultValue: 1.25,
+    defaultValue: 1.35,
     softMin: 1.0,
-    softMax: 1.8,
+    softMax: 2.2,
     softStep: 0.05,
     hardMin: 0.5,
-    hardMax: 4.0,
+    hardMax: 5.0,
     unit: 'x',
     formatValue: (v) => `${Number(v).toFixed(2)}x`
   })

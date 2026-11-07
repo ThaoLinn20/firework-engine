@@ -4592,20 +4592,29 @@ export class FireworkSystem {
       if (p.hasTerminalFlare && lifeRatio >= p.terminalFlareTriggerRatio) {
         const flareProg = (lifeRatio - p.terminalFlareTriggerRatio) / Math.max(0.01, p.terminalFlareDuration);
         if (flareProg >= 0.0 && flareProg <= 1.0) {
-          // Asymmetric flare curve: fast rise (30%), smooth decay
-          const flareFactor = flareProg < 0.30
-            ? (flareProg / 0.30)
-            : Math.max(0.0, (1.0 - flareProg) / 0.70);
+          // Asymmetric flare curve: fast actinic ignition attack (25%), smooth burn-off decay (75%)
+          const flareFactor = flareProg < 0.25
+            ? (flareProg / 0.25)
+            : Math.max(0.0, (1.0 - flareProg) / 0.75);
           if (flareFactor > 0.0) {
-            opacity = Math.min(1.5, opacity * (1.0 + flareFactor * (p.terminalFlareIntensity - 1.0)));
-            renderSize *= (1.0 + flareFactor * (p.terminalFlareSizeMultiplier - 1.0));
-            if (flareFactor > 0.05) {
-              const whiteMix = flareFactor * 0.65;
-              p.color.r = THREE.MathUtils.lerp(p.color.r, 1.0, whiteMix);
-              p.color.g = THREE.MathUtils.lerp(p.color.g, 1.0, whiteMix);
-              p.color.b = THREE.MathUtils.lerp(p.color.b, 1.0, whiteMix);
-            }
+            // Actinic flash whitening: transition smoothly to 100% pure brilliant white at peak
+            const whiteMix = Math.min(1.0, flareFactor * 1.25);
+            p.color.r = THREE.MathUtils.lerp(p.color.r, 1.0, whiteMix);
+            p.color.g = THREE.MathUtils.lerp(p.color.g, 1.0, whiteMix);
+            p.color.b = THREE.MathUtils.lerp(p.color.b, 1.0, whiteMix);
+
+            // Luminance surge: brighter than initial burst explosion (jumping directly from decayed opacity to flare intensity)
+            const peakOpacity = Math.max(1.0, brightnessOpacityScale) * p.terminalFlareIntensity;
+            opacity = THREE.MathUtils.lerp(opacity, peakOpacity, flareFactor);
+
+            // Optical star growth: expands beyond initial burst explosion size
+            const peakSize = baseSize * 1.35 * p.terminalFlareSizeMultiplier;
+            renderSize = THREE.MathUtils.lerp(renderSize, peakSize, flareFactor);
           }
+        } else if (flareProg > 1.0) {
+          // Burnout complete: flash core consumed, star completely extinguished
+          opacity = 0.0;
+          renderSize = 0.0;
         }
       }
 
