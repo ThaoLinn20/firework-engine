@@ -7794,25 +7794,27 @@ var P = {
 		};
 	}
 	textWordShell(e = 1, t = {}) {
-		let n = p(t.word || t.textWord || "HELLO") || "HELLO", r = h(n, {
+		let n = 1, r = "HELLO";
+		typeof e == "string" ? (r = e, n = t.size ?? 1) : (n = e, r = t.word || t.textWord || "HELLO");
+		let i = p(r) || "HELLO", a = h(i, {
 			scale: t.textScale ?? .38,
 			letterSpacing: t.letterSpacing ?? 1.5
-		}), i = t.textScale ?? .38, a = t.letterSpacing ?? 1.5;
+		}), o = t.textScale ?? .38, s = t.letterSpacing ?? 1.5;
 		return {
-			...this.basePreset(e),
+			...this.basePreset(n),
 			shellType: "text_word",
 			shapeType: "text_word",
 			dynamicsType: "standard",
 			effectType: t.effectType ?? "standard",
 			color: t.color || 16638023,
-			textWord: n,
-			textPoints: r,
-			_glyphCacheKey: `${n}_${i}_${a}`,
-			textScale: i,
-			letterSpacing: a,
+			textWord: i,
+			textPoints: a,
+			_glyphCacheKey: `${i}_${o}_${s}`,
+			textScale: o,
+			letterSpacing: s,
 			tiltAngle: t.tiltAngle ?? 18,
 			drag: 1.85,
-			starLife: 2400 + e * 400,
+			starLife: 2400 + n * 400,
 			starLifeMultiplier: 1.2,
 			pistil: !1,
 			instantBurst: !1,

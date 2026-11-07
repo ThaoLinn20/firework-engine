@@ -1498,8 +1498,16 @@ export class ShellPresetFactory {
     };
   }
 
-  textWordShell(size = 1, options = {}) {
-    const word = options.word || options.textWord || 'HELLO';
+  textWordShell(wordOrSize = 1, options = {}) {
+    let size = 1;
+    let word = 'HELLO';
+    if (typeof wordOrSize === 'string') {
+      word = wordOrSize;
+      size = options.size ?? 1;
+    } else {
+      size = wordOrSize;
+      word = options.word || options.textWord || 'HELLO';
+    }
     const cleanWord = sanitizeText(word) || 'HELLO';
     const textPts = layoutWord(cleanWord, {
       scale: options.textScale ?? 0.38,
