@@ -57,6 +57,9 @@ export class ShowEventDispatcher {
         || evt.cascadeRings !== undefined
         || evt['cascade-rings'] !== undefined
         || evt.cascade_rings !== undefined
+        || evt.cascadeAngle !== undefined
+        || evt['cascade-angle'] !== undefined
+        || evt.cascade_angle !== undefined
         || evt.ringCount !== undefined
         || evt.syncStrobe !== undefined
         || evt['sync-strobe'] !== undefined
@@ -116,6 +119,9 @@ export class ShowEventDispatcher {
         if (evt.cascadeRings !== undefined) overrides.cascadeRings = evt.cascadeRings;
         if (evt['cascade-rings'] !== undefined) overrides.cascadeRings = evt['cascade-rings'];
         if (evt.cascade_rings !== undefined) overrides.cascadeRings = evt.cascade_rings;
+        if (evt.cascadeAngle !== undefined) overrides.cascadeAngle = evt.cascadeAngle;
+        if (evt['cascade-angle'] !== undefined) overrides.cascadeAngle = evt['cascade-angle'];
+        if (evt.cascade_angle !== undefined) overrides.cascadeAngle = evt.cascade_angle;
         if (evt.ringCount !== undefined) overrides.cascadeRings = evt.ringCount;
         if (evt.syncStrobe !== undefined) overrides.syncStrobe = evt.syncStrobe;
         if (evt['sync-strobe'] !== undefined) overrides.syncStrobe = evt['sync-strobe'];

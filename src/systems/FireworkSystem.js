@@ -2033,6 +2033,86 @@ export class FireworkSystem {
       : (FIREWORK_CONFIG.CASCADE_WAVE?.defaultDuration ?? 0.60);
     const cascadeMode = preset?.cascadeMode || preset?.cascadeDirection || (FIREWORK_CONFIG.CASCADE_WAVE?.defaultMode ?? 'radial-outward');
 
+    let waveVector = new THREE.Vector3(0, 1, 0);
+    const waveQuat = new THREE.Quaternion();
+    let isRandomShuffle = false;
+    let ringShuffleMap = null;
+
+    if (hasCascadeWave) {
+      if (
+        cascadeMode === 'random'
+        || cascadeMode === 'random-direction'
+        || cascadeMode === 'random_direction'
+      ) {
+        const randAngle = Math.random() * Math.PI * 2;
+        const randZ = (Math.random() - 0.5) * 0.4;
+        const planarFactor = Math.sqrt(Math.max(0, 1.0 - randZ * randZ));
+        waveVector = new THREE.Vector3(
+          -Math.sin(randAngle) * planarFactor,
+          Math.cos(randAngle) * planarFactor,
+          randZ
+        ).normalize();
+      } else if (
+        cascadeMode === 'bottom-up'
+        || cascadeMode === 'parallel-rings-bottom-up'
+        || cascadeMode === 'parallel_rings_bottom_up'
+      ) {
+        waveVector = new THREE.Vector3(0, -1, 0);
+      } else if (
+        cascadeMode === 'left-to-right'
+        || cascadeMode === 'horizontal-left-right'
+        || cascadeMode === 'horizontal_left_right'
+      ) {
+        waveVector = new THREE.Vector3(-1, 0, 0);
+      } else if (
+        cascadeMode === 'right-to-left'
+        || cascadeMode === 'horizontal-right-left'
+        || cascadeMode === 'horizontal_right_left'
+      ) {
+        waveVector = new THREE.Vector3(1, 0, 0);
+      } else if (cascadeMode === 'diagonal-down' || cascadeMode === 'diagonal_down') {
+        waveVector = new THREE.Vector3(-1, 1, 0).normalize();
+      } else if (cascadeMode === 'diagonal-up' || cascadeMode === 'diagonal_up') {
+        waveVector = new THREE.Vector3(-1, -1, 0).normalize();
+      } else if (
+        cascadeMode === 'custom-angle'
+        || cascadeMode === 'custom_angle'
+        || (preset?.cascadeAngle !== undefined && !isNaN(Number(preset.cascadeAngle)))
+      ) {
+        const angleDeg = Number(preset?.cascadeAngle) || 0;
+        const angleRad = (angleDeg * Math.PI) / 180.0;
+        waveVector = new THREE.Vector3(
+          -Math.sin(angleRad),
+          Math.cos(angleRad),
+          0
+        ).normalize();
+      } else if (
+        cascadeMode === 'random-shuffle'
+        || cascadeMode === 'random_shuffle'
+        || cascadeMode === 'random-rings'
+      ) {
+        isRandomShuffle = true;
+        const rawRings = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
+        const rCount = Math.max(3, Math.min(24, Math.round(Number(rawRings) || 8)));
+        const indices = Array.from({ length: rCount }, (_, idx) => idx);
+        for (let k = indices.length - 1; k > 0; k--) {
+          const j = Math.floor(Math.random() * (k + 1));
+          const tmp = indices[k];
+          indices[k] = indices[j];
+          indices[j] = tmp;
+        }
+        ringShuffleMap = indices;
+      }
+
+      if (Math.abs(waveVector.y - 1.0) > 0.0001) {
+        if (Math.abs(waveVector.y + 1.0) < 0.0001) {
+          waveQuat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI);
+        } else {
+          waveQuat.setFromUnitVectors(new THREE.Vector3(0, 1, 0), waveVector);
+        }
+      }
+    }
+
     const baseLifeMul = (preset?.starLifeMultiplier !== undefined && !isNaN(Number(preset.starLifeMultiplier)))
       ? Math.max(0.01, Number(preset.starLifeMultiplier))
       : (isLongBurn ? (FIREWORK_CONFIG.BURST?.longBurnMultiplier ?? 2.2) : 1.0);
@@ -2210,15 +2290,32 @@ export class FireworkSystem {
           || cascadeMode === 'parallel_rings_top_down'
           || cascadeMode === 'parallel-rings-bottom-up'
           || cascadeMode === 'parallel_rings_bottom_up'
+          || cascadeMode === 'parallel-rings-equator-out'
+          || cascadeMode === 'parallel_rings_equator_out'
+          || cascadeMode === 'left-to-right'
+          || cascadeMode === 'right-to-left'
+          || cascadeMode === 'diagonal-down'
+          || cascadeMode === 'diagonal-up'
+          || cascadeMode === 'custom-angle'
+          || cascadeMode === 'custom_angle'
+          || cascadeMode === 'random'
+          || cascadeMode === 'random-direction'
+          || cascadeMode === 'random_direction'
+          || cascadeMode === 'random-shuffle'
+          || cascadeMode === 'random_shuffle'
+          || cascadeMode === 'random-rings'
         );
         if (
           particleShape === 'willow-arch'
           || particleShape === 'willow-up'
-          || particleShape === 'sphere_rings'
+        ) {
+          direction = rawDir.applyQuaternion(burstYawQuat);
+        } else if (
+          particleShape === 'sphere_rings'
           || particleShape === 'sphere-rings'
           || isParallelCascade
         ) {
-          direction = rawDir.applyQuaternion(burstYawQuat);
+          direction = rawDir.applyQuaternion(waveQuat).applyQuaternion(burstYawQuat);
         } else {
           direction = (particleShape === 'heart' || particleShape === 'text_word') ? rawDir.clone() : rawDir.applyQuaternion(burstRotation);
         }
@@ -2387,36 +2484,6 @@ export class FireworkSystem {
       let particlePhase = 0;
       if (hasCascadeWave && burstParticleCount > 1) {
         if (
-          cascadeMode === 'parallel-rings'
-          || cascadeMode === 'parallel_rings'
-          || cascadeMode === 'parallel-rings-top-down'
-          || cascadeMode === 'parallel_rings_top_down'
-        ) {
-          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
-          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
-          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
-            const actualRingCount = rawDir?.ringCount ?? ringCount;
-            particlePhase = rawDir.ringIndex / Math.max(1, actualRingCount - 1);
-          } else {
-            const normY = Math.max(0, Math.min(1, (1.0 - direction.y) * 0.5));
-            const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
-            particlePhase = ringIndex / Math.max(1, ringCount - 1);
-          }
-        } else if (
-          cascadeMode === 'parallel-rings-bottom-up'
-          || cascadeMode === 'parallel_rings_bottom_up'
-        ) {
-          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
-          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
-          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
-            const actualRingCount = rawDir?.ringCount ?? ringCount;
-            particlePhase = 1.0 - (rawDir.ringIndex / Math.max(1, actualRingCount - 1));
-          } else {
-            const normY = Math.max(0, Math.min(1, (direction.y + 1.0) * 0.5));
-            const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
-            particlePhase = ringIndex / Math.max(1, ringCount - 1);
-          }
-        } else if (
           cascadeMode === 'parallel-rings-equator-out'
           || cascadeMode === 'parallel_rings_equator_out'
         ) {
@@ -2427,8 +2494,53 @@ export class FireworkSystem {
             const mid = (actualRingCount - 1) / 2.0;
             particlePhase = Math.abs(rawDir.ringIndex - mid) / Math.max(0.5, mid);
           } else {
-            const normDist = Math.abs(direction.y);
+            const normDist = Math.abs(direction.dot(waveVector));
             const ringIndex = Math.min(ringCount - 1, Math.floor(normDist * ringCount));
+            particlePhase = ringIndex / Math.max(1, ringCount - 1);
+          }
+        } else if (isRandomShuffle && ringShuffleMap) {
+          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
+          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
+          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
+            const shuffledRank = ringShuffleMap[rawDir.ringIndex % ringShuffleMap.length];
+            particlePhase = shuffledRank / Math.max(1, ringShuffleMap.length - 1);
+          } else {
+            const proj = direction.dot(waveVector);
+            const normH = Math.max(0, Math.min(1, (1.0 - proj) * 0.5));
+            const ringIndex = Math.min(ringCount - 1, Math.floor(normH * ringCount));
+            const shuffledRank = ringShuffleMap[ringIndex % ringShuffleMap.length];
+            particlePhase = shuffledRank / Math.max(1, ringShuffleMap.length - 1);
+          }
+        } else if (
+          cascadeMode === 'random'
+          || cascadeMode === 'random-direction'
+          || cascadeMode === 'random_direction'
+          || cascadeMode === 'custom-angle'
+          || cascadeMode === 'custom_angle'
+          || cascadeMode === 'left-to-right'
+          || cascadeMode === 'right-to-left'
+          || cascadeMode === 'diagonal-down'
+          || cascadeMode === 'diagonal-up'
+          || cascadeMode === 'parallel-rings'
+          || cascadeMode === 'parallel_rings'
+          || cascadeMode === 'parallel-rings-top-down'
+          || cascadeMode === 'parallel_rings_top_down'
+          || cascadeMode === 'parallel-rings-bottom-up'
+          || cascadeMode === 'parallel_rings_bottom_up'
+          || cascadeMode === 'top-down'
+          || cascadeMode === 'top_down'
+          || cascadeMode === 'bottom-up'
+          || cascadeMode === 'bottom_up'
+        ) {
+          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
+          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
+          if (rawDir?.ringIndex !== undefined && rawDir?.ringIndex !== null) {
+            const actualRingCount = rawDir?.ringCount ?? ringCount;
+            particlePhase = rawDir.ringIndex / Math.max(1, actualRingCount - 1);
+          } else {
+            const proj = direction.dot(waveVector);
+            const normH = Math.max(0, Math.min(1, (1.0 - proj) * 0.5));
+            const ringIndex = Math.min(ringCount - 1, Math.floor(normH * ringCount));
             particlePhase = ringIndex / Math.max(1, ringCount - 1);
           }
         } else if (cascadeMode === 'clockwise' || cascadeMode === 'clockwise_sweep') {
@@ -2437,10 +2549,6 @@ export class FireworkSystem {
         } else if (cascadeMode === 'counter-clockwise' || cascadeMode === 'counter_clockwise_sweep') {
           const theta = Math.atan2(direction.z, direction.x);
           particlePhase = 1.0 - (theta + Math.PI) / (Math.PI * 2.0);
-        } else if (cascadeMode === 'top-down' || cascadeMode === 'top_down') {
-          particlePhase = Math.max(0, Math.min(1, (1.0 - direction.y) * 0.5));
-        } else if (cascadeMode === 'bottom-up' || cascadeMode === 'bottom_up') {
-          particlePhase = Math.max(0, Math.min(1, (direction.y + 1.0) * 0.5));
         } else if (cascadeMode === 'sequential' || cascadeMode === 'index') {
           particlePhase = i / Math.max(1, burstParticleCount - 1);
         } else if (cascadeMode === 'radial-inward' || cascadeMode === 'radial_inward') {

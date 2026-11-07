@@ -287,4 +287,67 @@ describe('Cascade Wave Spatial-Temporal Sequence Modifier', () => {
 
     fireworkSystem.destroy();
   });
+
+  it('should support random direction and custom angles for multi-angle cascade sweeps', () => {
+    const scene = new THREE.Scene();
+    const fireworkSystem = new FireworkSystem(scene);
+    const color = new THREE.Color(0x00ff00);
+    const pos = new THREE.Vector3(0, 50, 0);
+
+    // 1. Random direction
+    const randomPreset = {
+      shape: 'sphere_rings',
+      particleCount: 80,
+      cascadeWave: true,
+      cascadeDuration: 0.9,
+      cascadeMode: 'random',
+      cascadeRings: 6
+    };
+
+    fireworkSystem.createBurst(pos, color, 'sphere_rings', randomPreset);
+    const randParticles = [...fireworkSystem.burstParticles];
+    const randPhases = new Set(randParticles.map((p) => Math.round(p.phaseDelay * 1000) / 1000));
+    expect(randPhases.size).toBe(6);
+
+    // 2. Custom angle (e.g. 90 degrees horizontal)
+    fireworkSystem.destroy();
+    const scene2 = new THREE.Scene();
+    const fs2 = new FireworkSystem(scene2);
+
+    const anglePreset = {
+      shape: 'sphere_rings',
+      particleCount: 80,
+      cascadeWave: true,
+      cascadeDuration: 1.0,
+      cascadeMode: 'custom-angle',
+      cascadeAngle: 90,
+      cascadeRings: 5
+    };
+
+    fs2.createBurst(pos, color, 'sphere_rings', anglePreset);
+    const angleParticles = [...fs2.burstParticles];
+    const anglePhases = new Set(angleParticles.map((p) => Math.round(p.phaseDelay * 1000) / 1000));
+    expect(anglePhases.size).toBe(5);
+
+    // 3. Random ring shuffle
+    fs2.destroy();
+    const scene3 = new THREE.Scene();
+    const fs3 = new FireworkSystem(scene3);
+
+    const shufflePreset = {
+      shape: 'sphere_rings',
+      particleCount: 80,
+      cascadeWave: true,
+      cascadeDuration: 0.8,
+      cascadeMode: 'random-shuffle',
+      cascadeRings: 5
+    };
+
+    fs3.createBurst(pos, color, 'sphere_rings', shufflePreset);
+    const shuffleParticles = [...fs3.burstParticles];
+    const shufflePhases = new Set(shuffleParticles.map((p) => Math.round(p.phaseDelay * 1000) / 1000));
+    expect(shufflePhases.size).toBe(5);
+
+    fs3.destroy();
+  });
 });

@@ -632,6 +632,9 @@ export const FIREWORK_CONFIG = {
     defaultRings: 8,
     minRings: 3,
     maxRings: 24,
+    defaultAngle: 45,
+    minAngle: 0,
+    maxAngle: 360,
     lifeJitter: 0.0,
     dissolveStart: 0.92,
     attenuationStart: 0.75
