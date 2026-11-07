@@ -8558,23 +8558,23 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 				},
 				intensity: .2 + (d.shellSize ?? 1) / 6 * .45
 			});
-			let t = new e.Vector3(p.x, m, p.z);
-			if (this.isBouquetShell(d)) {
+			let t = new e.Vector3(p.x, m, p.z), n = this.isBouquetShell(d), r = !!(d.multiNested || d.preset === "multi_nested" || d.preset === "multiNested" || Array.isArray(d.stages) && d.stages.length > 0);
+			if (n) {
 				let n = _ && _.lengthSq() > .001 ? _.clone().normalize() : new e.Vector3(0, 1, 0);
 				this.triggerBouquetBurst(t, b, d, f, n, _);
-			} else this.createBurst(t, b, d.shapeType ?? "willow", d, f);
+			} else r ? this.triggerMultiNestedBurst(t, b, d, f) : this.createBurst(t, b, d.shapeType ?? d.shape ?? "willow", d, f);
 			this.diagnostics.bursted += 1;
 			for (let e of d.__contract?.warnings ?? []) this.registerWarning(`[Shell ${f}] ${e}`);
 			this.emitDiagnostics();
-			let n = .35 + ((d.shellSize ?? 1) - 1) / 5 * .65, r = Array.isArray(d.effects) && d.effects.includes("strobe") || d.effectType === "strobe" || !!d.strobe, i = !!d.isDyingEmber, a = d?.starLifeMultiplier !== void 0 && !isNaN(Number(d.starLifeMultiplier)) ? Math.max(.2, Number(d.starLifeMultiplier)) : 1, o = !x && (Array.isArray(d.effects) && d.effects.some((e) => (typeof e == "object" && e ? e.type || e.key : e) === "burst-smoke") || !!d["burst-smoke"] || !!d.burstSmoke);
+			let i = .35 + ((d.shellSize ?? 1) - 1) / 5 * .65, a = Array.isArray(d.effects) && d.effects.includes("strobe") || d.effectType === "strobe" || !!d.strobe, o = !!d.isDyingEmber, s = d?.starLifeMultiplier !== void 0 && !isNaN(Number(d.starLifeMultiplier)) ? Math.max(.2, Number(d.starLifeMultiplier)) : 1, c = !x && (Array.isArray(d.effects) && d.effects.some((e) => (typeof e == "object" && e ? e.type || e.key : e) === "burst-smoke") || !!d["burst-smoke"] || !!d.burstSmoke);
 			this.emitFireworkEvent("firework:burst", {
 				shellId: f,
 				shellType: d.shellType ?? d.shapeType,
 				shapeType: d.shapeType,
 				effectType: d.effectType,
 				effects: d.effects,
-				hasBurstSmoke: o,
-				burstSmoke: o,
+				hasBurstSmoke: c,
+				burstSmoke: c,
 				sound: d.sound || null,
 				noBurstSound: x || !!d.noBurstSound,
 				colorHex: b.getHex(),
@@ -8583,10 +8583,10 @@ var G = n.SYSTEM.crackleSparkColor, K = new e.Vector3(), ke = new e.Vector3(), q
 					y: t.y,
 					z: t.z
 				},
-				intensity: n,
-				duration: 1.25 + n * 1.1,
-				particleLife: be * (i ? 2 : 1) * a,
-				isStrobe: r
+				intensity: i,
+				duration: 1.25 + i * 1.1,
+				particleLife: be * (o ? 2 : 1) * s,
+				isStrobe: a
 			});
 			return;
 		}

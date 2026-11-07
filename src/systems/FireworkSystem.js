@@ -458,6 +458,12 @@ export class FireworkSystem {
         position.z
       );
       const isBouquet = this.isBouquetShell(shellPreset);
+      const isMultiNested = Boolean(
+        shellPreset.multiNested
+        || shellPreset.preset === 'multi_nested'
+        || shellPreset.preset === 'multiNested'
+        || (Array.isArray(shellPreset.stages) && shellPreset.stages.length > 0)
+      );
 
       if (isBouquet) {
         const burstDir = velocity && velocity.lengthSq() > 0.001
@@ -471,11 +477,18 @@ export class FireworkSystem {
           burstDir,
           velocity
         );
+      } else if (isMultiNested) {
+        this.triggerMultiNestedBurst(
+          burstPos,
+          finalColor,
+          shellPreset,
+          shellId
+        );
       } else {
         this.createBurst(
           burstPos,
           finalColor,
-          shellPreset.shapeType ?? 'willow',
+          shellPreset.shapeType ?? shellPreset.shape ?? 'willow',
           shellPreset,
           shellId
         );
