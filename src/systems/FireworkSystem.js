@@ -2368,7 +2368,27 @@ export class FireworkSystem {
 
       let particlePhase = 0;
       if (hasCascadeWave && burstParticleCount > 1) {
-        if (cascadeMode === 'clockwise' || cascadeMode === 'clockwise_sweep') {
+        if (
+          cascadeMode === 'parallel-rings'
+          || cascadeMode === 'parallel_rings'
+          || cascadeMode === 'parallel-rings-top-down'
+          || cascadeMode === 'parallel_rings_top_down'
+        ) {
+          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
+          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
+          const normY = Math.max(0, Math.min(1, (1.0 - direction.y) * 0.5));
+          const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
+          particlePhase = ringIndex / Math.max(1, ringCount - 1);
+        } else if (
+          cascadeMode === 'parallel-rings-bottom-up'
+          || cascadeMode === 'parallel_rings_bottom_up'
+        ) {
+          const rawRingCount = preset?.cascadeRings ?? preset?.ringCount ?? FIREWORK_CONFIG.CASCADE_WAVE?.defaultRings ?? 8;
+          const ringCount = Math.max(3, Math.min(24, Math.round(Number(rawRingCount) || 8)));
+          const normY = Math.max(0, Math.min(1, (direction.y + 1.0) * 0.5));
+          const ringIndex = Math.min(ringCount - 1, Math.floor(normY * ringCount));
+          particlePhase = ringIndex / Math.max(1, ringCount - 1);
+        } else if (cascadeMode === 'clockwise' || cascadeMode === 'clockwise_sweep') {
           const theta = Math.atan2(direction.z, direction.x);
           particlePhase = (theta + Math.PI) / (Math.PI * 2.0);
         } else if (cascadeMode === 'counter-clockwise' || cascadeMode === 'counter_clockwise_sweep') {

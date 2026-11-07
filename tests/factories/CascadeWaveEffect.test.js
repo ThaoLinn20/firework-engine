@@ -254,4 +254,37 @@ describe('Cascade Wave Spatial-Temporal Sequence Modifier', () => {
     expect(launchedOverrides.syncStrobe).toBe(true);
     expect(launchedOverrides.darkPhase).toBe(true);
   });
+
+  it('should group particles into quantized parallel latitude rings in parallel-rings mode', () => {
+    const scene = new THREE.Scene();
+    const fireworkSystem = new FireworkSystem(scene);
+
+    const color = new THREE.Color(0xff0000);
+    const pos = new THREE.Vector3(0, 40, 0);
+
+    const parallelRingsPreset = {
+      shape: 'sphere',
+      particleCount: 80,
+      cascadeWave: true,
+      cascadeDuration: 1.0,
+      cascadeMode: 'parallel-rings',
+      cascadeRings: 5
+    };
+
+    fireworkSystem.createBurst(
+      pos,
+      color,
+      parallelRingsPreset.shape,
+      parallelRingsPreset,
+      4
+    );
+
+    const particles = [...fireworkSystem.burstParticles];
+    const uniquePhaseDelays = new Set(particles.map((p) => Math.round(p.phaseDelay * 1000) / 1000));
+
+    expect(uniquePhaseDelays.size).toBeLessThanOrEqual(5);
+    expect(uniquePhaseDelays.size).toBeGreaterThanOrEqual(2);
+
+    fireworkSystem.destroy();
+  });
 });

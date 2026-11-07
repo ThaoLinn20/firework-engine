@@ -625,11 +625,14 @@ export const FIREWORK_CONFIG = {
 
   // Cấu hình làn sóng kích hoạt tuần tự (Cascade Wave)
   CASCADE_WAVE: {
-    defaultDuration: 0.60,
+    defaultDuration: 0.80,
     minDuration: 0.10,
     maxDuration: 2.00,
-    defaultMode: 'radial-outward',
-    lifeJitter: 0.02,
+    defaultMode: 'parallel-rings',
+    defaultRings: 8,
+    minRings: 3,
+    maxRings: 24,
+    lifeJitter: 0.0,
     dissolveStart: 0.92,
     attenuationStart: 0.75
   }
