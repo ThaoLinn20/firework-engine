@@ -2274,6 +2274,7 @@ export class FireworkSystem {
 
       let direction;
       let rawDir = null;
+      let localDir = null;
       if (isSpiralArm) {
         const tArm = i / Math.max(1, spiralArmCount - 1);
         const turns = 3.5;
@@ -2292,6 +2293,7 @@ export class FireworkSystem {
           particleCount,
           isCoreParticle ? preset : ringPreset
         );
+        localDir = rawDir.clone();
         const isParallelCascade = hasCascadeWave && (
           cascadeMode === 'parallel-rings'
           || cascadeMode === 'parallel_rings'
@@ -2553,10 +2555,12 @@ export class FireworkSystem {
             particlePhase = ringIndex / Math.max(1, ringCount - 1);
           }
         } else if (cascadeMode === 'clockwise' || cascadeMode === 'clockwise_sweep') {
-          const theta = Math.atan2(direction.z, direction.x);
+          const sweepDir = localDir || direction;
+          const theta = Math.atan2(sweepDir.z, sweepDir.x);
           particlePhase = (theta + Math.PI) / (Math.PI * 2.0);
         } else if (cascadeMode === 'counter-clockwise' || cascadeMode === 'counter_clockwise_sweep') {
-          const theta = Math.atan2(direction.z, direction.x);
+          const sweepDir = localDir || direction;
+          const theta = Math.atan2(sweepDir.z, sweepDir.x);
           particlePhase = 1.0 - (theta + Math.PI) / (Math.PI * 2.0);
         } else if (cascadeMode === 'sequential' || cascadeMode === 'index') {
           particlePhase = i / Math.max(1, burstParticleCount - 1);

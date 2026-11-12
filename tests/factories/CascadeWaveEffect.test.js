@@ -350,4 +350,39 @@ describe('Cascade Wave Spatial-Temporal Sequence Modifier', () => {
 
     fs3.destroy();
   });
+
+  it('should preserve full clockwise sweep delay spread across arbitrary 3D ring orientations', () => {
+    const pos = new THREE.Vector3(0, 50, 0);
+    const color = new THREE.Color(0x00ff88);
+
+    for (let run = 0; run < 25; run++) {
+      const scene = new THREE.Scene();
+      const fireworkSystem = new FireworkSystem(scene);
+      const mode = run % 2 === 0 ? 'clockwise' : 'counter-clockwise';
+
+      fireworkSystem.createBurst(
+        pos,
+        color,
+        'ring',
+        {
+          shape: 'ring',
+          particleCount: 40,
+          cascadeWave: true,
+          cascadeDuration: 1.0,
+          cascadeMode: mode
+        },
+        1
+      );
+
+      const delays = fireworkSystem.burstParticles.map((p) => p.phaseDelay);
+      const lifes = fireworkSystem.burstParticles.map((p) => p.maxLife);
+      const delaySpread = Math.max(...delays) - Math.min(...delays);
+      const lifeSpread = Math.max(...lifes) - Math.min(...lifes);
+
+      expect(delaySpread).toBeGreaterThanOrEqual(0.9);
+      expect(lifeSpread).toBeGreaterThanOrEqual(0.8);
+
+      fireworkSystem.destroy();
+    }
+  });
 });
