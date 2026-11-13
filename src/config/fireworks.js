@@ -518,11 +518,11 @@ export const FIREWORK_CONFIG = {
       }
     },
     // Thời gian sống cơ bản của khói vệt phóng rocket (giây: 4.0 - 5.0s)
-    trailLifeMin: 4.0,
-    trailLifeMax: 10.0,
+    trailLifeMin: 6.0,
+    trailLifeMax: 15.0,
     // Thời gian sống của đám khói nổ quả cầu pháo hoa (giây: 10.0 - 12.0s)
-    burstLifeMin: 15.0,
-    burstLifeMax: 20.0,
+    burstLifeMin: 25.0,
+    burstLifeMax: 45.0,
     // Hệ số cản không khí khí động học (exponential drag)
     trailDrag: 1.6,
     burstDragMin: 2.8,
@@ -552,7 +552,7 @@ export const FIREWORK_CONFIG = {
     flightSmokeOpacity: 0.21,
     // Cấu hình sương mù nền chuyển sinh liên tục (Ambient Haze Consolidation: 30% sinh, 70% sương nền)
     hazeConsolidation: true,
-    hazeChance: 0.22,
+    hazeChance: 0.40,
     handoverRatio: 0.30,
     hazeLifeRatio: 0.70,
     hazeLifeMin: 10.0,

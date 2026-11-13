@@ -1208,7 +1208,7 @@ export class SmokeSystem {
       ?? true;
     const handoverRatio = cfg.hazeHandoverRatio ?? 0.30;
     const hazeRatio = cfg.hazeLifeRatio ?? 0.70;
-    const nonPromoterCutoffRatio = handoverRatio * 1.25;
+    const nonPromoterCutoffRatio = cfg.nonPromoterCutoffRatio ?? (handoverRatio * 1.25);
 
     // Cap nhat dong luc hoc hat (Kinematics with exponential drag, buoyancy, wind shear & turbulent dispersion)
     for (let i = 0; i < this.puffs.length; i++) {

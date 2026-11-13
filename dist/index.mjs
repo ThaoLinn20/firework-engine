@@ -350,10 +350,10 @@ var t = {
 				aerial: 15e3
 			}
 		},
-		trailLifeMin: 4,
-		trailLifeMax: 10,
-		burstLifeMin: 15,
-		burstLifeMax: 20,
+		trailLifeMin: 6,
+		trailLifeMax: 15,
+		burstLifeMin: 25,
+		burstLifeMax: 45,
 		trailDrag: 1.6,
 		burstDragMin: 2.8,
 		burstDragMax: 3.6,
@@ -376,7 +376,7 @@ var t = {
 		flightSmokeBuoyancy: .38,
 		flightSmokeOpacity: .21,
 		hazeConsolidation: !0,
-		hazeChance: .22,
+		hazeChance: .4,
 		handoverRatio: .3,
 		hazeLifeRatio: .7,
 		hazeLifeMin: 10,
@@ -11281,7 +11281,7 @@ var _t = new e.Vector3(), vt = new e.Vector3(), yt = new e.Vector3(), bt = new e
 		}
 		let r = performance.now() / 1e3;
 		this.smokeUniforms.uTime.value = r;
-		let i = [], a = n.SMOKE, o = d.smoke?.hazeConsolidation ?? a.hazeConsolidation ?? !0, s = a.hazeHandoverRatio ?? .3, c = a.hazeLifeRatio ?? .7, l = s * 1.25;
+		let i = [], a = n.SMOKE, o = d.smoke?.hazeConsolidation ?? a.hazeConsolidation ?? !0, s = a.hazeHandoverRatio ?? .3, c = a.hazeLifeRatio ?? .7, l = a.nonPromoterCutoffRatio ?? s * 1.25;
 		for (let n = 0; n < this.puffs.length; n++) {
 			let u = this.puffs[n];
 			if (u.age += t, u.isHaze) {
