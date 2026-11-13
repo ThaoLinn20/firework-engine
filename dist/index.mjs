@@ -8825,7 +8825,7 @@ var q = n.SYSTEM.crackleSparkColor, J = new e.Vector3(), Pe = new e.Vector3(), F
 		this.diagnostics.warnings += 1, this.diagnostics.lastWarning = e, console.warn(e), this.emitDiagnostics();
 	}
 	launchRandom(t = null, n = {}) {
-		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o, color: s, angleOffset: c = 0, effectOverrides: l } = n, u = t;
+		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o = "center", color: s, angleOffset: c = 0, effectOverrides: l } = n, u = t;
 		typeof t == "string" && (u = this.shellPresetFactory.createPresetByKey(t)), l && typeof l == "object" && (l.textWord && (l.textPoints = null, l._glyphCacheKey = null), u = {
 			...u,
 			...l
@@ -8934,9 +8934,9 @@ var q = n.SYSTEM.crackleSparkColor, J = new e.Vector3(), Pe = new e.Vector3(), F
 			maxBurstY: this.launchZone.maxBurstY
 		};
 	}
-	resolveLaunchPosition(t, n, r) {
+	resolveLaunchPosition(t, n, r = "center") {
 		let i = t ?? Math.random(), a = n ?? Math.random(), o;
-		r && this.launchZone.sectors && (o = this.launchZone.sectors.find((e) => e.id === r)), !o && this.launchZone.sectors && (o = this.launchZone.sectors[Math.floor(Math.random() * this.launchZone.sectors.length)]);
+		r && this.launchZone.sectors && (o = this.launchZone.sectors.find((e) => e.id === r)), !o && this.launchZone.sectors && (o = this.launchZone.sectors.find((e) => e.id === "center") || this.launchZone.sectors[0]);
 		let s = o ? o.minAngle : Math.PI / 4, c = o ? o.maxAngle : 3 * Math.PI / 4, l = c - i * (c - s);
 		this._lastLaunchAngle = l;
 		let u = (this.launchZone.arcRadius || 360) + (a - .5) * this.launchZone.launchRadiusZ * 2, d = u * Math.cos(l), f = -u * Math.sin(l);
@@ -10262,7 +10262,7 @@ var q = n.SYSTEM.crackleSparkColor, J = new e.Vector3(), Pe = new e.Vector3(), F
 		for (let t of e) t.velocity.y = -1;
 	}
 	update(e) {
-		if (this.autoLaunchEnabled && (this.autoLaunchTimer += e, this.autoLaunchTimer >= this.autoLaunchInterval && (this.launchRandom(), this.autoLaunchTimer = 0)), this.scheduledBursts && this.scheduledBursts.length > 0) for (let t = this.scheduledBursts.length - 1; t >= 0; t--) {
+		if (this.autoLaunchEnabled && (this.autoLaunchTimer += e, this.autoLaunchTimer >= this.autoLaunchInterval && (this.launchRandom(null, { sectorId: "center" }), this.autoLaunchTimer = 0)), this.scheduledBursts && this.scheduledBursts.length > 0) for (let t = this.scheduledBursts.length - 1; t >= 0; t--) {
 			let n = this.scheduledBursts[t];
 			n.timeRemaining -= e, n.timeRemaining <= 0 && (this.createBurst(n.position, n.color, n.shape, n.preset, n.shellId), this.scheduledBursts.splice(t, 1));
 		}
@@ -10582,7 +10582,7 @@ var _t = new e.Vector3(), vt = new e.Vector3(), yt = new e.Vector3(), bt = new e
 		}), c.coreMesh?.isPoints && this.scene.add(c.mesh), this.activeComets.push(c), c;
 	}
 	launchRandom(t = null, n = {}) {
-		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o, angleOffset: s, color: c, effectOverrides: l, spiral: u } = n, d = t;
+		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o = "center", angleOffset: s, color: c, effectOverrides: l, spiral: u } = n, d = t;
 		typeof t == "string" ? d = this.shellPresetFactory.createPresetByKey(t) : t === null && (d = this.shellPresetFactory.createPresetByKey("comet_cluster"));
 		let f = d;
 		l && typeof l == "object" && (f = {
@@ -10682,9 +10682,9 @@ var _t = new e.Vector3(), vt = new e.Vector3(), yt = new e.Vector3(), bt = new e
 			intensity: .8
 		});
 	}
-	resolveLaunchPosition(t, n, r) {
+	resolveLaunchPosition(t, n, r = "center") {
 		let i = t ?? Math.random(), a = n ?? Math.random(), o;
-		r && this.launchZone.sectors && (o = this.launchZone.sectors.find((e) => e.id === r)), !o && this.launchZone.sectors && (o = this.launchZone.sectors[Math.floor(Math.random() * this.launchZone.sectors.length)]);
+		r && this.launchZone.sectors && (o = this.launchZone.sectors.find((e) => e.id === r)), !o && this.launchZone.sectors && (o = this.launchZone.sectors.find((e) => e.id === "center") || this.launchZone.sectors[0]);
 		let s = o ? o.minAngle : Math.PI / 4, c = o ? o.maxAngle : 3 * Math.PI / 4, l = c - i * (c - s);
 		this._lastLaunchAngle = l;
 		let u = (this.launchZone.arcRadius || 360) + (a - .5) * this.launchZone.launchRadiusZ * 2, d = u * Math.cos(l), f = -u * Math.sin(l);

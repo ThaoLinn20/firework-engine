@@ -160,7 +160,7 @@ export class CometSystem {
       ratioX,
       ratioY,
       ratioZ,
-      sectorId,
+      sectorId = 'center',
       angleOffset,
       color,
       effectOverrides,
@@ -458,7 +458,7 @@ export class CometSystem {
     );
   }
 
-  resolveLaunchPosition(ratioX, ratioZ, sectorId) {
+  resolveLaunchPosition(ratioX, ratioZ, sectorId = 'center') {
     const rx = ratioX ?? Math.random();
     const rz = ratioZ ?? Math.random();
 
@@ -467,7 +467,7 @@ export class CometSystem {
       sector = this.launchZone.sectors.find(s => s.id === sectorId);
     }
     if (!sector && this.launchZone.sectors) {
-      sector = this.launchZone.sectors[Math.floor(Math.random() * this.launchZone.sectors.length)];
+      sector = this.launchZone.sectors.find(s => s.id === 'center') || this.launchZone.sectors[0];
     }
 
     const minAngle = sector ? sector.minAngle : Math.PI / 4;
