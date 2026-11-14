@@ -639,13 +639,16 @@ export class CometSystem {
     const speedMin = (tadpoleCfg.arrowSpeedMin ?? 28.0) * sizeScale;
     const speedMax = (tadpoleCfg.arrowSpeedMax ?? 48.0) * sizeScale;
     const needleDrag = tadpoleCfg.needleDragScale ?? 0.38;
+    const targetColor = options?.tadpoleColor
+      ? new THREE.Color(options.tadpoleColor)
+      : color;
 
     // Hot incandescent flash right at the core/origin of the spiky flurry
     if (this.trailSystem && typeof this.trailSystem.spawnTrailParticle === 'function') {
       const centerBrightness = (tadpoleCfg.centerCoreBrightness ?? 7.5) * Math.min(1.4, Math.max(0.7, sizeScale));
-      const centerColor = new THREE.Color(0xffffff)
-        .lerp(color, 0.25)
-        .multiplyScalar(centerBrightness);
+      const centerColor = targetColor.clone()
+        .lerp(new THREE.Color(0xffffff), 0.35)
+        .multiplyScalar(centerBrightness * 0.85);
       const centerVel = dir.clone().multiplyScalar(2.2);
       this.trailSystem.spawnTrailParticle(
         spawnPos,
@@ -685,7 +688,7 @@ export class CometSystem {
       }
 
       // Tăng sáng rực rỡ và phát quang (bloom) cho hạt tia gai
-      const sparkColor = color.clone().offsetHSL(
+      const sparkColor = targetColor.clone().offsetHSL(
         (Math.random() - 0.5) * 0.04,
         0.10,
         0.30 + Math.random() * 0.16
@@ -777,13 +780,16 @@ export class CometSystem {
     const starLife = (flurryCfg.flurryStarLife || 0.58) * Math.sqrt(sizeScale);
     const brightness = (flurryCfg.sparkBrightnessMultiplier ?? 4.2) * 1.15;
     const needleDrag = flurryCfg.needleDragScale ?? 0.38;
+    const targetColor = options?.tadpoleFlurryColor
+      ? new THREE.Color(options.tadpoleFlurryColor)
+      : (options?.tadpoleColor ? new THREE.Color(options.tadpoleColor) : color);
 
     // Hot center flash at apex flurry
     if (this.trailSystem && typeof this.trailSystem.spawnTrailParticle === 'function') {
       const centerBrightness = (flurryCfg.centerCoreBrightness ?? 7.5) * 1.25 * sizeScale;
-      const centerColor = new THREE.Color(0xffffff)
-        .lerp(color, 0.20)
-        .multiplyScalar(centerBrightness);
+      const centerColor = targetColor.clone()
+        .lerp(new THREE.Color(0xffffff), 0.30)
+        .multiplyScalar(centerBrightness * 0.85);
       for (let c = 0; c < 2; c++) {
         this.trailSystem.spawnTrailParticle(
           spawnPos,
@@ -824,7 +830,7 @@ export class CometSystem {
       }
 
       // Tăng sáng rực rỡ và phát quang (bloom) cho chùm xù bung tại đỉnh
-      const subColor = color.clone().offsetHSL(
+      const subColor = targetColor.clone().offsetHSL(
         (Math.random() - 0.5) * 0.06,
         0.10,
         0.32 + Math.random() * 0.16

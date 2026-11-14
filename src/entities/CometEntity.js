@@ -137,6 +137,9 @@ export class CometEntity {
       effectType === 'tadpole_flurry'
     );
 
+    this.tadpoleColor = preset?.tadpoleColor || null;
+    this.tadpoleFlurryColor = preset?.tadpoleFlurryColor || this.tadpoleColor || null;
+
     if (this.isTadpole) {
       const varCfg = FIREWORK_CONFIG.COMET_TADPOLE?.variance || {};
       const isWild = Math.random() < (varCfg.wildDeflectionChance ?? 0.30);
@@ -312,14 +315,17 @@ export class CometEntity {
         || isTadpole
         || this.preset?.shellType === 'comet_single';
       const isSparkly = Boolean(this.isStrobeStar);
+      const effectiveHeadColor = (isTadpole && this.tadpoleColor)
+        ? new THREE.Color(this.tadpoleColor)
+        : color;
 
       if (isSuperBright) {
-        this.coreColor = color.clone().offsetHSL(0, 0.05, 0.30).multiplyScalar(9.0);
+        this.coreColor = effectiveHeadColor.clone().offsetHSL(0, 0.05, 0.30).multiplyScalar(9.0);
       } else if (isSparkly) {
         this.coreColor.multiplyScalar(0.4);
       } else {
         // All cluster and standard comet stars now have firework star radiance (bloom + color luminance)
-        this.coreColor = color.clone().offsetHSL(0, 0.04, 0.15).multiplyScalar(4.5);
+        this.coreColor = effectiveHeadColor.clone().offsetHSL(0, 0.04, 0.15).multiplyScalar(4.5);
       }
 
       const coreSize = (isTadpole
@@ -350,8 +356,11 @@ export class CometEntity {
       const innerSizeRatio = isTadpole ? 0.68 : (isSuperBright ? 0.70 : 0.60);
       const innerBrightness = isTadpole ? 11.0 : (isSuperBright ? 12.0 : 8.0);
       const innerGeometry = new THREE.SphereGeometry(coreSize * innerSizeRatio, 8, 8);
+      const innerBaseColor = isTadpole
+        ? effectiveHeadColor.clone().lerp(new THREE.Color(0xffffff), 0.35).multiplyScalar(innerBrightness * 0.75)
+        : new THREE.Color(0xffffff).multiplyScalar(innerBrightness);
       const innerMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(0xffffff).multiplyScalar(innerBrightness),
+        color: innerBaseColor,
         transparent: true,
         opacity: isSparkly ? 0.85 : 1.0,
         depthWrite: false,

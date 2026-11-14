@@ -197,7 +197,7 @@ describe('Comet Cluster Firework Star Head Rendering', () => {
 
     // Simulate early-mid ascent (progress >= 0.28)
     comet.state = CometEntity.STATE.LAUNCHING;
-    comet.tadpoleProgress = 0.32;
+    comet.age = 2.0;
     comet.tadpoleArrowTimer = 0;
     cometSystem.update(0.1);
     expect(arrowSparksTriggered).toBe(true);
@@ -378,6 +378,118 @@ describe('Comet Cluster Firework Star Head Rendering', () => {
     expect(spark.position.distanceTo(sampleParticle.position)).toBeCloseTo(expectedStandoff, 1);
 
     fireworkSystem.clear();
+  });
+
+  it('should support custom tadpoleColor and tadpoleFlurryColor independently from primary baseColor', async () => {
+    const { FireworkSystem } = await import('../../src/systems/FireworkSystem.js');
+    const { CometSystem } = await import('../../src/systems/CometSystem.js');
+
+    const mockScene = {
+      add: () => {},
+      remove: () => {}
+    };
+    const capturedParticles = [];
+    const mockTrailSystem = {
+      spawnTrailParticle: (pos, col) => {
+        capturedParticles.push({
+          position: pos,
+          color: col
+        });
+      },
+      spawnEffectSpark: () => {},
+      spawnMicroCrackle: () => {}
+    };
+    const mockSmokeSystem = {
+      spawnAscentSmoke: () => {},
+      spawnBurstSmoke: () => {}
+    };
+
+    const fireworkSystem = new FireworkSystem(
+      mockScene,
+      mockTrailSystem,
+      mockSmokeSystem
+    );
+    const cometSystem = new CometSystem(
+      mockScene,
+      mockTrailSystem,
+      mockSmokeSystem
+    );
+
+    // 1. Firework burst particle with custom tadpoleColor and tadpoleFlurryColor
+    const testParticle = {
+      position: new THREE.Vector3(0, 100, 0),
+      velocity: new THREE.Vector3(0, 20, 0),
+      baseColor: new THREE.Color('#ff0000'), // Primary is Red
+      tadpoleColor: '#00ffff', // Custom arrow sparks color is Cyan
+      tadpoleFlurryColor: '#ffd700', // Custom flurry color is Gold
+      tadpoleSizeScale: 1.0,
+      tadpoleDensityScale: 1.0,
+      tadpoleDeflectionScale: 1.0
+    };
+
+    capturedParticles.length = 0;
+    fireworkSystem.spawnBurstParticleArrowSparks(testParticle, 1.0);
+    expect(capturedParticles.length).toBeGreaterThan(0);
+    // Cyan has high Green and Blue, low Red
+    const cyanSpark = capturedParticles[capturedParticles.length - 1].color;
+    expect(cyanSpark.b).toBeGreaterThan(cyanSpark.r);
+
+    capturedParticles.length = 0;
+    fireworkSystem.spawnBurstParticleFlurry(testParticle, 1.0);
+    expect(capturedParticles.length).toBeGreaterThan(0);
+    // Gold has high Red and Green, low Blue
+    const goldFlurry = capturedParticles[capturedParticles.length - 1].color;
+    expect(goldFlurry.r).toBeGreaterThan(goldFlurry.b);
+
+    // 2. CometSystem with custom tadpoleColor and tadpoleFlurryColor
+    capturedParticles.length = 0;
+    cometSystem.spawnTadpoleArrowSparks(
+      new THREE.Vector3(0, 50, 0),
+      new THREE.Color('#ff0000'),
+      new THREE.Vector3(0, 30, 0),
+      false,
+      false,
+      {
+        tadpoleColor: '#00ffff',
+        tadpoleSizeScale: 1.0,
+        tadpoleDensityScale: 1.0
+      }
+    );
+    expect(capturedParticles.length).toBeGreaterThan(0);
+    const cometCyanSpark = capturedParticles[capturedParticles.length - 1].color;
+    expect(cometCyanSpark.b).toBeGreaterThan(cometCyanSpark.r);
+
+    // 3. Firework burst particles created with tadpoleColor have their star head colored in tadpoleColor
+    fireworkSystem.createBurst(
+      new THREE.Vector3(0, 100, 0),
+      new THREE.Color('#ff0000'), // Primary shell is Red
+      'sphere',
+      {
+        effects: ['tadpole-flurry'],
+        tadpoleColor: '#00ffff'
+      },
+      'test-tadpole-head-color'
+    );
+    const tadpoleStars = fireworkSystem.burstParticles.filter((p) => p.hasTadpoleFlurry);
+    expect(tadpoleStars.length).toBeGreaterThan(0);
+    // Tadpole star head itself must be tinted in Cyan (b > r)
+    expect(tadpoleStars[0].baseColor.b).toBeGreaterThan(tadpoleStars[0].baseColor.r);
+
+    // 4. CometEntity with tadpoleColor has core head tinted in tadpoleColor
+    const tadpoleComet = new CometEntity({
+      position: new THREE.Vector3(0, 0, 0),
+      velocity: new THREE.Vector3(0, 40, 0),
+      color: new THREE.Color('#ff0000'),
+      preset: {
+        isTadpole: true,
+        tadpoleColor: '#00ffff'
+      }
+    });
+    expect(tadpoleComet.coreColor.b).toBeGreaterThan(tadpoleComet.coreColor.r);
+    tadpoleComet.dispose();
+
+    fireworkSystem.clear();
+    cometSystem.destroy();
   });
 });
 

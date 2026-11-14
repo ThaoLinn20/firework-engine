@@ -1200,7 +1200,10 @@ export class FireworkSystem {
         childVel.addScaledVector(parentVelocity, 0.15);
       }
 
-      const childColor = color.clone().offsetHSL(
+      const effectiveTadpoleColor = preset?.tadpoleColor
+        ? new THREE.Color(preset.tadpoleColor)
+        : color;
+      const childColor = effectiveTadpoleColor.clone().offsetHSL(
         (Math.random() - 0.5) * 0.06,
         0.05,
         0.08
@@ -1210,6 +1213,8 @@ export class FireworkSystem {
         shellType: 'comet_tadpole_burst',
         dynamicsType: 'tadpole-spiral',
         isTadpole: true,
+        tadpoleColor: preset?.tadpoleColor || null,
+        tadpoleFlurryColor: preset?.tadpoleFlurryColor || preset?.tadpoleColor || null,
         maxDecayTime: childStarLife * (0.85 + Math.random() * 0.3),
         gravityScale,
         thickTrail: false,
@@ -1284,10 +1289,11 @@ export class FireworkSystem {
     const needleDrag = tadpoleCfg.needleDragScale ?? 0.38;
 
     // Hot incandescent flash right at the core/origin of the spiky flurry
+    const tadpoleColorObj = p.tadpoleColor ? new THREE.Color(p.tadpoleColor) : p.baseColor;
     const centerBrightness = (tadpoleCfg.centerCoreBrightness ?? 7.5) * parentFade * Math.min(1.4, Math.max(0.7, sizeScale));
-    const centerColor = new THREE.Color(0xffffff)
-      .lerp(p.baseColor, 0.25)
-      .multiplyScalar(centerBrightness);
+    const centerColor = tadpoleColorObj.clone()
+      .lerp(new THREE.Color(0xffffff), 0.35)
+      .multiplyScalar(centerBrightness * 0.85);
     const centerVel = dir.clone().multiplyScalar(2.2);
     this.trailSystem.spawnTrailParticle(
       spawnPos,
@@ -1322,7 +1328,7 @@ export class FireworkSystem {
       const sparkVel = ejectDir.multiplyScalar(ejectSpeed);
       sparkVel.addScaledVector(v, 0.25);
 
-      const sparkColor = p.baseColor.clone().offsetHSL(
+      const sparkColor = tadpoleColorObj.clone().offsetHSL(
         (Math.random() - 0.5) * 0.04,
         0.08,
         0.30 + Math.random() * 0.16
@@ -1393,10 +1399,13 @@ export class FireworkSystem {
     const needleDrag = tadpoleCfg.needleDragScale ?? 0.38;
 
     // Hot incandescent flash right at the core/origin of the spiky flurry
+    const flurryColorObj = p.tadpoleFlurryColor
+      ? new THREE.Color(p.tadpoleFlurryColor)
+      : (p.tadpoleColor ? new THREE.Color(p.tadpoleColor) : p.baseColor);
     const centerBrightness = (tadpoleCfg.centerCoreBrightness ?? 7.5) * 1.15 * parentFade * sizeScale;
-    const centerColor = new THREE.Color(0xffffff)
-      .lerp(p.baseColor, 0.20)
-      .multiplyScalar(centerBrightness);
+    const centerColor = flurryColorObj.clone()
+      .lerp(new THREE.Color(0xffffff), 0.30)
+      .multiplyScalar(centerBrightness * 0.85);
     this.trailSystem.spawnTrailParticle(
       spawnPos,
       centerColor,
@@ -1432,7 +1441,7 @@ export class FireworkSystem {
         subVel.addScaledVector(v, 0.20);
       }
 
-      const subColor = p.baseColor.clone().offsetHSL(
+      const subColor = flurryColorObj.clone().offsetHSL(
         (Math.random() - 0.5) * 0.05,
         0.08,
         0.32 + Math.random() * 0.16
@@ -2631,11 +2640,15 @@ export class FireworkSystem {
         && !isDyingEmber
         && (Math.random() < (FIREWORK_CONFIG.ERRATIC_DART?.activationRatio ?? 0.40));
 
+      const effectiveTadpoleHeadColor = (hasParticleTadpole && preset?.tadpoleColor)
+        ? new THREE.Color(preset.tadpoleColor).multiplyScalar(brightnessIntensity)
+        : finalColorVal;
+
       const particle = BurstParticleFactory.createParticle({
         position,
         velocity: particleVelocity,
-        color: finalColorVal,
-        baseColor: finalColorVal,
+        color: effectiveTadpoleHeadColor,
+        baseColor: effectiveTadpoleHeadColor,
         color2: color2Scaled,
         age: 0,
         maxLife: particleMaxLife,
@@ -2682,6 +2695,8 @@ export class FireworkSystem {
         secondBurstTime: particleMaxLife * (secondBurstMap.get(i)?.timingRatio ?? 0.5),
         secondBurstDone: false,
         hasTadpoleFlurry: hasParticleTadpole,
+        tadpoleColor: preset?.tadpoleColor || null,
+        tadpoleFlurryColor: preset?.tadpoleFlurryColor || preset?.tadpoleColor || null,
         tadpoleArrowTimer: Math.random() * 0.065,
         tadpoleDeflectionScale,
         tadpoleSizeScale,
@@ -2717,6 +2732,10 @@ export class FireworkSystem {
       const candidate = newParticles.find((p) => !p.isDyingEmber) || newParticles[0];
       if (candidate) {
         candidate.hasTadpoleFlurry = true;
+        if (preset?.tadpoleColor) {
+          candidate.color = new THREE.Color(preset.tadpoleColor).multiplyScalar(brightnessIntensity);
+          candidate.baseColor = candidate.color.clone();
+        }
       }
     }
 
@@ -2889,11 +2908,15 @@ export class FireworkSystem {
       const tadpoleDensityScale = (tadpoleVarCfg.densityMin ?? 0.50)
         + Math.random() * ((tadpoleVarCfg.densityMax ?? 1.80) - (tadpoleVarCfg.densityMin ?? 0.50));
 
+      const effectiveChildColor = (hasParticleTadpole && cfg?.tadpoleColor)
+        ? new THREE.Color(cfg.tadpoleColor).multiplyScalar(brightnessIntensity)
+        : childColor;
+
       const particle = BurstParticleFactory.createParticle({
         position: originPos,
         velocity: vel,
-        color: childColor,
-        baseColor: childColor,
+        color: effectiveChildColor,
+        baseColor: effectiveChildColor,
         color2: childColor2,
         age: 0,
         maxLife: isContourLongBurn
@@ -2931,6 +2954,8 @@ export class FireworkSystem {
         dynamicsProfile,
         dragCoefficient: dynamicsProfile?.baseDrag ?? BURST_BASE_DRAG,
         hasTadpoleFlurry: hasParticleTadpole,
+        tadpoleColor: cfg?.tadpoleColor || null,
+        tadpoleFlurryColor: cfg?.tadpoleFlurryColor || cfg?.tadpoleColor || null,
         tadpoleArrowTimer: Math.random() * 0.065,
         tadpoleDeflectionScale,
         tadpoleSizeScale,
