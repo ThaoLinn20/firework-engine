@@ -756,7 +756,8 @@ export class SmokeSystem {
       isHaze: isHaze,
       isHazePromoter: isHazePromoter,
       isNucleus: isNucleus,
-      nucleusBoost: nucleusBoost
+      nucleusBoost: nucleusBoost,
+      driftDelay: options.driftDelay ?? 0
     });
 
     if (category === 'launch') {
@@ -1222,28 +1223,31 @@ export class SmokeSystem {
           const dragFactor = Math.exp(-puff.drag * deltaTime);
           puff.velocity.multiplyScalar(dragFactor);
 
-          const windShear = 0.78 + 0.44 * puff.seed;
-          const localWindX = this.currentWind.x * windShear;
-          const localWindZ = this.currentWind.z * windShear;
-          const localWindY = this.currentWind.y;
+          const windActive = puff.age >= (puff.driftDelay || 0);
+          if (windActive) {
+            const windShear = 0.78 + 0.44 * puff.seed;
+            const localWindX = this.currentWind.x * windShear;
+            const localWindZ = this.currentWind.z * windShear;
+            const localWindY = this.currentWind.y;
 
-          puff.velocity.x = THREE.MathUtils.lerp(
-            puff.velocity.x,
-            localWindX,
-            deltaTime * 0.72
-          );
-          puff.velocity.z = THREE.MathUtils.lerp(
-            puff.velocity.z,
-            localWindZ,
-            deltaTime * 0.72
-          );
-          puff.velocity.y = THREE.MathUtils.lerp(
-            puff.velocity.y,
-            localWindY,
-            deltaTime * 0.5
-          );
+            puff.velocity.x = THREE.MathUtils.lerp(
+              puff.velocity.x,
+              localWindX,
+              deltaTime * 0.72
+            );
+            puff.velocity.z = THREE.MathUtils.lerp(
+              puff.velocity.z,
+              localWindZ,
+              deltaTime * 0.72
+            );
+            puff.velocity.y = THREE.MathUtils.lerp(
+              puff.velocity.y,
+              localWindY,
+              deltaTime * 0.5
+            );
+          }
 
-          const dispersionStrength = 0.45 + 2.2 * tHaze;
+          const dispersionStrength = windActive ? (0.45 + 2.2 * tHaze) : 0.05;
           const noiseX = Math.sin(elapsed * 1.6 + puff.seed * 19.3) * dispersionStrength;
           const noiseZ = Math.cos(elapsed * 1.4 + puff.seed * 23.7) * dispersionStrength;
           puff.velocity.x += noiseX * deltaTime;
@@ -1299,28 +1303,31 @@ export class SmokeSystem {
               puff.velocity.multiplyScalar(Math.exp(-0.85 * deltaTime));
             }
 
-            const windShear = 0.78 + 0.44 * puff.seed;
-            const localWindX = this.currentWind.x * windShear;
-            const localWindZ = this.currentWind.z * windShear;
-            const localWindY = this.currentWind.y;
+            const windActive = puff.age >= (puff.driftDelay || 0);
+            if (windActive) {
+              const windShear = 0.78 + 0.44 * puff.seed;
+              const localWindX = this.currentWind.x * windShear;
+              const localWindZ = this.currentWind.z * windShear;
+              const localWindY = this.currentWind.y;
 
-            puff.velocity.x = THREE.MathUtils.lerp(
-              puff.velocity.x,
-              localWindX,
-              deltaTime * 0.72
-            );
-            puff.velocity.z = THREE.MathUtils.lerp(
-              puff.velocity.z,
-              localWindZ,
-              deltaTime * 0.72
-            );
-            puff.velocity.y = THREE.MathUtils.lerp(
-              puff.velocity.y,
-              localWindY,
-              deltaTime * 0.5
-            );
+              puff.velocity.x = THREE.MathUtils.lerp(
+                puff.velocity.x,
+                localWindX,
+                deltaTime * 0.72
+              );
+              puff.velocity.z = THREE.MathUtils.lerp(
+                puff.velocity.z,
+                localWindZ,
+                deltaTime * 0.72
+              );
+              puff.velocity.y = THREE.MathUtils.lerp(
+                puff.velocity.y,
+                localWindY,
+                deltaTime * 0.5
+              );
+            }
 
-            const dispersionStrength = 0.45 + 2.2 * t;
+            const dispersionStrength = windActive ? (0.45 + 2.2 * t) : 0.05;
             const noiseX = Math.sin(elapsed * 1.6 + puff.seed * 19.3) * dispersionStrength;
             const noiseZ = Math.cos(elapsed * 1.4 + puff.seed * 23.7) * dispersionStrength;
             puff.velocity.x += noiseX * deltaTime;
@@ -1376,8 +1383,11 @@ export class SmokeSystem {
         this.opacitiesArray[i] = puff.baseOpacity * Math.pow(fadeHaze, 1.35);
       } else {
         // Pha sinh va sap nhap (Coalescence Window)
+        const isDelayActive = (puff.driftDelay || 0) > 0 && puff.age < puff.driftDelay;
         const growthCurve = Math.pow(t, 0.55);
-        const growthScale = 1.0 + puff.growth * growthCurve * 0.45;
+        const growthScale = isDelayActive
+          ? (1.0 + puff.growth * 0.15 * (puff.age / puff.driftDelay))
+          : (1.0 + puff.growth * growthCurve * 0.45);
 
         if (puff.isNucleus) {
           // Hat nhan: No phong to dan theo smoothstep de hap thu the tich cac hat ve tinh xung quanh

@@ -379,6 +379,21 @@ export const FIREWORK_CONFIG = {
     burstActivationRatio: 0.35
   },
 
+  // Cấu hình vệt khói kéo dài dọc đường bay của hạt pháo Comet (Comet Trajectory Ribbon Smoke)
+  COMET_TRAJECTORY_SMOKE: {
+    maxPuffs: 12, // Ngân sách chặt chẽ: 10 - 15 thực thể dọc quỹ đạo
+    lifeMin: 6.0,
+    lifeMax: 9.0,
+    baseScale: 2.4, // Nhỏ gọn, thanh thoát, vẽ thành đường bay mảnh
+    growth: 2.2,
+    drag: 0.95,
+    buoyancy: 0.15,
+    opacity: 0.28,
+    nucleusBoost: 3.8, // Sau pha đầu sẽ nở to 3.8x và hợp nhất thành đám khói lớn
+    driftDelay: 1.2, // Giữ yên trên đường bay trong 1.2s trước khi bị gió cuốn
+    wakeVelocityRatio: 0.04
+  },
+
   // Cấu hình hiệu ứng hạt nổ tăng tốc đổi hướng bất ngờ vẽ vệt sáng (Erratic Darting / Swimming Stars)
   ERRATIC_DART: {
     // Tỷ lệ hạt kích hoạt hiệu ứng (~40% số hạt)

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { LAYER_REFLECTION } from '../config/layers.js';
 import { FIREWORK_CONFIG } from '../config/fireworks.js';
 import { BurstParticleFactory } from '../factories/BurstParticleFactory.js';
+import { globalEventBus } from '../core/EventBus.js';
 
 const COMET_CORE_SIZE = 1.2;
 
@@ -14,6 +15,9 @@ const _tempTadpoleDir = new THREE.Vector3();
 const _tempTadpoleRight = new THREE.Vector3();
 const _tempTadpoleUp = new THREE.Vector3();
 const _tempTadpoleOffset = new THREE.Vector3();
+const _tempSmokeVel = new THREE.Vector3();
+const _tempSmokeColor = new THREE.Color();
+const _tempDefaultSmokeColor = new THREE.Color(0xf2f5f8);
 
 export class CometEntity {
   static STATE = {
@@ -125,6 +129,21 @@ export class CometEntity {
       preset?.shellType === 'comet_cluster_notrail'
     );
     this.hasNoBurst = Boolean(preset?.noBurst || effects.includes('no-burst') || effectType === 'no-burst');
+
+    // Burst smoke trajectory wake detection (Active Effects Universality)
+    this.hasBurstSmoke = Boolean(
+      preset?.['burst-smoke'] ||
+      preset?.burstSmoke ||
+      preset?.['burst_smoke'] ||
+      effects.includes('burst-smoke') ||
+      effects.includes('burst_smoke') ||
+      effectType === 'burst-smoke' ||
+      effectType === 'burst_smoke'
+    );
+    this.trajectorySmokeCount = 0;
+    this.maxTrajectorySmoke = FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE?.maxPuffs ?? 12;
+    this.lastTrajectorySmokePos = null;
+    this.smokeSystem = null;
 
     this.isTadpole = Boolean(
       preset?.isTadpole ||
@@ -436,6 +455,70 @@ export class CometEntity {
     return Math.min(1.0, raw / (maxRaw || 1.0));
   }
 
+  setSmokeSystem(smokeSystem) {
+    this.smokeSystem = smokeSystem;
+  }
+
+  updateTrajectorySmoke(smokeSystem = this.smokeSystem) {
+    if (!this.hasBurstSmoke || this.state !== CometEntity.STATE.LAUNCHING || this.trajectorySmokeCount >= this.maxTrajectorySmoke) {
+      return false;
+    }
+    const currentPos = this.mesh.position;
+    let shouldSpawn = false;
+
+    if (!this.lastTrajectorySmokePos) {
+      this.lastTrajectorySmokePos = currentPos.clone();
+      shouldSpawn = true;
+    } else {
+      const distTraveled = currentPos.distanceTo(this.lastTrajectorySmokePos);
+      const estDist = (this.initialVy * this.initialVy) / 60;
+      const stepDist = Math.max(3.5, estDist / (this.maxTrajectorySmoke - 1));
+      if (distTraveled >= stepDist) {
+        this.lastTrajectorySmokePos.copy(currentPos);
+        shouldSpawn = true;
+      }
+    }
+
+    if (shouldSpawn) {
+      this.trajectorySmokeCount++;
+      const cfg = FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE || {};
+      const smokeLife = (cfg.lifeMin ?? 6.0) + Math.random() * ((cfg.lifeMax ?? 9.0) - (cfg.lifeMin ?? 6.0));
+      _tempSmokeVel.copy(this.velocity).multiplyScalar(cfg.wakeVelocityRatio ?? 0.04);
+      _tempSmokeColor.copy(_tempDefaultSmokeColor).lerp(this.color, 0.20);
+
+      const smokeOptions = {
+        category: 'aerial',
+        isNucleus: true,
+        isHazePromoter: true,
+        nucleusBoost: cfg.nucleusBoost ?? 3.8,
+        driftDelay: cfg.driftDelay ?? 1.2,
+        life: smokeLife,
+        scale: cfg.baseScale ?? 2.4,
+        growth: cfg.growth ?? 2.2,
+        drag: cfg.drag ?? 0.95,
+        buoyancy: cfg.buoyancy ?? 0.15,
+        opacity: cfg.opacity ?? 0.28,
+        color: _tempSmokeColor
+      };
+
+      if (smokeSystem) {
+        smokeSystem.spawnPuff(
+          currentPos,
+          _tempSmokeVel,
+          smokeOptions
+        );
+      } else {
+        globalEventBus.emit('smoke:puff', {
+          position: currentPos.clone(),
+          velocity: _tempSmokeVel.clone(),
+          options: smokeOptions
+        });
+      }
+      return true;
+    }
+    return false;
+  }
+
   update(deltaTime) {
     if (this.state === CometEntity.STATE.DEAD) {
       return true;
@@ -557,6 +640,10 @@ export class CometEntity {
         if (this.coreMesh && this.coreMesh.material) {
           this.coreMesh.material.color.copy(this.coreColor);
         }
+      }
+
+      if (this.hasBurstSmoke) {
+        this.updateTrajectorySmoke(this.smokeSystem);
       }
 
       // Check if it reached the apex (velocity.y <= 0)

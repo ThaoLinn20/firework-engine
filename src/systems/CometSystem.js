@@ -112,6 +112,13 @@ export class CometSystem {
     }
   }
 
+  setSmokeSystem(smokeSystem) {
+    this.smokeSystem = smokeSystem;
+    for (let i = 0; i < this.activeComets.length; i++) {
+      this.activeComets[i].setSmokeSystem(smokeSystem);
+    }
+  }
+
   destroy() {
     this.clear();
     for (const unsubscribe of this.eventSubscriptions) {
@@ -150,6 +157,9 @@ export class CometSystem {
 
     if (comet.coreMesh?.isPoints) {
       this.scene.add(comet.mesh);
+    }
+    if (this.smokeSystem) {
+      comet.setSmokeSystem(this.smokeSystem);
     }
     this.activeComets.push(comet);
     return comet;
@@ -922,6 +932,9 @@ export class CometSystem {
       if (isNewLaunch && deltaTime === 0) {
         this.activeComets[activeCount++] = comet;
         continue;
+      }
+      if (this.smokeSystem && !comet.smokeSystem) {
+        comet.setSmokeSystem(this.smokeSystem);
       }
       let isDead = comet.update(deltaTime);
 
