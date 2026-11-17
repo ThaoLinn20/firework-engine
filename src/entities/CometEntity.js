@@ -135,13 +135,21 @@ export class CometEntity {
       preset?.['burst-smoke'] ||
       preset?.burstSmoke ||
       preset?.['burst_smoke'] ||
+      preset?.smokeTrail ||
+      preset?.['smoke-trail'] ||
+      preset?.smoke_trail ||
       effects.includes('burst-smoke') ||
       effects.includes('burst_smoke') ||
+      effects.includes('smoke_trail') ||
+      effects.includes('smoke-trail') ||
+      effects.some?.((e) => ['burst-smoke', 'burst_smoke', 'smoke_trail', 'smoke-trail'].includes(typeof e === 'object' ? (e?.type || e?.key) : e)) ||
       effectType === 'burst-smoke' ||
-      effectType === 'burst_smoke'
+      effectType === 'burst_smoke' ||
+      effectType === 'smoke_trail' ||
+      effectType === 'smoke-trail'
     );
     this.trajectorySmokeCount = 0;
-    this.maxTrajectorySmoke = FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE?.maxPuffs ?? 12;
+    this.maxTrajectorySmoke = FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE?.maxPuffs ?? 14;
     this.lastTrajectorySmokePos = null;
     this.smokeSystem = null;
 
@@ -472,7 +480,7 @@ export class CometEntity {
     } else {
       const distTraveled = currentPos.distanceTo(this.lastTrajectorySmokePos);
       const estDist = (this.initialVy * this.initialVy) / 60;
-      const stepDist = Math.max(3.5, estDist / (this.maxTrajectorySmoke - 1));
+      const stepDist = Math.max(1.8, Math.min(4.5, estDist / (this.maxTrajectorySmoke - 1)));
       if (distTraveled >= stepDist) {
         this.lastTrajectorySmokePos.copy(currentPos);
         shouldSpawn = true;

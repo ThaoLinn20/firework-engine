@@ -267,30 +267,30 @@ var t = {
 		burstActivationRatio: .35
 	},
 	COMET_TRAJECTORY_SMOKE: {
-		maxPuffs: 12,
-		lifeMin: 6,
-		lifeMax: 9,
-		baseScale: 2.4,
+		maxPuffs: 14,
+		lifeMin: 5.5,
+		lifeMax: 8.5,
+		baseScale: 3.6,
 		growth: 2.2,
 		drag: .95,
 		buoyancy: .15,
-		opacity: .28,
-		nucleusBoost: 3.8,
-		driftDelay: 1.2,
+		opacity: .38,
+		nucleusBoost: 2.4,
+		driftDelay: .2,
 		wakeVelocityRatio: .04
 	},
 	BURST_SMOKE_TRAIL: {
 		maxLeaders: 20,
 		maxPuffsPerLeader: 8,
-		minStepDist: 2.2,
-		lifeMin: 5,
-		lifeMax: 8,
-		baseScale: 1.6,
-		growth: 1.8,
+		minStepDist: 1.4,
+		lifeMin: 4.5,
+		lifeMax: 7.5,
+		baseScale: 3.2,
+		growth: 2,
 		drag: 1.1,
-		opacity: .22,
-		driftDelay: 1,
-		nucleusBoost: 2.8,
+		opacity: .36,
+		driftDelay: .15,
+		nucleusBoost: 2.2,
 		wakeVelocityRatio: .02
 	},
 	ERRATIC_DART: {
@@ -5825,8 +5825,6 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 	"smoke-trail"
 ], M = [
 	"burst-smoke",
-	"smoke_trail",
-	"smoke-trail",
 	"pistil",
 	"apex-hang",
 	"long-burn",
@@ -8590,7 +8588,12 @@ var R = {
 		let m = o?.starLifeMultiplier !== void 0 && !isNaN(Number(o.starLifeMultiplier)) ? Math.max(.2, Number(o.starLifeMultiplier)) : this.hasLongBurn ? 2 : 1;
 		m !== 1 && (this.maxDecayTime *= m, this.totalLifetime = this.synchronizedLifetime ?? this.timeToApex + this.maxDecayTime, this.fadeStartTime = Math.max(this.fadeStartTime, this.totalLifetime - this.maxDecayTime)), this.hasApexHang = !!(o?.apexHang || f.includes("apex-hang") || p === "apex-hang"), this.hasApexHang && (this.maxDecayTime = Math.max(this.maxDecayTime, 1.8), this.totalLifetime = this.synchronizedLifetime ?? this.timeToApex + this.maxDecayTime, this.fadeStartTime = Math.max(this.fadeStartTime, this.totalLifetime - this.maxDecayTime)), this.hasSlowBurst = !!(o?.slowBurst || o?.["slow-burst"] || o?.slow_burst || f.includes("slow-burst") || f.includes("slow_burst") || p === "slow-burst" || p === "slow_burst"), this.hasCrackle = !!(o?.crackle || f.includes("crackle") || p === "crackle"), this.hasCrossette = !!(o?.crossette || f.includes("crossette") || p === "crossette"), this.hasFlow = !!(o?.flow || f.includes("flow") || p === "flow"), this.hasGhost = !!(o?.ghost || f.includes("ghost") || p === "ghost"), this.hasGhostFlare = !!(o?.ghostFlare || o?.["ghost-flare"] || f.includes("ghost-flare") || p === "ghost-kamuro"), this.isGhostFlare = this.hasGhostFlare;
 		let h = k.getEffectTiming(d, "no-trail", this.totalLifetime) || k.getEffectTiming(d, "notrail", this.totalLifetime) || k.getEffectTiming(d, "noTrail", this.totalLifetime);
-		if (this.noTrailTiming = h, this.hasNoTrail = !!(o?.noTrail || f.includes("no-trail") || f.includes("notrail") || p === "no-trail" || p === "notrail" || o?.shellType === "comet_cluster_notrail"), this.hasNoBurst = !!(o?.noBurst || f.includes("no-burst") || p === "no-burst"), this.hasBurstSmoke = !!(o?.["burst-smoke"] || o?.burstSmoke || o?.burst_smoke || f.includes("burst-smoke") || f.includes("burst_smoke") || p === "burst-smoke" || p === "burst_smoke"), this.trajectorySmokeCount = 0, this.maxTrajectorySmoke = n.COMET_TRAJECTORY_SMOKE?.maxPuffs ?? 12, this.lastTrajectorySmokePos = null, this.smokeSystem = null, this.isTadpole = !!(o?.isTadpole || o?.shellType === "comet_tadpole_burst" || o?.dynamicsType === "tadpole-spiral" || o?.dynamics === "tadpole-spiral" || f.includes("tadpole-flurry") || f.includes("tadpole_flurry") || p === "tadpole-flurry" || p === "tadpole_flurry"), this.tadpoleColor = o?.tadpoleColor || null, this.tadpoleFlurryColor = o?.tadpoleFlurryColor || this.tadpoleColor || null, this.isTadpole) {
+		if (this.noTrailTiming = h, this.hasNoTrail = !!(o?.noTrail || f.includes("no-trail") || f.includes("notrail") || p === "no-trail" || p === "notrail" || o?.shellType === "comet_cluster_notrail"), this.hasNoBurst = !!(o?.noBurst || f.includes("no-burst") || p === "no-burst"), this.hasBurstSmoke = !!(o?.["burst-smoke"] || o?.burstSmoke || o?.burst_smoke || o?.smokeTrail || o?.["smoke-trail"] || o?.smoke_trail || f.includes("burst-smoke") || f.includes("burst_smoke") || f.includes("smoke_trail") || f.includes("smoke-trail") || f.some?.((e) => [
+			"burst-smoke",
+			"burst_smoke",
+			"smoke_trail",
+			"smoke-trail"
+		].includes(typeof e == "object" ? e?.type || e?.key : e)) || p === "burst-smoke" || p === "burst_smoke" || p === "smoke_trail" || p === "smoke-trail"), this.trajectorySmokeCount = 0, this.maxTrajectorySmoke = n.COMET_TRAJECTORY_SMOKE?.maxPuffs ?? 14, this.lastTrajectorySmokePos = null, this.smokeSystem = null, this.isTadpole = !!(o?.isTadpole || o?.shellType === "comet_tadpole_burst" || o?.dynamicsType === "tadpole-spiral" || o?.dynamics === "tadpole-spiral" || f.includes("tadpole-flurry") || f.includes("tadpole_flurry") || p === "tadpole-flurry" || p === "tadpole_flurry"), this.tadpoleColor = o?.tadpoleColor || null, this.tadpoleFlurryColor = o?.tadpoleFlurryColor || this.tadpoleColor || null, this.isTadpole) {
 			let e = n.COMET_TADPOLE?.variance || {}, t = Math.random() < (e.wildDeflectionChance ?? .3);
 			this.tadpoleDeflectionScale = t ? 1.8 + Math.random() * ((e.deflectionMax ?? 3.2) - 1.8) : (e.deflectionMin ?? .25) + Math.random() * .75, this.tadpoleSizeScale = (e.sizeMin ?? .55) + Math.random() * ((e.sizeMax ?? 1.65) - (e.sizeMin ?? .55)), this.tadpoleDensityScale = (e.densityMin ?? .5) + Math.random() * ((e.densityMax ?? 1.8) - (e.densityMin ?? .5));
 		}
@@ -8702,7 +8705,7 @@ var R = {
 		if (!this.lastTrajectorySmokePos) this.lastTrajectorySmokePos = r.clone(), i = !0;
 		else {
 			let e = r.distanceTo(this.lastTrajectorySmokePos), t = this.initialVy * this.initialVy / 60;
-			e >= Math.max(3.5, t / (this.maxTrajectorySmoke - 1)) && (this.lastTrajectorySmokePos.copy(r), i = !0);
+			e >= Math.max(1.8, Math.min(4.5, t / (this.maxTrajectorySmoke - 1))) && (this.lastTrajectorySmokePos.copy(r), i = !0);
 		}
 		if (i) {
 			this.trajectorySmokeCount++;

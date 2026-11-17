@@ -381,16 +381,16 @@ export const FIREWORK_CONFIG = {
 
   // Cấu hình vệt khói kéo dài dọc đường bay của hạt pháo Comet (Comet Trajectory Ribbon Smoke)
   COMET_TRAJECTORY_SMOKE: {
-    maxPuffs: 12, // Ngân sách chặt chẽ: 10 - 15 thực thể dọc quỹ đạo
-    lifeMin: 6.0,
-    lifeMax: 9.0,
-    baseScale: 2.4, // Nhỏ gọn, thanh thoát, vẽ thành đường bay mảnh
+    maxPuffs: 14, // Ngân sách: 10 - 15 thực thể dọc quỹ đạo
+    lifeMin: 5.5,
+    lifeMax: 8.5,
+    baseScale: 3.6, // Tăng kích thước cơ sở để thấy rõ ngay trên đường bay
     growth: 2.2,
     drag: 0.95,
     buoyancy: 0.15,
-    opacity: 0.28,
-    nucleusBoost: 3.8, // Sau pha đầu sẽ nở to 3.8x và hợp nhất thành đám khói lớn
-    driftDelay: 1.2, // Giữ yên trên đường bay trong 1.2s trước khi bị gió cuốn
+    opacity: 0.38, // Độ mờ đậm nét tức thì khi hạt vừa bay
+    nucleusBoost: 2.4, // Nở tự nhiên hòa vào đám khói
+    driftDelay: 0.20, // Bắt đầu trôi và nở ngay (không delay 1.2s khiến khói tàng hình)
     wakeVelocityRatio: 0.04
   },
 
@@ -398,15 +398,15 @@ export const FIREWORK_CONFIG = {
   BURST_SMOKE_TRAIL: {
     maxLeaders: 20, // Tối đa 20 hạt dẫn đầu trong toàn chùm nổ
     maxPuffsPerLeader: 8, // Mỗi hạt nhả tối đa 8 puffs dọc đường bay
-    minStepDist: 2.2, // Khoảng cách tối thiểu giữa 2 lần nhả khói (mét)
-    lifeMin: 5.0,
-    lifeMax: 8.0,
-    baseScale: 1.6, // Đường kính vệt khói mảnh
-    growth: 1.8,
+    minStepDist: 1.4, // Khoảng cách bước nhả khói 1.4m để tạo vệt liền mạch
+    lifeMin: 4.5,
+    lifeMax: 7.5,
+    baseScale: 3.2, // Rõ nét ngay từ lúc hạt bay ra từ tâm nổ
+    growth: 2.0,
     drag: 1.1,
-    opacity: 0.22,
-    driftDelay: 1.0, // Giữ vệt tia thẳng trong 1 giây trước khi bị gió cuốn
-    nucleusBoost: 2.8, // Nở to 2.8x hòa vào tầng sương mây
+    opacity: 0.36, // Độ đậm rõ ràng trên đường bay
+    driftDelay: 0.15, // Hiện rõ và nở tự nhiên ngay trong pha bay
+    nucleusBoost: 2.2,
     wakeVelocityRatio: 0.02
   },
 

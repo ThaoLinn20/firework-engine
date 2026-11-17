@@ -112,17 +112,17 @@ describe('Comet Trajectory Ribbon Smoke with Burst Smoke Modifier', () => {
       const prev = spawnedPuffs[i - 1].position;
       const curr = spawnedPuffs[i].position;
       expect(curr.y).toBeGreaterThan(prev.y);
-      expect(curr.distanceTo(prev)).toBeGreaterThanOrEqual(3.5);
+      expect(curr.distanceTo(prev)).toBeGreaterThanOrEqual(1.8);
     }
 
     // Verify smoke configuration parameters
     const firstPuff = spawnedPuffs[0];
     expect(firstPuff.options.isNucleus).toBe(true);
     expect(firstPuff.options.isHazePromoter).toBe(true);
-    expect(firstPuff.options.nucleusBoost).toBe(3.8);
-    expect(firstPuff.options.driftDelay).toBe(1.2);
-    expect(firstPuff.options.scale).toBe(2.4);
-    expect(firstPuff.options.opacity).toBe(0.28);
+    expect(firstPuff.options.nucleusBoost).toBe(2.4);
+    expect(firstPuff.options.driftDelay).toBe(0.20);
+    expect(firstPuff.options.scale).toBe(3.6);
+    expect(firstPuff.options.opacity).toBe(0.38);
   });
 
   it('should strictly cap smoke puffs and not exceed maxTrajectorySmoke budget even on long flight', () => {
@@ -141,7 +141,7 @@ describe('Comet Trajectory Ribbon Smoke with Burst Smoke Modifier', () => {
       comet.update(0.033);
     }
 
-    expect(comet.trajectorySmokeCount).toBeLessThanOrEqual(12);
+    expect(comet.trajectorySmokeCount).toBeLessThanOrEqual(14);
     expect(mockSmokeSystem.spawnPuff).toHaveBeenCalledTimes(comet.trajectorySmokeCount);
   });
 

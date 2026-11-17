@@ -125,8 +125,8 @@ describe('Burst Particle Smoke Trail (Active Effect: smoke_trail)', () => {
     const firstPuff = spawnedPuffs[0];
     expect(firstPuff.opts.isNucleus).toBe(true);
     expect(firstPuff.opts.isHazePromoter).toBe(true);
-    expect(firstPuff.opts.nucleusBoost).toBe(2.8);
-    expect(firstPuff.opts.driftDelay).toBe(1.0);
+    expect(firstPuff.opts.nucleusBoost).toBe(2.2);
+    expect(firstPuff.opts.driftDelay).toBe(0.15);
 
     // Phase 3: age > 1.5s (after end) -> should NOT emit any more puffs
     particle.age = 1.6;
