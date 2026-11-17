@@ -141,6 +141,30 @@ export const PARAMETER_DESCRIPTORS = Object.freeze({
       }
       return 'random';
     }
+  }),
+  smokeTrailStartTime: Object.freeze({
+    name: 'smokeTrailStartTime',
+    labelKey: 'smokeTrailStartTime',
+    defaultValue: 0.0,
+    softMin: 0.0,
+    softMax: 2.0,
+    softStep: 0.05,
+    hardMin: 0.0,
+    hardMax: 5.0,
+    unit: 's',
+    formatValue: (v) => `${Number(v).toFixed(2)}s`
+  }),
+  smokeTrailDuration: Object.freeze({
+    name: 'smokeTrailDuration',
+    labelKey: 'smokeTrailDuration',
+    defaultValue: 1.5,
+    softMin: 0.2,
+    softMax: 4.0,
+    softStep: 0.1,
+    hardMin: 0.1,
+    hardMax: 8.0,
+    unit: 's',
+    formatValue: (v) => `${Number(v).toFixed(2)}s`
   })
 });
 
@@ -197,6 +221,12 @@ export function normalizePresetParameters(preset) {
   }
   if (preset.terminalFlareColor !== undefined) {
     preset.terminalFlareColor = normalizeParameter('terminalFlareColor', preset.terminalFlareColor);
+  }
+  if (preset.smokeTrailStartTime !== undefined) {
+    preset.smokeTrailStartTime = normalizeParameter('smokeTrailStartTime', preset.smokeTrailStartTime);
+  }
+  if (preset.smokeTrailDuration !== undefined) {
+    preset.smokeTrailDuration = normalizeParameter('smokeTrailDuration', preset.smokeTrailDuration);
   }
   return preset;
 }

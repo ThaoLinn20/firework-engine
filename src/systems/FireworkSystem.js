@@ -68,6 +68,9 @@ const _scratchSplashVel = new THREE.Vector3();
 const _scratchSplashColor = new THREE.Color();
 const _steamColor = new THREE.Color(0xdde5ee);
 const _scratchLerpPos = new THREE.Vector3();
+const _smokeTrailVel = new THREE.Vector3();
+const _smokeTrailColor = new THREE.Color();
+const _smokeTrailDefaultColor = new THREE.Color(0xf2f5f8);
 const _scratchBurstTrailColor = new THREE.Color();
 const _scratchBurstTrailVel = new THREE.Vector3();
 const _whiteColor = new THREE.Color(0xffffff);
@@ -2041,6 +2044,7 @@ export class FireworkSystem {
       isTadpoleFlurryShell,
       isErraticDartShell,
       hasBurstSmoke: isBurstSmokeActive,
+      hasSmokeTrail: isSmokeTrailActive,
       isLongBurn,
       isApexHang,
       isSlowBurst,
@@ -2693,6 +2697,9 @@ export class FireworkSystem {
         dragCoefficient: particleDrag,
         dynamicsProfile,
         hasBurstSmoke: isBurstSmokeActive,
+        hasSmokeTrail: isSmokeTrailActive,
+        smokeTrailStartTime: preset?.smokeTrailStartTime,
+        smokeTrailDuration: preset?.smokeTrailDuration,
         burstSmokeLimit: 0.28 + Math.random() * 0.10,
         isCrossette: isCrossetteShell
           && !isDyingEmber
@@ -2816,6 +2823,7 @@ export class FireworkSystem {
       isTadpoleFlurryShell,
       isErraticDartShell,
       hasBurstSmoke: isBurstSmokeActive,
+      hasSmokeTrail: isSmokeTrailActive,
       isGhostEffect,
       isCCEffect,
       isLongBurn: isContourLongBurn,
@@ -2956,6 +2964,9 @@ export class FireworkSystem {
         effects: childEffects,
         hasNoTrail: isStageNoTrail,
         hasBurstSmoke: isBurstSmokeActive,
+        hasSmokeTrail: isSmokeTrailActive,
+        smokeTrailStartTime: cfg?.smokeTrailStartTime ?? p.preset?.smokeTrailStartTime,
+        smokeTrailDuration: cfg?.smokeTrailDuration ?? p.preset?.smokeTrailDuration,
         burstSmokeLimit: 0.28 + Math.random() * 0.10,
         isCrossette: isCrossetteShell && crossetteSplitMap.has(k),
         crossetteSplitTime: childLife * (crossetteSplitMap.get(k) ?? 0.5),
@@ -4402,6 +4413,64 @@ export class FireworkSystem {
                 options: smokeOptions
               }
             );
+          }
+        }
+      }
+
+      // Hiệu ứng khói đường bay kéo dài cho hạt pháo hoa (Burst Particle Smoke Trail)
+      if (
+        p.hasSmokeTrail &&
+        p.isSmokeLeader &&
+        p.smokePuffCount < p.maxSmokePuffs &&
+        p.age >= (p.smokeTrailStart ?? 0) &&
+        p.age <= (p.smokeTrailEnd ?? 999)
+      ) {
+        let shouldEmitRibbon = false;
+        if (!p.lastSmokePos) {
+          p.lastSmokePos = p.position.clone();
+          shouldEmitRibbon = true;
+        } else {
+          const cfg = FIREWORK_CONFIG.BURST_SMOKE_TRAIL || {};
+          const minStep = cfg.minStepDist ?? 2.2;
+          if (p.position.distanceTo(p.lastSmokePos) >= minStep) {
+            p.lastSmokePos.copy(p.position);
+            shouldEmitRibbon = true;
+          }
+        }
+
+        if (shouldEmitRibbon) {
+          p.smokePuffCount++;
+          const cfg = FIREWORK_CONFIG.BURST_SMOKE_TRAIL || {};
+          const life = (cfg.lifeMin ?? 5.0) + Math.random() * ((cfg.lifeMax ?? 8.0) - (cfg.lifeMin ?? 5.0));
+          _smokeTrailVel.copy(p.velocity).multiplyScalar(cfg.wakeVelocityRatio ?? 0.02);
+          _smokeTrailColor.copy(_smokeTrailDefaultColor).lerp(p.baseColor || p.color, 0.20);
+
+          const smokeOptions = {
+            category: 'aerial',
+            isNucleus: true,
+            isHazePromoter: true,
+            nucleusBoost: cfg.nucleusBoost ?? 2.8,
+            driftDelay: cfg.driftDelay ?? 1.0,
+            life: life,
+            scale: cfg.baseScale ?? 1.6,
+            growth: cfg.growth ?? 1.8,
+            drag: cfg.drag ?? 1.1,
+            opacity: cfg.opacity ?? 0.22,
+            color: _smokeTrailColor
+          };
+
+          if (this.smokeSystem) {
+            this.smokeSystem.spawnPuff(
+              p.position,
+              _smokeTrailVel,
+              smokeOptions
+            );
+          } else {
+            globalEventBus.emit('smoke:puff', {
+              position: p.position.clone(),
+              velocity: _smokeTrailVel.clone(),
+              options: smokeOptions
+            });
           }
         }
       }

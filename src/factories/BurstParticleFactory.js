@@ -214,11 +214,27 @@ export class BurstParticleFactory {
       || normDynamics === 'burnout_flash'
     );
 
+    const hasSmokeTrail = Boolean(
+      preset?.smokeTrail
+      || preset?.['smoke-trail']
+      || preset?.smoke_trail
+      || effectsList.includes('smoke_trail')
+      || effectsList.includes('smoke-trail')
+      || (Array.isArray(preset?.effects) && (
+        preset.effects.includes('smoke_trail')
+        || preset.effects.includes('smoke-trail')
+        || preset.effects.some((e) => (typeof e === 'object' && ['smoke_trail', 'smoke-trail'].includes(e.type || e.key)))
+      ))
+      || normDynamics === 'smoke_trail'
+      || normDynamics === 'smoke-trail'
+    );
+
     return {
       isCrossetteShell,
       isTadpoleFlurryShell,
       isErraticDartShell,
       hasBurstSmoke,
+      hasSmokeTrail,
       isGhostEffect,
       isCCEffect,
       isLongBurn,
@@ -458,6 +474,42 @@ export class BurstParticleFactory {
       : (effectiveHasBurstSmoke ? maxLife * (burstSmokeLimit ?? 0.33) : undefined);
     const burstSmokeStart = rawBurstSmokeStart !== undefined ? rawBurstSmokeStart + pDelay : undefined;
     const burstSmokeEnd = rawBurstSmokeEnd !== undefined ? rawBurstSmokeEnd + pDelay : undefined;
+
+    const smokeTrailTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'smoke_trail', maxLife)
+      || BurstParticleFactory.getEffectTiming(effectsArray, 'smoke-trail', maxLife);
+    const hasSmokeTrailTag = Boolean(
+      options.hasSmokeTrail
+      || options.smokeTrail
+      || options['smoke_trail']
+      || options['smoke-trail']
+      || smokeTrailTiming !== null
+      || (Array.isArray(preset?.effects) && (
+        preset.effects.includes('smoke_trail') ||
+        preset.effects.includes('smoke-trail') ||
+        preset.effects.some((e) => (typeof e === 'object' && ['smoke_trail', 'smoke-trail'].includes(e?.type || e?.key)))
+      ))
+    );
+
+    const rawSmokeTrailStart = smokeTrailTiming
+      ? smokeTrailTiming.start
+      : (options.smokeTrailStartTime !== undefined
+        ? Number(options.smokeTrailStartTime)
+        : (preset?.smokeTrailStartTime !== undefined ? Number(preset.smokeTrailStartTime) : 0.0));
+    const rawSmokeTrailDuration = (smokeTrailTiming && smokeTrailTiming.end !== null)
+      ? Math.max(0.1, smokeTrailTiming.end - rawSmokeTrailStart)
+      : (options.smokeTrailDuration !== undefined
+        ? Number(options.smokeTrailDuration)
+        : (preset?.smokeTrailDuration !== undefined ? Number(preset.smokeTrailDuration) : (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.duration ?? 1.5)));
+    const smokeTrailStart = rawSmokeTrailStart + pDelay;
+    const smokeTrailEnd = rawSmokeTrailStart + rawSmokeTrailDuration + pDelay;
+
+    const maxLeaders = FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxLeaders ?? 20;
+    const stride = Math.max(1, Math.floor((totalParticleCount || 200) / maxLeaders));
+    const isSmokeLeader = hasSmokeTrailTag && (
+      options.isSmokeLeader !== undefined
+        ? Boolean(options.isSmokeLeader)
+        : (particleIndex % stride === 0)
+    );
 
     const strobeTiming = BurstParticleFactory.getEffectTiming(effectsArray, 'strobe', maxLife)
       || BurstParticleFactory.getEffectTiming(effectsArray, 'white-strobe', maxLife)
@@ -743,6 +795,15 @@ export class BurstParticleFactory {
       terminalFlareSizeMultiplier: resolvedTerminalFlareSizeMultiplier,
       terminalFlareColor: resolvedTerminalFlareColor,
       terminalFlareTargetColor: targetFlareColor,
+      hasSmokeTrail: Boolean(hasSmokeTrailTag),
+      isSmokeLeader: Boolean(isSmokeLeader),
+      smokeTrailStart,
+      smokeTrailEnd,
+      smokeTrailDuration: rawSmokeTrailDuration,
+      smokeDistanceAcc: 0.0,
+      smokePuffCount: 0,
+      maxSmokePuffs: FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxPuffsPerLeader ?? 8,
+      lastSmokePos: null,
       lastVelocity: velocity ? velocity.clone() : new THREE.Vector3()
     };
   }

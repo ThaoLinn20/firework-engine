@@ -86,11 +86,15 @@ export const TIMED_EFFECT_TAGS = [
   'terminal_flare',
   'terminal-flare',
   'burnout_flash',
-  'burnout-flash'
+  'burnout-flash',
+  'smoke_trail',
+  'smoke-trail'
 ];
 
 export const TOGGLE_MODIFIER_TAGS = [
   'burst-smoke',
+  'smoke_trail',
+  'smoke-trail',
   'pistil',
   'apex-hang',
   'long-burn',

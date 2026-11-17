@@ -394,6 +394,22 @@ export const FIREWORK_CONFIG = {
     wakeVelocityRatio: 0.04
   },
 
+  // Cấu hình vệt khói kéo dài dọc đường bay của hạt nổ pháo hoa (Burst Particle Smoke Trail)
+  BURST_SMOKE_TRAIL: {
+    maxLeaders: 20, // Tối đa 20 hạt dẫn đầu trong toàn chùm nổ
+    maxPuffsPerLeader: 8, // Mỗi hạt nhả tối đa 8 puffs dọc đường bay
+    minStepDist: 2.2, // Khoảng cách tối thiểu giữa 2 lần nhả khói (mét)
+    lifeMin: 5.0,
+    lifeMax: 8.0,
+    baseScale: 1.6, // Đường kính vệt khói mảnh
+    growth: 1.8,
+    drag: 1.1,
+    opacity: 0.22,
+    driftDelay: 1.0, // Giữ vệt tia thẳng trong 1 giây trước khi bị gió cuốn
+    nucleusBoost: 2.8, // Nở to 2.8x hòa vào tầng sương mây
+    wakeVelocityRatio: 0.02
+  },
+
   // Cấu hình hiệu ứng hạt nổ tăng tốc đổi hướng bất ngờ vẽ vệt sáng (Erratic Darting / Swimming Stars)
   ERRATIC_DART: {
     // Tỷ lệ hạt kích hoạt hiệu ứng (~40% số hạt)
