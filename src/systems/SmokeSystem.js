@@ -304,9 +304,11 @@ export class SmokeSystem {
             calculatedPos.y += uWind.y * windAge * 0.50;
 
             float tRatio = clamp(age / life, 0.0, 1.0);
-            float disp = mix(0.05, 0.45 + 2.2 * tRatio, windActive);
-            calculatedPos.x += sin(uTime * 1.6 + seed * 19.3) * disp * age * 0.4;
-            calculatedPos.z += cos(uTime * 1.4 + seed * 23.7) * disp * age * 0.4;
+            float disp = mix(0.05, 0.35 + 1.2 * tRatio, windActive);
+            float dispAngle = seed * 6.2831853;
+            vec2 dispDir = vec2(cos(dispAngle), sin(dispAngle));
+            calculatedPos.x += dispDir.x * disp * age * 0.18;
+            calculatedPos.z += dispDir.y * disp * age * 0.18;
 
             transformed = calculatedPos;
 
@@ -350,11 +352,11 @@ export class SmokeSystem {
               1.0 + aSmokeParams.y * 0.15 * (age / max(0.001, driftDelay)),
               isDelayActive
             );
-            float sizeNoise = sin(uTime * 1.6 + seed * 19.37) * 0.12;
+            float sizeNoise = (fract(seed * 7.13) - 0.5) * 0.12;
             gl_PointSize = aSize * growthScale * (1.0 + sizeNoise);
           }
         } else {
-          float sizeNoise = sin(uTime * 1.6 + aSeed * 19.37) * 0.12;
+          float sizeNoise = (fract(aSeed * 7.13) - 0.5) * 0.12;
           gl_PointSize = aSize * (1.0 + sizeNoise);
         }
         `
@@ -381,7 +383,7 @@ export class SmokeSystem {
         `
         if (vGpuIsDead > 0.5) discard;
         #ifdef USE_MAP
-          float angle = vSeed * 6.2831853 + uTime * (0.12 + 0.08 * fract(vSeed * 5.71));
+          float angle = vSeed * 6.2831853;
           vec2 centered = gl_PointCoord - vec2(0.5);
           float s = sin(angle);
           float c = cos(angle);
