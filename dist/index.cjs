@@ -61,16 +61,15 @@ Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});var e=Object.
         float minC = min(min(diffuseColor.r, diffuseColor.g), diffuseColor.b);
         float sat = maxC > 0.001 ? (maxC - minC) / maxC : 0.0;
         float whiteness = smoothstep(0.70, 0.98, lum) * (1.0 - smoothstep(0.05, 0.35, sat));
-        float edgeDamp = mix(1.0, 0.25, whiteness);
-        float effectiveCutoff = mix(uEdgeSoftness, uEdgeSoftness * 0.72, whiteness);
-        if (dist > effectiveCutoff) discard;
+        // Soft moderate dampening (~30%) for bright white stars so the halo stays natural without looking chalky
+        float edgeDamp = mix(1.0, 0.70, whiteness);
         
         vec4 stop0 = vec4(1.0, 1.0, 1.0, 1.0);
         vec4 stop1 = vec4(diffuseColor.rgb, 0.34 * edgeDamp);
-        vec4 stop2 = vec4(diffuseColor.rgb, 0.16 * (edgeDamp * edgeDamp));
+        vec4 stop2 = vec4(diffuseColor.rgb, 0.16 * edgeDamp);
         vec4 stop3 = vec4(diffuseColor.rgb, 0.0);
         
-        float outerStart = min(0.32, effectiveCutoff * 0.45);
+        float outerStart = min(0.32, uEdgeSoftness * 0.45);
         vec4 gradientColor;
         if (dist < 0.024) {
             gradientColor = stop0;
@@ -81,7 +80,7 @@ Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});var e=Object.
             float t = (dist - min(0.125, outerStart)) / max(0.001, outerStart - min(0.125, outerStart));
             gradientColor = mix(stop1, stop2, t);
         } else {
-            float t = (dist - outerStart) / max(0.001, effectiveCutoff - outerStart);
+            float t = (dist - outerStart) / max(0.001, uEdgeSoftness - outerStart);
             gradientColor = mix(stop2, stop3, t);
         }
         
@@ -201,16 +200,14 @@ Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});var e=Object.
           float minC = min(min(baseRgb.r, baseRgb.g), baseRgb.b);
           float sat = maxC > 0.001 ? (maxC - minC) / maxC : 0.0;
           float whiteness = smoothstep(0.70, 0.98, lum) * (1.0 - smoothstep(0.05, 0.35, sat));
-          float edgeDamp = mix(1.0, 0.25, whiteness);
-          float effectiveCutoff = mix(uEdgeSoftness, uEdgeSoftness * 0.72, whiteness);
-          if (dist > effectiveCutoff) discard;
+          float edgeDamp = mix(1.0, 0.70, whiteness);
 
           vec4 stop0 = vec4(1.0, 1.0, 1.0, 1.0);
           vec4 stop1 = vec4(baseRgb, 0.3 * edgeDamp);
-          vec4 stop2 = vec4(baseRgb, 0.13 * (edgeDamp * edgeDamp));
+          vec4 stop2 = vec4(baseRgb, 0.13 * edgeDamp);
           vec4 stop3 = vec4(baseRgb, 0.0);
           
-          float outerStart = min(0.32, effectiveCutoff * 0.45);
+          float outerStart = min(0.32, uEdgeSoftness * 0.45);
           vec4 gradientColor;
           if (dist < 0.024) {
               gradientColor = stop0;
@@ -221,7 +218,7 @@ Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});var e=Object.
               float t = (dist - min(0.125, outerStart)) / max(0.001, outerStart - min(0.125, outerStart));
               gradientColor = mix(stop1, stop2, t);
           } else {
-              float t = (dist - outerStart) / max(0.001, effectiveCutoff - outerStart);
+              float t = (dist - outerStart) / max(0.001, uEdgeSoftness - outerStart);
               gradientColor = mix(stop2, stop3, t);
           }
           
