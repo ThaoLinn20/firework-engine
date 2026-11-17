@@ -596,7 +596,7 @@ export class BurstParticleFactory {
       ? Number(options.terminalFlareSizeMultiplier)
       : (preset?.terminalFlareSizeMultiplier !== undefined
         ? Number(preset.terminalFlareSizeMultiplier)
-        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.25));
+        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.15));
 
     const resolvedTerminalFlareColor = options.terminalFlareColor !== null && options.terminalFlareColor !== undefined
       ? options.terminalFlareColor

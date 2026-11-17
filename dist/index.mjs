@@ -456,10 +456,10 @@ var t = {
 		defaultDuration: .15,
 		minDuration: .05,
 		maxDuration: .4,
-		defaultIntensity: 2.5,
+		defaultIntensity: 1.6,
 		minIntensity: 1,
 		maxIntensity: 6,
-		defaultSizeMultiplier: 1.35,
+		defaultSizeMultiplier: 1.15,
 		minSizeMultiplier: 1,
 		maxSizeMultiplier: 2.5,
 		defaultColor: "random",
@@ -574,7 +574,7 @@ var t = {
 	terminalFlareIntensity: Object.freeze({
 		name: "terminalFlareIntensity",
 		labelKey: "terminalFlareIntensity",
-		defaultValue: 2.5,
+		defaultValue: 1.6,
 		softMin: 1,
 		softMax: 4.5,
 		softStep: .1,
@@ -586,7 +586,7 @@ var t = {
 	terminalFlareSizeMultiplier: Object.freeze({
 		name: "terminalFlareSizeMultiplier",
 		labelKey: "terminalFlareSizeMultiplier",
-		defaultValue: 1.35,
+		defaultValue: 1.15,
 		softMin: 1,
 		softMax: 2.2,
 		softStep: .05,
@@ -5534,7 +5534,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			...t.getEffectTimings(q, "noTrail", u)
 		]), $ = jt([...t.getEffectTimings(q, "tadpole-flurry", u), ...t.getEffectTimings(q, "tadpole_flurry", u)]), Rt = jt([...t.getEffectTimings(q, "erratic-dart", u), ...t.getEffectTimings(q, "erratic_dart", u)]), zt = jt([...t.getEffectTimings(q, "dark_phase", u), ...t.getEffectTimings(q, "dark-phase", u)]), Bt = jt([...t.getEffectTimings(q, "sync_strobe", u), ...t.getEffectTimings(q, "sync-strobe", u)]), Vt = {};
 		Mt.length > 0 && (Vt.strobe = Mt), Nt.length > 0 && (Vt["white-strobe"] = Nt), Pt.length > 0 && (Vt["glitter-strobe"] = Pt), Ft.length > 0 && (Vt.ghost = Ft), It.length > 0 && (Vt.crackle = It), Lt.length > 0 && (Vt["no-trail"] = Lt), $.length > 0 && (Vt["tadpole-flurry"] = $), Rt.length > 0 && (Vt["erratic-dart"] = Rt), zt.length > 0 && (Vt.dark_phase = zt, Vt["dark-phase"] = zt), Bt.length > 0 && (Vt.sync_strobe = Bt, Vt["sync-strobe"] = Bt);
-		let Ht = !!(be || K > 0), Ut = t.getEffectTiming(q, "terminal-flare", u) || t.getEffectTiming(q, "terminal_flare", u) || t.getEffectTiming(q, "burnout-flash", u) || t.getEffectTiming(q, "burnout_flash", u), Wt = r.hasTerminalFlare === void 0 ? !!(g?.terminalFlare || g?.["terminal-flare"] || g?.terminal_flare) || Ut !== null : !!r.hasTerminalFlare, Gt = r.terminalFlareTriggerRatio !== null && r.terminalFlareTriggerRatio !== void 0 ? Number(r.terminalFlareTriggerRatio) : g?.terminalFlareTriggerRatio === void 0 ? n.TERMINAL_FLARE?.defaultTriggerRatio ?? .85 : Number(g.terminalFlareTriggerRatio), Kt = r.terminalFlareDuration !== null && r.terminalFlareDuration !== void 0 ? Number(r.terminalFlareDuration) : g?.terminalFlareDuration === void 0 ? n.TERMINAL_FLARE?.defaultDuration ?? .15 : Number(g.terminalFlareDuration), qt = r.terminalFlareIntensity !== null && r.terminalFlareIntensity !== void 0 ? Number(r.terminalFlareIntensity) : g?.terminalFlareIntensity === void 0 ? n.TERMINAL_FLARE?.defaultIntensity ?? 2.2 : Number(g.terminalFlareIntensity), Jt = r.terminalFlareSizeMultiplier !== null && r.terminalFlareSizeMultiplier !== void 0 ? Number(r.terminalFlareSizeMultiplier) : g?.terminalFlareSizeMultiplier === void 0 ? n.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.25 : Number(g.terminalFlareSizeMultiplier), Yt = r.terminalFlareColor !== null && r.terminalFlareColor !== void 0 ? r.terminalFlareColor : g?.terminalFlareColor === void 0 ? n.TERMINAL_FLARE?.defaultColor ?? "random" : g.terminalFlareColor, Xt = null;
+		let Ht = !!(be || K > 0), Ut = t.getEffectTiming(q, "terminal-flare", u) || t.getEffectTiming(q, "terminal_flare", u) || t.getEffectTiming(q, "burnout-flash", u) || t.getEffectTiming(q, "burnout_flash", u), Wt = r.hasTerminalFlare === void 0 ? !!(g?.terminalFlare || g?.["terminal-flare"] || g?.terminal_flare) || Ut !== null : !!r.hasTerminalFlare, Gt = r.terminalFlareTriggerRatio !== null && r.terminalFlareTriggerRatio !== void 0 ? Number(r.terminalFlareTriggerRatio) : g?.terminalFlareTriggerRatio === void 0 ? n.TERMINAL_FLARE?.defaultTriggerRatio ?? .85 : Number(g.terminalFlareTriggerRatio), Kt = r.terminalFlareDuration !== null && r.terminalFlareDuration !== void 0 ? Number(r.terminalFlareDuration) : g?.terminalFlareDuration === void 0 ? n.TERMINAL_FLARE?.defaultDuration ?? .15 : Number(g.terminalFlareDuration), qt = r.terminalFlareIntensity !== null && r.terminalFlareIntensity !== void 0 ? Number(r.terminalFlareIntensity) : g?.terminalFlareIntensity === void 0 ? n.TERMINAL_FLARE?.defaultIntensity ?? 2.2 : Number(g.terminalFlareIntensity), Jt = r.terminalFlareSizeMultiplier !== null && r.terminalFlareSizeMultiplier !== void 0 ? Number(r.terminalFlareSizeMultiplier) : g?.terminalFlareSizeMultiplier === void 0 ? n.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.15 : Number(g.terminalFlareSizeMultiplier), Yt = r.terminalFlareColor !== null && r.terminalFlareColor !== void 0 ? r.terminalFlareColor : g?.terminalFlareColor === void 0 ? n.TERMINAL_FLARE?.defaultColor ?? "random" : g.terminalFlareColor, Xt = null;
 		if (Wt) {
 			let t = n.TERMINAL_FLARE?.palette || [
 				"#ffffff",
@@ -10246,7 +10246,7 @@ var Fe = n.SYSTEM.crackleSparkColor, Ie = new e.Vector3(), K = new e.Vector3(), 
 						s.color.r = e.MathUtils.lerp(s.color.r, t.r, r), s.color.g = e.MathUtils.lerp(s.color.g, t.g, r), s.color.b = e.MathUtils.lerp(s.color.b, t.b, r);
 						let i = Math.max(1, me) * s.terminalFlareIntensity;
 						ve = e.MathUtils.lerp(ve, i, n);
-						let a = U * 1.35 * s.terminalFlareSizeMultiplier;
+						let a = U * s.terminalFlareSizeMultiplier;
 						W = e.MathUtils.lerp(W, a, n);
 					}
 				} else t > 1 && (ve = 0, W = 0);

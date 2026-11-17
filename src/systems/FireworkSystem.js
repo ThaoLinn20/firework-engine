@@ -4652,7 +4652,7 @@ export class FireworkSystem {
             opacity = THREE.MathUtils.lerp(opacity, peakOpacity, flareFactor);
 
             // Optical star growth: expands beyond initial burst explosion size
-            const peakSize = baseSize * 1.35 * p.terminalFlareSizeMultiplier;
+            const peakSize = baseSize * p.terminalFlareSizeMultiplier;
             renderSize = THREE.MathUtils.lerp(renderSize, peakSize, flareFactor);
           }
         } else if (flareProg > 1.0) {
