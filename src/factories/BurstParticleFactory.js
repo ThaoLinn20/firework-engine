@@ -598,6 +598,28 @@ export class BurstParticleFactory {
         ? Number(preset.terminalFlareSizeMultiplier)
         : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.25));
 
+    const resolvedTerminalFlareColor = options.terminalFlareColor !== null && options.terminalFlareColor !== undefined
+      ? options.terminalFlareColor
+      : (preset?.terminalFlareColor !== undefined
+        ? preset.terminalFlareColor
+        : (FIREWORK_CONFIG.TERMINAL_FLARE?.defaultColor ?? 'random'));
+
+    let targetFlareColor = null;
+    if (effectiveHasTerminalFlare) {
+      const palette = FIREWORK_CONFIG.TERMINAL_FLARE?.palette || [
+        '#ffffff', '#ffd700', '#00f5ff', '#ff007f', '#39ff14', '#ff5f00', '#bf55ec', '#0099ff'
+      ];
+      if (typeof resolvedTerminalFlareColor === 'string' && resolvedTerminalFlareColor.toLowerCase() !== 'random') {
+        try {
+          targetFlareColor = new THREE.Color(resolvedTerminalFlareColor);
+        } catch {
+          targetFlareColor = new THREE.Color(palette[Math.floor(Math.random() * palette.length)]);
+        }
+      } else {
+        targetFlareColor = new THREE.Color(palette[Math.floor(Math.random() * palette.length)]);
+      }
+    }
+
     const resolvedDissolveThreshold = options.dissolveThreshold !== undefined
       ? options.dissolveThreshold
       : (isCascade
@@ -719,6 +741,8 @@ export class BurstParticleFactory {
       terminalFlareDuration: resolvedTerminalFlareDuration,
       terminalFlareIntensity: resolvedTerminalFlareIntensity,
       terminalFlareSizeMultiplier: resolvedTerminalFlareSizeMultiplier,
+      terminalFlareColor: resolvedTerminalFlareColor,
+      terminalFlareTargetColor: targetFlareColor,
       lastVelocity: velocity ? velocity.clone() : new THREE.Vector3()
     };
   }

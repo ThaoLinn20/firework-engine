@@ -653,6 +653,17 @@ export const FIREWORK_CONFIG = {
     maxIntensity: 6.0,
     defaultSizeMultiplier: 1.35,
     minSizeMultiplier: 1.0,
-    maxSizeMultiplier: 2.5
+    maxSizeMultiplier: 2.5,
+    defaultColor: 'random',
+    palette: [
+      '#ffffff',
+      '#ffd700',
+      '#00f5ff',
+      '#ff007f',
+      '#39ff14',
+      '#ff5f00',
+      '#bf55ec',
+      '#0099ff'
+    ]
   }
 };

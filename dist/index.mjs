@@ -461,7 +461,18 @@ var t = {
 		maxIntensity: 6,
 		defaultSizeMultiplier: 1.35,
 		minSizeMultiplier: 1,
-		maxSizeMultiplier: 2.5
+		maxSizeMultiplier: 2.5,
+		defaultColor: "random",
+		palette: [
+			"#ffffff",
+			"#ffd700",
+			"#00f5ff",
+			"#ff007f",
+			"#39ff14",
+			"#ff5f00",
+			"#bf55ec",
+			"#0099ff"
+		]
 	}
 }, r = Object.freeze({
 	particleCountMultiplier: Object.freeze({
@@ -583,6 +594,20 @@ var t = {
 		hardMax: 5,
 		unit: "x",
 		formatValue: (e) => `${Number(e).toFixed(2)}x`
+	}),
+	terminalFlareColor: Object.freeze({
+		name: "terminalFlareColor",
+		labelKey: "terminalFlareColor",
+		defaultValue: "random",
+		type: "color",
+		normalize: (e) => {
+			if (typeof e == "string") {
+				let t = e.trim().toLowerCase();
+				if (t === "random") return "random";
+				if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(t)) return t.length === 4 ? "#" + t[1] + t[1] + t[2] + t[2] + t[3] + t[3] : t;
+			}
+			return "random";
+		}
 	})
 });
 function i(e) {
@@ -594,12 +619,13 @@ function a(e, t) {
 		let e = Number(t);
 		return isNaN(e) ? 1 : e;
 	}
+	if (typeof n.normalize == "function") return n.normalize(t);
 	if (t == null || isNaN(Number(t))) return n.defaultValue;
 	let i = Number(t);
 	return Math.max(n.hardMin, Math.min(n.hardMax, i));
 }
 function o(e) {
-	return !e || typeof e != "object" || (e.particleCountMultiplier !== void 0 && (e.particleCountMultiplier = a("particleCountMultiplier", e.particleCountMultiplier)), e.starLifeMultiplier !== void 0 && (e.starLifeMultiplier = a("starLifeMultiplier", e.starLifeMultiplier)), e.shellSize !== void 0 && (e.shellSize = a("shellSize", e.shellSize)), e.soundVolume !== void 0 && (e.soundVolume = a("soundVolume", e.soundVolume)), e.cascadeDuration !== void 0 && (e.cascadeDuration = a("cascadeDuration", e.cascadeDuration)), e.terminalFlareTriggerRatio !== void 0 && (e.terminalFlareTriggerRatio = a("terminalFlareTriggerRatio", e.terminalFlareTriggerRatio)), e.terminalFlareDuration !== void 0 && (e.terminalFlareDuration = a("terminalFlareDuration", e.terminalFlareDuration)), e.terminalFlareIntensity !== void 0 && (e.terminalFlareIntensity = a("terminalFlareIntensity", e.terminalFlareIntensity)), e.terminalFlareSizeMultiplier !== void 0 && (e.terminalFlareSizeMultiplier = a("terminalFlareSizeMultiplier", e.terminalFlareSizeMultiplier))), e;
+	return !e || typeof e != "object" || (e.particleCountMultiplier !== void 0 && (e.particleCountMultiplier = a("particleCountMultiplier", e.particleCountMultiplier)), e.starLifeMultiplier !== void 0 && (e.starLifeMultiplier = a("starLifeMultiplier", e.starLifeMultiplier)), e.shellSize !== void 0 && (e.shellSize = a("shellSize", e.shellSize)), e.soundVolume !== void 0 && (e.soundVolume = a("soundVolume", e.soundVolume)), e.cascadeDuration !== void 0 && (e.cascadeDuration = a("cascadeDuration", e.cascadeDuration)), e.terminalFlareTriggerRatio !== void 0 && (e.terminalFlareTriggerRatio = a("terminalFlareTriggerRatio", e.terminalFlareTriggerRatio)), e.terminalFlareDuration !== void 0 && (e.terminalFlareDuration = a("terminalFlareDuration", e.terminalFlareDuration)), e.terminalFlareIntensity !== void 0 && (e.terminalFlareIntensity = a("terminalFlareIntensity", e.terminalFlareIntensity)), e.terminalFlareSizeMultiplier !== void 0 && (e.terminalFlareSizeMultiplier = a("terminalFlareSizeMultiplier", e.terminalFlareSizeMultiplier)), e.terminalFlareColor !== void 0 && (e.terminalFlareColor = a("terminalFlareColor", e.terminalFlareColor))), e;
 }
 // src/config/layers.js
 var s = 0, c = 1, l = 2, u = {
@@ -5508,7 +5534,26 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			...t.getEffectTimings(q, "noTrail", u)
 		]), $ = jt([...t.getEffectTimings(q, "tadpole-flurry", u), ...t.getEffectTimings(q, "tadpole_flurry", u)]), Rt = jt([...t.getEffectTimings(q, "erratic-dart", u), ...t.getEffectTimings(q, "erratic_dart", u)]), zt = jt([...t.getEffectTimings(q, "dark_phase", u), ...t.getEffectTimings(q, "dark-phase", u)]), Bt = jt([...t.getEffectTimings(q, "sync_strobe", u), ...t.getEffectTimings(q, "sync-strobe", u)]), Vt = {};
 		Mt.length > 0 && (Vt.strobe = Mt), Nt.length > 0 && (Vt["white-strobe"] = Nt), Pt.length > 0 && (Vt["glitter-strobe"] = Pt), Ft.length > 0 && (Vt.ghost = Ft), It.length > 0 && (Vt.crackle = It), Lt.length > 0 && (Vt["no-trail"] = Lt), $.length > 0 && (Vt["tadpole-flurry"] = $), Rt.length > 0 && (Vt["erratic-dart"] = Rt), zt.length > 0 && (Vt.dark_phase = zt, Vt["dark-phase"] = zt), Bt.length > 0 && (Vt.sync_strobe = Bt, Vt["sync-strobe"] = Bt);
-		let Ht = !!(be || K > 0), Ut = t.getEffectTiming(q, "terminal-flare", u) || t.getEffectTiming(q, "terminal_flare", u) || t.getEffectTiming(q, "burnout-flash", u) || t.getEffectTiming(q, "burnout_flash", u), Wt = r.hasTerminalFlare === void 0 ? !!(g?.terminalFlare || g?.["terminal-flare"] || g?.terminal_flare) || Ut !== null : !!r.hasTerminalFlare, Gt = r.terminalFlareTriggerRatio !== null && r.terminalFlareTriggerRatio !== void 0 ? Number(r.terminalFlareTriggerRatio) : g?.terminalFlareTriggerRatio === void 0 ? n.TERMINAL_FLARE?.defaultTriggerRatio ?? .85 : Number(g.terminalFlareTriggerRatio), Kt = r.terminalFlareDuration !== null && r.terminalFlareDuration !== void 0 ? Number(r.terminalFlareDuration) : g?.terminalFlareDuration === void 0 ? n.TERMINAL_FLARE?.defaultDuration ?? .15 : Number(g.terminalFlareDuration), qt = r.terminalFlareIntensity !== null && r.terminalFlareIntensity !== void 0 ? Number(r.terminalFlareIntensity) : g?.terminalFlareIntensity === void 0 ? n.TERMINAL_FLARE?.defaultIntensity ?? 2.2 : Number(g.terminalFlareIntensity), Jt = r.terminalFlareSizeMultiplier !== null && r.terminalFlareSizeMultiplier !== void 0 ? Number(r.terminalFlareSizeMultiplier) : g?.terminalFlareSizeMultiplier === void 0 ? n.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.25 : Number(g.terminalFlareSizeMultiplier), Yt = r.dissolveThreshold === void 0 ? Ht ? n.CASCADE_WAVE?.dissolveStart ?? .92 : ve ? L?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : L?.dissolveStart ?? n.BURST?.dissolveStart ?? .85 : r.dissolveThreshold, Xt = r.attenuationStart === void 0 ? Ht ? n.CASCADE_WAVE?.attenuationStart ?? .75 : L?.attenuationStart ?? n.BURST?.attenuationStart ?? .35 : r.attenuationStart, Zt = r.fadeExp === void 0 ? Ht ? 1.5 : L?.dissolveExponent ?? n.SYSTEM?.burstFadeExponent ?? 2.8 : r.fadeExp, Qt = r.minDissolveFloor === void 0 ? Ht ? 0 : .08 : r.minDissolveFloor;
+		let Ht = !!(be || K > 0), Ut = t.getEffectTiming(q, "terminal-flare", u) || t.getEffectTiming(q, "terminal_flare", u) || t.getEffectTiming(q, "burnout-flash", u) || t.getEffectTiming(q, "burnout_flash", u), Wt = r.hasTerminalFlare === void 0 ? !!(g?.terminalFlare || g?.["terminal-flare"] || g?.terminal_flare) || Ut !== null : !!r.hasTerminalFlare, Gt = r.terminalFlareTriggerRatio !== null && r.terminalFlareTriggerRatio !== void 0 ? Number(r.terminalFlareTriggerRatio) : g?.terminalFlareTriggerRatio === void 0 ? n.TERMINAL_FLARE?.defaultTriggerRatio ?? .85 : Number(g.terminalFlareTriggerRatio), Kt = r.terminalFlareDuration !== null && r.terminalFlareDuration !== void 0 ? Number(r.terminalFlareDuration) : g?.terminalFlareDuration === void 0 ? n.TERMINAL_FLARE?.defaultDuration ?? .15 : Number(g.terminalFlareDuration), qt = r.terminalFlareIntensity !== null && r.terminalFlareIntensity !== void 0 ? Number(r.terminalFlareIntensity) : g?.terminalFlareIntensity === void 0 ? n.TERMINAL_FLARE?.defaultIntensity ?? 2.2 : Number(g.terminalFlareIntensity), Jt = r.terminalFlareSizeMultiplier !== null && r.terminalFlareSizeMultiplier !== void 0 ? Number(r.terminalFlareSizeMultiplier) : g?.terminalFlareSizeMultiplier === void 0 ? n.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.25 : Number(g.terminalFlareSizeMultiplier), Yt = r.terminalFlareColor !== null && r.terminalFlareColor !== void 0 ? r.terminalFlareColor : g?.terminalFlareColor === void 0 ? n.TERMINAL_FLARE?.defaultColor ?? "random" : g.terminalFlareColor, Xt = null;
+		if (Wt) {
+			let t = n.TERMINAL_FLARE?.palette || [
+				"#ffffff",
+				"#ffd700",
+				"#00f5ff",
+				"#ff007f",
+				"#39ff14",
+				"#ff5f00",
+				"#bf55ec",
+				"#0099ff"
+			];
+			if (typeof Yt == "string" && Yt.toLowerCase() !== "random") try {
+				Xt = new e.Color(Yt);
+			} catch {
+				Xt = new e.Color(t[Math.floor(Math.random() * t.length)]);
+			}
+			else Xt = new e.Color(t[Math.floor(Math.random() * t.length)]);
+		}
+		let Zt = r.dissolveThreshold === void 0 ? Ht ? n.CASCADE_WAVE?.dissolveStart ?? .92 : ve ? L?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : L?.dissolveStart ?? n.BURST?.dissolveStart ?? .85 : r.dissolveThreshold, Qt = r.attenuationStart === void 0 ? Ht ? n.CASCADE_WAVE?.attenuationStart ?? .75 : L?.attenuationStart ?? n.BURST?.attenuationStart ?? .35 : r.attenuationStart, $t = r.fadeExp === void 0 ? Ht ? 1.5 : L?.dissolveExponent ?? n.SYSTEM?.burstFadeExponent ?? 2.8 : r.fadeExp, en = r.minDissolveFloor === void 0 ? Ht ? 0 : .08 : r.minDissolveFloor;
 		return {
 			position: i.clone(),
 			prevPosition: i.clone(),
@@ -5597,15 +5642,17 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			frictionHeat: Number(Se) || 0,
 			phaseDelay: K,
 			hasCascadeWave: Ht,
-			dissolveThreshold: Yt,
-			attenuationStart: Xt,
-			fadeExp: Zt,
-			minDissolveFloor: Qt,
+			dissolveThreshold: Zt,
+			attenuationStart: Qt,
+			fadeExp: $t,
+			minDissolveFloor: en,
 			hasTerminalFlare: Wt,
 			terminalFlareTriggerRatio: Gt,
 			terminalFlareDuration: Kt,
 			terminalFlareIntensity: qt,
 			terminalFlareSizeMultiplier: Jt,
+			terminalFlareColor: Yt,
+			terminalFlareTargetColor: Xt,
 			lastVelocity: a ? a.clone() : new e.Vector3()
 		};
 	}
@@ -9543,7 +9590,8 @@ var Fe = n.SYSTEM.crackleSparkColor, Ie = new e.Vector3(), K = new e.Vector3(), 
 				terminalFlareTriggerRatio: a?.terminalFlareTriggerRatio,
 				terminalFlareDuration: a?.terminalFlareDuration,
 				terminalFlareIntensity: a?.terminalFlareIntensity,
-				terminalFlareSizeMultiplier: a?.terminalFlareSizeMultiplier
+				terminalFlareSizeMultiplier: a?.terminalFlareSizeMultiplier,
+				terminalFlareColor: a?.terminalFlareColor
 			});
 			U.push(tt);
 		}
@@ -10194,12 +10242,12 @@ var Fe = n.SYSTEM.crackleSparkColor, Ie = new e.Vector3(), K = new e.Vector3(), 
 				if (t >= 0 && t <= 1) {
 					let n = t < .25 ? t / .25 : Math.max(0, (1 - t) / .75);
 					if (n > 0) {
-						let t = Math.min(1, n * 1.25);
-						s.color.r = e.MathUtils.lerp(s.color.r, 1, t), s.color.g = e.MathUtils.lerp(s.color.g, 1, t), s.color.b = e.MathUtils.lerp(s.color.b, 1, t);
-						let r = Math.max(1, me) * s.terminalFlareIntensity;
-						ve = e.MathUtils.lerp(ve, r, n);
-						let i = U * 1.35 * s.terminalFlareSizeMultiplier;
-						W = e.MathUtils.lerp(W, i, n);
+						let t = s.terminalFlareTargetColor || (s.terminalFlareColor && s.terminalFlareColor !== "random" ? new e.Color(s.terminalFlareColor) : new e.Color(1, 1, 1)), r = Math.min(1, n * 1.25);
+						s.color.r = e.MathUtils.lerp(s.color.r, t.r, r), s.color.g = e.MathUtils.lerp(s.color.g, t.g, r), s.color.b = e.MathUtils.lerp(s.color.b, t.b, r);
+						let i = Math.max(1, me) * s.terminalFlareIntensity;
+						ve = e.MathUtils.lerp(ve, i, n);
+						let a = U * 1.35 * s.terminalFlareSizeMultiplier;
+						W = e.MathUtils.lerp(W, a, n);
 					}
 				} else t > 1 && (ve = 0, W = 0);
 			}
@@ -11460,7 +11508,7 @@ var gt = new e.Vector3(), _t = new e.Vector3(), vt = new e.Vector3(), yt = new e
 	initializeDefaultHandlers() {
 		this.register("single", (e, t) => {
 			let n = e.effectOverrides;
-			(e.instantBurst !== void 0 || e.shellSize !== void 0 || e.starLifeMultiplier !== void 0 || e.shapeType !== void 0 || e.dynamicsType !== void 0 || e.pistil !== void 0 || e.effects !== void 0 || e.strobe !== void 0 || e["white-strobe"] !== void 0 || e["glitter-strobe"] !== void 0 || e.crackle !== void 0 || e.ghost !== void 0 || e["ghost-flare"] !== void 0 || e.ghostFlare !== void 0 || e.flow !== void 0 || e.crossette !== void 0 || e.noTrail !== void 0 || e["no-trail"] !== void 0 || e.noBurst !== void 0 || e["no-burst"] !== void 0 || e["sparkle-apex"] !== void 0 || e["burst-smoke"] !== void 0 || e.burstSmoke !== void 0 || e["apex-hang"] !== void 0 || e.apexHang !== void 0 || e["slow-burst"] !== void 0 || e.slowBurst !== void 0 || e.cascadeWave !== void 0 || e["cascade-wave"] !== void 0 || e.cascade_wave !== void 0 || e.cascadeDuration !== void 0 || e.cascadeMode !== void 0 || e.cascadeRings !== void 0 || e["cascade-rings"] !== void 0 || e.cascade_rings !== void 0 || e.cascadeAngle !== void 0 || e["cascade-angle"] !== void 0 || e.cascade_angle !== void 0 || e.ringCount !== void 0 || e.syncStrobe !== void 0 || e["sync-strobe"] !== void 0 || e.sync_strobe !== void 0 || e.darkPhase !== void 0 || e["dark-phase"] !== void 0 || e.dark_phase !== void 0 || e.terminalFlare !== void 0 || e["terminal-flare"] !== void 0 || e.terminal_flare !== void 0 || e.burnoutFlash !== void 0 || e["burnout-flash"] !== void 0 || e.burnout_flash !== void 0 || e.terminalFlareTriggerRatio !== void 0 || e.terminalFlareDuration !== void 0 || e.terminalFlareIntensity !== void 0 || e.terminalFlareSizeMultiplier !== void 0 || e.cometTrail !== void 0 || e.stages !== void 0 || e.nestingMode !== void 0 || e.multiNested !== void 0 || e.secondBurst !== void 0 || e.secondBurstEnabled !== void 0 || e.textWord !== void 0 || e.textScale !== void 0 || e.letterSpacing !== void 0 || e.tiltAngle !== void 0) && (n = { ...n || {} }, e.instantBurst !== void 0 && (n.instantBurst = e.instantBurst), e.shellSize !== void 0 && (n.shellSize = e.shellSize), e.starLifeMultiplier !== void 0 && (n.starLifeMultiplier = e.starLifeMultiplier), e.shapeType !== void 0 && (n.shapeType = e.shapeType), e.textWord !== void 0 && (n.textWord = e.textWord), e.textScale !== void 0 && (n.textScale = e.textScale), e.letterSpacing !== void 0 && (n.letterSpacing = e.letterSpacing), e.tiltAngle !== void 0 && (n.tiltAngle = e.tiltAngle), e.dynamicsType !== void 0 && (n.dynamicsType = e.dynamicsType), e.pistil !== void 0 && (n.pistil = e.pistil), e.effects !== void 0 && (n.effects = e.effects), e.strobe !== void 0 && (n.strobe = e.strobe), e["white-strobe"] !== void 0 && (n["white-strobe"] = e["white-strobe"]), e["glitter-strobe"] !== void 0 && (n["glitter-strobe"] = e["glitter-strobe"]), e.crackle !== void 0 && (n.crackle = e.crackle), e.ghost !== void 0 && (n.ghost = e.ghost), e["ghost-flare"] !== void 0 && (n["ghost-flare"] = e["ghost-flare"]), e.ghostFlare !== void 0 && (n["ghost-flare"] = e.ghostFlare), e.flow !== void 0 && (n.flow = e.flow), e.noTrail !== void 0 && (n.noTrail = e.noTrail), e["no-trail"] !== void 0 && (n.noTrail = e["no-trail"]), e["no-burst"] !== void 0 && (n.noBurst = e["no-burst"]), e.noBurst !== void 0 && (n.noBurst = e.noBurst), e.crossette !== void 0 && (n.crossette = e.crossette), e["sparkle-apex"] !== void 0 && (n["sparkle-apex"] = e["sparkle-apex"]), e["burst-smoke"] !== void 0 && (n["burst-smoke"] = e["burst-smoke"]), e.burstSmoke !== void 0 && (n["burst-smoke"] = e.burstSmoke), e["apex-hang"] !== void 0 && (n["apex-hang"] = e["apex-hang"]), e.apexHang !== void 0 && (n["apex-hang"] = e.apexHang), e["slow-burst"] !== void 0 && (n["slow-burst"] = e["slow-burst"]), e.slowBurst !== void 0 && (n["slow-burst"] = e.slowBurst), e.slow_burst !== void 0 && (n["slow-burst"] = e.slow_burst), e.cascadeWave !== void 0 && (n.cascadeWave = e.cascadeWave), e["cascade-wave"] !== void 0 && (n.cascadeWave = e["cascade-wave"]), e.cascade_wave !== void 0 && (n.cascadeWave = e.cascade_wave), e.cascadeDuration !== void 0 && (n.cascadeDuration = e.cascadeDuration), e.cascadeMode !== void 0 && (n.cascadeMode = e.cascadeMode), e.cascadeRings !== void 0 && (n.cascadeRings = e.cascadeRings), e["cascade-rings"] !== void 0 && (n.cascadeRings = e["cascade-rings"]), e.cascade_rings !== void 0 && (n.cascadeRings = e.cascade_rings), e.cascadeAngle !== void 0 && (n.cascadeAngle = e.cascadeAngle), e["cascade-angle"] !== void 0 && (n.cascadeAngle = e["cascade-angle"]), e.cascade_angle !== void 0 && (n.cascadeAngle = e.cascade_angle), e.ringCount !== void 0 && (n.cascadeRings = e.ringCount), e.syncStrobe !== void 0 && (n.syncStrobe = e.syncStrobe), e["sync-strobe"] !== void 0 && (n.syncStrobe = e["sync-strobe"]), e.sync_strobe !== void 0 && (n.syncStrobe = e.sync_strobe), e.darkPhase !== void 0 && (n.darkPhase = e.darkPhase), e["dark-phase"] !== void 0 && (n.darkPhase = e["dark-phase"]), e.dark_phase !== void 0 && (n.darkPhase = e.dark_phase), e.terminalFlare !== void 0 && (n.terminalFlare = e.terminalFlare), e["terminal-flare"] !== void 0 && (n.terminalFlare = e["terminal-flare"]), e.terminal_flare !== void 0 && (n.terminalFlare = e.terminal_flare), e.burnoutFlash !== void 0 && (n.terminalFlare = e.burnoutFlash), e["burnout-flash"] !== void 0 && (n.terminalFlare = e["burnout-flash"]), e.burnout_flash !== void 0 && (n.terminalFlare = e.burnout_flash), e.terminalFlareTriggerRatio !== void 0 && (n.terminalFlareTriggerRatio = e.terminalFlareTriggerRatio), e.terminalFlareDuration !== void 0 && (n.terminalFlareDuration = e.terminalFlareDuration), e.terminalFlareIntensity !== void 0 && (n.terminalFlareIntensity = e.terminalFlareIntensity), e.terminalFlareSizeMultiplier !== void 0 && (n.terminalFlareSizeMultiplier = e.terminalFlareSizeMultiplier), e.stages !== void 0 && (n.stages = e.stages), e.nestingMode !== void 0 && (n.nestingMode = e.nestingMode), e.multiNested !== void 0 && (n.multiNested = e.multiNested), e.secondBurst !== void 0 && (n.secondBurst = e.secondBurst), e.secondBurstEnabled !== void 0 && (n.secondBurstEnabled = e.secondBurstEnabled), e.cometTrail !== void 0 && (e.cometTrail === "none" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.instantBurst = !0) : e.cometTrail === "thick" ? (n.launchTrail = !0, n.thickTrail = !0, n.thinTrail = !1) : e.cometTrail === "thin" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !0, n.detachedTrail = !1) : e.cometTrail === "detached" || e.cometTrail === "detached-trail" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !0, n.cometTrail = "detached") : e.cometTrail === "smoke" || e.cometTrail === "smoke_trail" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1, n.flightSmoke = !0, n.instantBurst = !1, n.cometTrail = "smoke") : e.cometTrail === "normal" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1) : e.cometTrail === "ascent-bursts" && (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.ascentBursts = !0, n.ascentSubShellType = e.ascentSubShellType || "random", n.ascentBurstCount = e.ascentBurstCount ? parseInt(e.ascentBurstCount, 10) : 4)), e.ascentSubShellType !== void 0 && (n.ascentSubShellType = e.ascentSubShellType), e.ascentBurstCount !== void 0 && (n.ascentBurstCount = parseInt(e.ascentBurstCount, 10)), (e.sound || e.launchSound || e.burstSound || e.crackleSound || e.soundVolume !== void 0) && (n.sound = {
+			(e.instantBurst !== void 0 || e.shellSize !== void 0 || e.starLifeMultiplier !== void 0 || e.shapeType !== void 0 || e.dynamicsType !== void 0 || e.pistil !== void 0 || e.effects !== void 0 || e.strobe !== void 0 || e["white-strobe"] !== void 0 || e["glitter-strobe"] !== void 0 || e.crackle !== void 0 || e.ghost !== void 0 || e["ghost-flare"] !== void 0 || e.ghostFlare !== void 0 || e.flow !== void 0 || e.crossette !== void 0 || e.noTrail !== void 0 || e["no-trail"] !== void 0 || e.noBurst !== void 0 || e["no-burst"] !== void 0 || e["sparkle-apex"] !== void 0 || e["burst-smoke"] !== void 0 || e.burstSmoke !== void 0 || e["apex-hang"] !== void 0 || e.apexHang !== void 0 || e["slow-burst"] !== void 0 || e.slowBurst !== void 0 || e.cascadeWave !== void 0 || e["cascade-wave"] !== void 0 || e.cascade_wave !== void 0 || e.cascadeDuration !== void 0 || e.cascadeMode !== void 0 || e.cascadeRings !== void 0 || e["cascade-rings"] !== void 0 || e.cascade_rings !== void 0 || e.cascadeAngle !== void 0 || e["cascade-angle"] !== void 0 || e.cascade_angle !== void 0 || e.ringCount !== void 0 || e.syncStrobe !== void 0 || e["sync-strobe"] !== void 0 || e.sync_strobe !== void 0 || e.darkPhase !== void 0 || e["dark-phase"] !== void 0 || e.dark_phase !== void 0 || e.terminalFlare !== void 0 || e["terminal-flare"] !== void 0 || e.terminal_flare !== void 0 || e.burnoutFlash !== void 0 || e["burnout-flash"] !== void 0 || e.burnout_flash !== void 0 || e.terminalFlareTriggerRatio !== void 0 || e.terminalFlareDuration !== void 0 || e.terminalFlareIntensity !== void 0 || e.terminalFlareSizeMultiplier !== void 0 || e.terminalFlareColor !== void 0 || e.cometTrail !== void 0 || e.stages !== void 0 || e.nestingMode !== void 0 || e.multiNested !== void 0 || e.secondBurst !== void 0 || e.secondBurstEnabled !== void 0 || e.textWord !== void 0 || e.textScale !== void 0 || e.letterSpacing !== void 0 || e.tiltAngle !== void 0) && (n = { ...n || {} }, e.instantBurst !== void 0 && (n.instantBurst = e.instantBurst), e.shellSize !== void 0 && (n.shellSize = e.shellSize), e.starLifeMultiplier !== void 0 && (n.starLifeMultiplier = e.starLifeMultiplier), e.shapeType !== void 0 && (n.shapeType = e.shapeType), e.textWord !== void 0 && (n.textWord = e.textWord), e.textScale !== void 0 && (n.textScale = e.textScale), e.letterSpacing !== void 0 && (n.letterSpacing = e.letterSpacing), e.tiltAngle !== void 0 && (n.tiltAngle = e.tiltAngle), e.dynamicsType !== void 0 && (n.dynamicsType = e.dynamicsType), e.pistil !== void 0 && (n.pistil = e.pistil), e.effects !== void 0 && (n.effects = e.effects), e.strobe !== void 0 && (n.strobe = e.strobe), e["white-strobe"] !== void 0 && (n["white-strobe"] = e["white-strobe"]), e["glitter-strobe"] !== void 0 && (n["glitter-strobe"] = e["glitter-strobe"]), e.crackle !== void 0 && (n.crackle = e.crackle), e.ghost !== void 0 && (n.ghost = e.ghost), e["ghost-flare"] !== void 0 && (n["ghost-flare"] = e["ghost-flare"]), e.ghostFlare !== void 0 && (n["ghost-flare"] = e.ghostFlare), e.flow !== void 0 && (n.flow = e.flow), e.noTrail !== void 0 && (n.noTrail = e.noTrail), e["no-trail"] !== void 0 && (n.noTrail = e["no-trail"]), e["no-burst"] !== void 0 && (n.noBurst = e["no-burst"]), e.noBurst !== void 0 && (n.noBurst = e.noBurst), e.crossette !== void 0 && (n.crossette = e.crossette), e["sparkle-apex"] !== void 0 && (n["sparkle-apex"] = e["sparkle-apex"]), e["burst-smoke"] !== void 0 && (n["burst-smoke"] = e["burst-smoke"]), e.burstSmoke !== void 0 && (n["burst-smoke"] = e.burstSmoke), e["apex-hang"] !== void 0 && (n["apex-hang"] = e["apex-hang"]), e.apexHang !== void 0 && (n["apex-hang"] = e.apexHang), e["slow-burst"] !== void 0 && (n["slow-burst"] = e["slow-burst"]), e.slowBurst !== void 0 && (n["slow-burst"] = e.slowBurst), e.slow_burst !== void 0 && (n["slow-burst"] = e.slow_burst), e.cascadeWave !== void 0 && (n.cascadeWave = e.cascadeWave), e["cascade-wave"] !== void 0 && (n.cascadeWave = e["cascade-wave"]), e.cascade_wave !== void 0 && (n.cascadeWave = e.cascade_wave), e.cascadeDuration !== void 0 && (n.cascadeDuration = e.cascadeDuration), e.cascadeMode !== void 0 && (n.cascadeMode = e.cascadeMode), e.cascadeRings !== void 0 && (n.cascadeRings = e.cascadeRings), e["cascade-rings"] !== void 0 && (n.cascadeRings = e["cascade-rings"]), e.cascade_rings !== void 0 && (n.cascadeRings = e.cascade_rings), e.cascadeAngle !== void 0 && (n.cascadeAngle = e.cascadeAngle), e["cascade-angle"] !== void 0 && (n.cascadeAngle = e["cascade-angle"]), e.cascade_angle !== void 0 && (n.cascadeAngle = e.cascade_angle), e.ringCount !== void 0 && (n.cascadeRings = e.ringCount), e.syncStrobe !== void 0 && (n.syncStrobe = e.syncStrobe), e["sync-strobe"] !== void 0 && (n.syncStrobe = e["sync-strobe"]), e.sync_strobe !== void 0 && (n.syncStrobe = e.sync_strobe), e.darkPhase !== void 0 && (n.darkPhase = e.darkPhase), e["dark-phase"] !== void 0 && (n.darkPhase = e["dark-phase"]), e.dark_phase !== void 0 && (n.darkPhase = e.dark_phase), e.terminalFlare !== void 0 && (n.terminalFlare = e.terminalFlare), e["terminal-flare"] !== void 0 && (n.terminalFlare = e["terminal-flare"]), e.terminal_flare !== void 0 && (n.terminalFlare = e.terminal_flare), e.burnoutFlash !== void 0 && (n.terminalFlare = e.burnoutFlash), e["burnout-flash"] !== void 0 && (n.terminalFlare = e["burnout-flash"]), e.burnout_flash !== void 0 && (n.terminalFlare = e.burnout_flash), e.terminalFlareTriggerRatio !== void 0 && (n.terminalFlareTriggerRatio = e.terminalFlareTriggerRatio), e.terminalFlareDuration !== void 0 && (n.terminalFlareDuration = e.terminalFlareDuration), e.terminalFlareIntensity !== void 0 && (n.terminalFlareIntensity = e.terminalFlareIntensity), e.terminalFlareSizeMultiplier !== void 0 && (n.terminalFlareSizeMultiplier = e.terminalFlareSizeMultiplier), e.terminalFlareColor !== void 0 && (n.terminalFlareColor = e.terminalFlareColor), e.stages !== void 0 && (n.stages = e.stages), e.nestingMode !== void 0 && (n.nestingMode = e.nestingMode), e.multiNested !== void 0 && (n.multiNested = e.multiNested), e.secondBurst !== void 0 && (n.secondBurst = e.secondBurst), e.secondBurstEnabled !== void 0 && (n.secondBurstEnabled = e.secondBurstEnabled), e.cometTrail !== void 0 && (e.cometTrail === "none" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.instantBurst = !0) : e.cometTrail === "thick" ? (n.launchTrail = !0, n.thickTrail = !0, n.thinTrail = !1) : e.cometTrail === "thin" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !0, n.detachedTrail = !1) : e.cometTrail === "detached" || e.cometTrail === "detached-trail" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !0, n.cometTrail = "detached") : e.cometTrail === "smoke" || e.cometTrail === "smoke_trail" ? (n.launchTrail = !1, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1, n.flightSmoke = !0, n.instantBurst = !1, n.cometTrail = "smoke") : e.cometTrail === "normal" ? (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.detachedTrail = !1) : e.cometTrail === "ascent-bursts" && (n.launchTrail = !0, n.thickTrail = !1, n.thinTrail = !1, n.ascentBursts = !0, n.ascentSubShellType = e.ascentSubShellType || "random", n.ascentBurstCount = e.ascentBurstCount ? parseInt(e.ascentBurstCount, 10) : 4)), e.ascentSubShellType !== void 0 && (n.ascentSubShellType = e.ascentSubShellType), e.ascentBurstCount !== void 0 && (n.ascentBurstCount = parseInt(e.ascentBurstCount, 10)), (e.sound || e.launchSound || e.burstSound || e.crackleSound || e.soundVolume !== void 0) && (n.sound = {
 				launch: e.sound?.launch || e.launchSound || void 0,
 				burst: e.sound?.burst || e.burstSound || void 0,
 				crackle: e.sound?.crackle || e.crackleSound || void 0,

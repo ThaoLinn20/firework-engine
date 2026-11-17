@@ -123,6 +123,24 @@ export const PARAMETER_DESCRIPTORS = Object.freeze({
     hardMax: 5.0,
     unit: 'x',
     formatValue: (v) => `${Number(v).toFixed(2)}x`
+  }),
+  terminalFlareColor: Object.freeze({
+    name: 'terminalFlareColor',
+    labelKey: 'terminalFlareColor',
+    defaultValue: 'random',
+    type: 'color',
+    normalize: (val) => {
+      if (typeof val === 'string') {
+        const trimmed = val.trim().toLowerCase();
+        if (trimmed === 'random') return 'random';
+        if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
+          return trimmed.length === 4
+            ? '#' + trimmed[1] + trimmed[1] + trimmed[2] + trimmed[2] + trimmed[3] + trimmed[3]
+            : trimmed;
+        }
+      }
+      return 'random';
+    }
   })
 });
 
@@ -135,6 +153,9 @@ export function normalizeParameter(name, rawValue) {
   if (!descriptor) {
     const num = Number(rawValue);
     return isNaN(num) ? 1.0 : num;
+  }
+  if (typeof descriptor.normalize === 'function') {
+    return descriptor.normalize(rawValue);
   }
   if (rawValue === undefined || rawValue === null || isNaN(Number(rawValue))) {
     return descriptor.defaultValue;
@@ -173,6 +194,9 @@ export function normalizePresetParameters(preset) {
   }
   if (preset.terminalFlareSizeMultiplier !== undefined) {
     preset.terminalFlareSizeMultiplier = normalizeParameter('terminalFlareSizeMultiplier', preset.terminalFlareSizeMultiplier);
+  }
+  if (preset.terminalFlareColor !== undefined) {
+    preset.terminalFlareColor = normalizeParameter('terminalFlareColor', preset.terminalFlareColor);
   }
   return preset;
 }

@@ -60,4 +60,13 @@ describe('Centralized Parameter Descriptors and Normalization', () => {
     expect(normalized.shellSize).toBe(0.05); // clamped to hardMin
     expect(normalized.soundVolume).toBe(1.5);
   });
+  it('should normalize terminalFlareColor as color or random fallback', () => {
+    expect(normalizeParameter('terminalFlareColor', '#ff0055')).toBe('#ff0055');
+    expect(normalizeParameter('terminalFlareColor', '#F0A')).toBe('#ff00aa');
+    expect(normalizeParameter('terminalFlareColor', 'random')).toBe('random');
+    expect(normalizeParameter('terminalFlareColor', 'RANDOM')).toBe('random');
+    expect(normalizeParameter('terminalFlareColor', undefined)).toBe('random');
+    expect(normalizeParameter('terminalFlareColor', 'invalid-color')).toBe('random');
+    expect(normalizeParameter('terminalFlareColor', null)).toBe('random');
+  });
 });

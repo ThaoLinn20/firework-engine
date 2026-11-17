@@ -2722,7 +2722,8 @@ export class FireworkSystem {
         terminalFlareTriggerRatio: preset?.terminalFlareTriggerRatio,
         terminalFlareDuration: preset?.terminalFlareDuration,
         terminalFlareIntensity: preset?.terminalFlareIntensity,
-        terminalFlareSizeMultiplier: preset?.terminalFlareSizeMultiplier
+        terminalFlareSizeMultiplier: preset?.terminalFlareSizeMultiplier,
+        terminalFlareColor: preset?.terminalFlareColor
       });
 
       newParticles.push(particle);
@@ -4626,11 +4627,14 @@ export class FireworkSystem {
             ? (flareProg / 0.25)
             : Math.max(0.0, (1.0 - flareProg) / 0.75);
           if (flareFactor > 0.0) {
-            // Actinic flash whitening: transition smoothly to 100% pure brilliant white at peak
-            const whiteMix = Math.min(1.0, flareFactor * 1.25);
-            p.color.r = THREE.MathUtils.lerp(p.color.r, 1.0, whiteMix);
-            p.color.g = THREE.MathUtils.lerp(p.color.g, 1.0, whiteMix);
-            p.color.b = THREE.MathUtils.lerp(p.color.b, 1.0, whiteMix);
+            // Target flare color: pre-assigned particle instance color, option, or brilliant white fallback
+            const targetColor = p.terminalFlareTargetColor || (p.terminalFlareColor && p.terminalFlareColor !== 'random' ? new THREE.Color(p.terminalFlareColor) : new THREE.Color(1.0, 1.0, 1.0));
+            const colorMix = Math.min(1.0, flareFactor * 1.25);
+            p.color.r = THREE.MathUtils.lerp(p.color.r, targetColor.r, colorMix);
+            p.color.g = THREE.MathUtils.lerp(p.color.g, targetColor.g, colorMix);
+            p.color.b = THREE.MathUtils.lerp(p.color.b, targetColor.b, colorMix);
+
+
 
             // Luminance surge: brighter than initial burst explosion (jumping directly from decayed opacity to flare intensity)
             const peakOpacity = Math.max(1.0, brightnessOpacityScale) * p.terminalFlareIntensity;

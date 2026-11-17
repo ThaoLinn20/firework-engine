@@ -77,6 +77,7 @@ export class ShowEventDispatcher {
         || evt.terminalFlareDuration !== undefined
         || evt.terminalFlareIntensity !== undefined
         || evt.terminalFlareSizeMultiplier !== undefined
+        || evt.terminalFlareColor !== undefined
         || evt.cometTrail !== undefined
         || evt.stages !== undefined
         || evt.nestingMode !== undefined
@@ -149,6 +150,7 @@ export class ShowEventDispatcher {
         if (evt.terminalFlareDuration !== undefined) overrides.terminalFlareDuration = evt.terminalFlareDuration;
         if (evt.terminalFlareIntensity !== undefined) overrides.terminalFlareIntensity = evt.terminalFlareIntensity;
         if (evt.terminalFlareSizeMultiplier !== undefined) overrides.terminalFlareSizeMultiplier = evt.terminalFlareSizeMultiplier;
+        if (evt.terminalFlareColor !== undefined) overrides.terminalFlareColor = evt.terminalFlareColor;
         if (evt.stages !== undefined) overrides.stages = evt.stages;
         if (evt.nestingMode !== undefined) overrides.nestingMode = evt.nestingMode;
         if (evt.multiNested !== undefined) overrides.multiNested = evt.multiNested;

@@ -79,6 +79,7 @@ describe('Terminal Flare Active Effect', () => {
       dynamicsType: 'standard',
       effects: ['terminal_flare'],
       terminalFlareTriggerRatio: 0.80,
+      terminalFlareColor: '#ffffff',
       terminalFlareDuration: 0.15,
       terminalFlareIntensity: 2.5,
       terminalFlareSizeMultiplier: 1.30,
@@ -120,6 +121,76 @@ describe('Terminal Flare Active Effect', () => {
     expect(particle.renderOpacity).toBe(0.0);
     expect(particle.renderSize).toBe(0.0);
 
+    system.destroy();
+  });
+
+  it('assigns custom flare color to particle instance', () => {
+    const p = BurstParticleFactory.createParticle({
+      hasTerminalFlare: true,
+      terminalFlareColor: '#00f5ff'
+    });
+    expect(p.terminalFlareTargetColor).toBeDefined();
+    expect(p.terminalFlareTargetColor.getHexString()).toBe('00f5ff');
+  });
+
+  it('assigns per-particle rainbow colors when terminalFlareColor is random', () => {
+    const scene = new THREE.Scene();
+    const system = new FireworkSystem(scene);
+    const preset = {
+      shape: 'sphere',
+      shapeType: 'sphere',
+      dynamicsType: 'standard',
+      effects: ['terminal_flare'],
+      terminalFlareColor: 'random',
+      particleCount: 40
+    };
+    system.createBurst(
+      new THREE.Vector3(0, 100, 0),
+      new THREE.Color('#ff0000'),
+      'sphere',
+      preset,
+      1
+    );
+    expect(system.burstParticles.length).toBeGreaterThanOrEqual(20);
+    const hexColors = new Set(system.burstParticles.map(p => p.terminalFlareTargetColor ? p.terminalFlareTargetColor.getHexString() : null));
+    // With 40 particles picking from an 8-color palette, there should be multiple distinct colors
+    expect(hexColors.size).toBeGreaterThan(1);
+    system.destroy();
+  });
+
+  it('transitions to custom flare color during flare peak in FireworkSystem', () => {
+    const scene = new THREE.Scene();
+    const system = new FireworkSystem(scene);
+    const preset = {
+      shape: 'sphere',
+      shapeType: 'sphere',
+      dynamicsType: 'standard',
+      effects: ['terminal_flare'],
+      terminalFlareColor: '#00ffff', // cyan (r: 0, g: 1, b: 1)
+      terminalFlareTriggerRatio: 0.80,
+      terminalFlareDuration: 0.15,
+      terminalFlareIntensity: 2.5,
+      terminalFlareSizeMultiplier: 1.30,
+      particleCount: 10
+    };
+    system.createBurst(
+      new THREE.Vector3(0, 100, 0),
+      new THREE.Color('#ff0000'), // initial red
+      'sphere',
+      preset,
+      1
+    );
+    const particle = system.burstParticles[0];
+    // Mid-life: still red
+    particle.age = particle.maxLife * 0.50;
+    system.updateBurstParticles(0.016);
+    expect(particle.color.r).toBeGreaterThan(particle.color.b);
+
+    // Flare peak: transitions to cyan (g and b high)
+    particle.age = particle.maxLife * (0.80 + 0.15 * 0.25);
+    system.updateBurstParticles(0.016);
+    expect(particle.color.g).toBeGreaterThan(0.8);
+    expect(particle.color.b).toBeGreaterThan(0.8);
     system.destroy();
   });
 });
