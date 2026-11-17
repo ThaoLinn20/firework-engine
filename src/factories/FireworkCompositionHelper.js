@@ -93,8 +93,6 @@ export const TIMED_EFFECT_TAGS = [
 
 export const TOGGLE_MODIFIER_TAGS = [
   'burst-smoke',
-  'smoke_trail',
-  'smoke-trail',
   'pistil',
   'apex-hang',
   'long-burn',
