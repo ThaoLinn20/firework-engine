@@ -381,7 +381,8 @@ export const FIREWORK_CONFIG = {
 
   // Cấu hình vệt khói kéo dài dọc đường bay của hạt pháo Comet (Comet Trajectory Ribbon Smoke)
   COMET_TRAJECTORY_SMOKE: {
-    maxPuffs: 14, // Ngân sách: 10 - 15 thực thể dọc quỹ đạo
+    maxPuffs: 14, // Ngân sách CPU: 10 - 15 thực thể dọc quỹ đạo
+    gpuMaxPuffs: 48, // Ngân sách GPU: dày đặc, liền mạch, mượt mà
     lifeMin: 5.5,
     lifeMax: 8.5,
     baseScale: 3.6, // Tăng kích thước cơ sở để thấy rõ ngay trên đường bay
@@ -396,8 +397,10 @@ export const FIREWORK_CONFIG = {
 
   // Cấu hình vệt khói kéo dài dọc đường bay của hạt nổ pháo hoa (Burst Particle Smoke Trail)
   BURST_SMOKE_TRAIL: {
-    maxLeaders: 20, // Tối đa 20 hạt dẫn đầu trong toàn chùm nổ
-    maxPuffsPerLeader: 8, // Mỗi hạt nhả tối đa 8 puffs dọc đường bay
+    maxLeaders: 20, // Tối đa 20 hạt dẫn đầu trong toàn chùm nổ (CPU)
+    gpuMaxLeaders: 40, // Tối đa 40 hạt dẫn đầu trên GPU
+    maxPuffsPerLeader: 8, // Mỗi hạt nhả tối đa 8 puffs dọc đường bay (CPU)
+    gpuMaxPuffsPerLeader: 16, // Nhả tối đa 16 puffs trên GPU
     minStepDist: 1.4, // Khoảng cách bước nhả khói 1.4m để tạo vệt liền mạch
     lifeMin: 4.5,
     lifeMax: 7.5,
@@ -525,6 +528,9 @@ export const FIREWORK_CONFIG = {
 
   // Cấu hình tập trung cho hệ thống khói (Smoke Simulation)
   SMOKE: {
+    // Sức chứa hạt khói tối đa trên GPU khi dùng GPU ring-buffer
+    maxGpuParticles: 35000,
+    gpuSimulation: true,
     // Sức chứa hạt khói tối đa theo các mức chất lượng đồ họa
     qualityCapacities: {
       off: {

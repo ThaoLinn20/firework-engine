@@ -37,7 +37,7 @@ const MAX_SMOKE_LIGHTS = renderingConfig.smoke?.maxLights
   ?? 4;
 
 export class SmokeSystem {
-  constructor(sceneManager) {
+  constructor(sceneManager, options = {}) {
     this.atmosphereManager = atmosphereManager;
     this.scene = sceneManager.instance;
     this.quality = renderingConfig.smoke?.quality ?? 'medium';
@@ -51,6 +51,29 @@ export class SmokeSystem {
     this.activeAerialCount = 0;
     this.updateCapacities();
 
+    const isTestEnv = (
+      typeof process !== 'undefined'
+      && (process.env?.VITEST || process.env?.NODE_ENV === 'test')
+    ) || (typeof window === 'undefined');
+
+    this.useGpuSimulation = options.useGpuSimulation !== undefined
+      ? Boolean(options.useGpuSimulation)
+      : (!isTestEnv && Boolean(renderingConfig.smoke?.gpuSimulation ?? true));
+
+    const maxGpuSmoke = renderingConfig.smoke?.maxGpuParticles
+      ?? FIREWORK_CONFIG.SMOKE?.maxGpuParticles
+      ?? 35000;
+    this.maxGpuSmokeParticles = maxGpuSmoke;
+    this.allocatedCapacity = Math.max(BUFFER_CAPACITY, maxGpuSmoke);
+
+    // GPU Ring-Buffer State
+    this.gpuCursor = 0;
+    this.gpuParticleCount = 0;
+    this.gpuDirtyMin = -1;
+    this.gpuDirtyMax = -1;
+    this.gpuDirtyWrapped = false;
+    this.currentTime = 0;
+
     this.smokeTexture = this.createSmokeTexture();
     this.puffs = [];
     this.eventSubscriptions = [];
@@ -61,52 +84,108 @@ export class SmokeSystem {
     this.updateWindVectors();
 
     // Pre-allocated Float32Array ring buffers to eliminate GC pauses
-    this.positionsArray = new Float32Array(BUFFER_CAPACITY * 3);
-    this.colorsArray = new Float32Array(BUFFER_CAPACITY * 3);
-    this.sizesArray = new Float32Array(BUFFER_CAPACITY);
-    this.opacitiesArray = new Float32Array(BUFFER_CAPACITY);
-    this.seedsArray = new Float32Array(BUFFER_CAPACITY);
+    this.positionsArray = new Float32Array(this.allocatedCapacity * 3);
+    this.velocitiesArray = new Float32Array(this.allocatedCapacity * 3);
+    this.colorsArray = new Float32Array(this.allocatedCapacity * 3);
+    this.sizesArray = new Float32Array(this.allocatedCapacity);
+    this.opacitiesArray = new Float32Array(this.allocatedCapacity);
+    this.seedsArray = new Float32Array(this.allocatedCapacity);
+    this.lifeDataArray = new Float32Array(this.allocatedCapacity * 4);
+    this.smokeParamsArray = new Float32Array(this.allocatedCapacity * 4);
+
+    this.lifeDataArray.fill(-999999.0);
 
     this.smokeGeometry = new THREE.BufferGeometry();
+
+    this.positionsAttr = new THREE.BufferAttribute(
+      this.positionsArray,
+      3
+    );
+    this.positionsAttr.setUsage(THREE.DynamicDrawUsage);
     this.smokeGeometry.setAttribute(
       'position',
-      new THREE.BufferAttribute(
-        this.positionsArray,
-        3
-      )
+      this.positionsAttr
     );
+
+    this.velocitiesAttr = new THREE.BufferAttribute(
+      this.velocitiesArray,
+      3
+    );
+    this.velocitiesAttr.setUsage(THREE.DynamicDrawUsage);
+    this.smokeGeometry.setAttribute(
+      'aVelocity',
+      this.velocitiesAttr
+    );
+
+    this.colorsAttr = new THREE.BufferAttribute(
+      this.colorsArray,
+      3
+    );
+    this.colorsAttr.setUsage(THREE.DynamicDrawUsage);
     this.smokeGeometry.setAttribute(
       'color',
-      new THREE.BufferAttribute(
-        this.colorsArray,
-        3
-      )
+      this.colorsAttr
     );
+
+    this.sizesAttr = new THREE.BufferAttribute(
+      this.sizesArray,
+      1
+    );
+    this.sizesAttr.setUsage(THREE.DynamicDrawUsage);
     this.smokeGeometry.setAttribute(
       'aSize',
-      new THREE.BufferAttribute(
-        this.sizesArray,
-        1
-      )
+      this.sizesAttr
     );
+
+    this.opacitiesAttr = new THREE.BufferAttribute(
+      this.opacitiesArray,
+      1
+    );
+    this.opacitiesAttr.setUsage(THREE.DynamicDrawUsage);
     this.smokeGeometry.setAttribute(
       'aOpacity',
-      new THREE.BufferAttribute(
-        this.opacitiesArray,
-        1
-      )
+      this.opacitiesAttr
     );
+
+    this.seedsAttr = new THREE.BufferAttribute(
+      this.seedsArray,
+      1
+    );
+    this.seedsAttr.setUsage(THREE.DynamicDrawUsage);
     this.smokeGeometry.setAttribute(
       'aSeed',
-      new THREE.BufferAttribute(
-        this.seedsArray,
-        1
-      )
+      this.seedsAttr
+    );
+
+    this.lifeDataAttr = new THREE.BufferAttribute(
+      this.lifeDataArray,
+      4
+    );
+    this.lifeDataAttr.setUsage(THREE.DynamicDrawUsage);
+    this.smokeGeometry.setAttribute(
+      'aLifeData',
+      this.lifeDataAttr
+    );
+
+    this.smokeParamsAttr = new THREE.BufferAttribute(
+      this.smokeParamsArray,
+      4
+    );
+    this.smokeParamsAttr.setUsage(THREE.DynamicDrawUsage);
+    this.smokeGeometry.setAttribute(
+      'aSmokeParams',
+      this.smokeParamsAttr
     );
 
     this.smokeUniforms = {
       uTime: {
         value: 0
+      },
+      uGpuSim: {
+        value: this.useGpuSimulation ? 1.0 : 0.0
+      },
+      uWind: {
+        value: this.currentWind
       },
       uActiveLightCount: {
         value: 0.0
@@ -164,6 +243,8 @@ export class SmokeSystem {
     // Custom GLSL shader with per-point size, opacity, atmospheric haze, and dynamic multi-burst illumination
     this.smokeMaterial.onBeforeCompile = (shader) => {
       shader.uniforms.uTime = this.smokeUniforms.uTime;
+      shader.uniforms.uGpuSim = this.smokeUniforms.uGpuSim;
+      shader.uniforms.uWind = this.smokeUniforms.uWind;
       shader.uniforms.uActiveLightCount = this.smokeUniforms.uActiveLightCount;
       shader.uniforms.uLightPositions = this.smokeUniforms.uLightPositions;
       shader.uniforms.uLightColors = this.smokeUniforms.uLightColors;
@@ -176,25 +257,106 @@ export class SmokeSystem {
 
       shader.vertexShader = `
         uniform float uTime;
+        uniform float uGpuSim;
+        uniform vec3 uWind;
+        attribute vec3 aVelocity;
+        attribute vec4 aLifeData;
+        attribute vec4 aSmokeParams;
         attribute float aSize;
         attribute float aOpacity;
         attribute float aSeed;
         varying float vOpacity;
         varying float vSeed;
         varying vec3 vWorldPos;
+        varying float vGpuIsDead;
       ` + shader.vertexShader.replace(
-        '#include <common>',
+        '#include <begin_vertex>',
         `
-        #include <common>
+        #include <begin_vertex>
+        vGpuIsDead = 0.0;
+        if (uGpuSim > 0.5) {
+          float birthTime = aLifeData.x;
+          float life = aLifeData.y;
+          float age = uTime - birthTime;
+
+          if (age < 0.0 || age >= life) {
+            transformed = vec3(0.0, -99999.0, 0.0);
+            vGpuIsDead = 1.0;
+            vOpacity = 0.0;
+          } else {
+            float driftDelay = aLifeData.z;
+            float seed = aLifeData.w;
+            float growth = aSmokeParams.y;
+            float dragScale = max(0.001, aSmokeParams.z);
+            float buoyancy = aSmokeParams.w;
+
+            float k = 4.0 * dragScale;
+            float dragFactor = (1.0 - exp(-k * age)) / k;
+
+            vec3 calculatedPos = position + aVelocity * dragFactor;
+            calculatedPos.y += (buoyancy / k) * (age - dragFactor);
+
+            float windActive = step(driftDelay, age);
+            float windAge = max(0.0, age - driftDelay);
+            float windShear = 0.78 + 0.44 * seed;
+            calculatedPos.x += uWind.x * windShear * windAge * 0.72;
+            calculatedPos.z += uWind.z * windShear * windAge * 0.72;
+            calculatedPos.y += uWind.y * windAge * 0.50;
+
+            float tRatio = clamp(age / life, 0.0, 1.0);
+            float disp = mix(0.05, 0.45 + 2.2 * tRatio, windActive);
+            calculatedPos.x += sin(uTime * 1.6 + seed * 19.3) * disp * age * 0.4;
+            calculatedPos.z += cos(uTime * 1.4 + seed * 23.7) * disp * age * 0.4;
+
+            transformed = calculatedPos;
+
+            float isDelayActive = step(age, driftDelay) * step(0.001, driftDelay);
+            float growthCurve = pow(tRatio, 0.55);
+            float growthScale = mix(
+              1.0 + growth * growthCurve * 0.45,
+              1.0 + growth * 0.15 * (age / max(0.001, driftDelay)),
+              isDelayActive
+            );
+
+            vWorldPos = transformed;
+            vSeed = seed;
+
+            float fade = max(0.0, 1.0 - tRatio);
+            float expansionThinned = 1.0 / sqrt(max(1.0, growthScale * 0.25));
+            vOpacity = fade * fade * aOpacity * expansionThinned;
+          }
+        } else {
+          vWorldPos = position;
+          vSeed = aSeed;
+          vOpacity = aOpacity;
+        }
         `
       ).replace(
         'gl_PointSize = size;',
         `
-        float sizeNoise = sin(uTime * 1.6 + aSeed * 19.37) * 0.12;
-        gl_PointSize = aSize * (1.0 + sizeNoise);
-        vOpacity = aOpacity;
-        vSeed = aSeed;
-        vWorldPos = position;
+        if (uGpuSim > 0.5) {
+          if (vGpuIsDead > 0.5) {
+            gl_PointSize = 0.0;
+          } else {
+            float seed = aLifeData.w;
+            float age = uTime - aLifeData.x;
+            float life = aLifeData.y;
+            float tRatio = clamp(age / life, 0.0, 1.0);
+            float driftDelay = aLifeData.z;
+            float isDelayActive = step(age, driftDelay) * step(0.001, driftDelay);
+            float growthCurve = pow(tRatio, 0.55);
+            float growthScale = mix(
+              1.0 + aSmokeParams.y * growthCurve * 0.45,
+              1.0 + aSmokeParams.y * 0.15 * (age / max(0.001, driftDelay)),
+              isDelayActive
+            );
+            float sizeNoise = sin(uTime * 1.6 + seed * 19.37) * 0.12;
+            gl_PointSize = aSize * growthScale * (1.0 + sizeNoise);
+          }
+        } else {
+          float sizeNoise = sin(uTime * 1.6 + aSeed * 19.37) * 0.12;
+          gl_PointSize = aSize * (1.0 + sizeNoise);
+        }
         `
       );
 
@@ -213,9 +375,11 @@ export class SmokeSystem {
         varying float vOpacity;
         varying float vSeed;
         varying vec3 vWorldPos;
+        varying float vGpuIsDead;
       ` + shader.fragmentShader.replace(
         '#include <map_particle_fragment>',
         `
+        if (vGpuIsDead > 0.5) discard;
         #ifdef USE_MAP
           float angle = vSeed * 6.2831853 + uTime * (0.12 + 0.08 * fract(vSeed * 5.71));
           vec2 centered = gl_PointCoord - vec2(0.5);
@@ -543,6 +707,28 @@ export class SmokeSystem {
     this.updateWindVectors();
   }
 
+  setGpuSimulation(enabled) {
+    this.useGpuSimulation = Boolean(enabled);
+    if (this.smokeUniforms?.uGpuSim) {
+      this.smokeUniforms.uGpuSim.value = this.useGpuSimulation ? 1.0 : 0.0;
+    }
+    this.clear();
+  }
+
+  isGpuSimulationEnabled() {
+    return Boolean(this.useGpuSimulation);
+  }
+
+  markGpuIndexDirty(index) {
+    if (this.gpuDirtyMin === -1) {
+      this.gpuDirtyMin = index;
+      this.gpuDirtyMax = index;
+    } else {
+      if (index < this.gpuDirtyMin) this.gpuDirtyMin = index;
+      if (index > this.gpuDirtyMax) this.gpuDirtyMax = index;
+    }
+  }
+
   destroy() {
     for (const unsubscribe of this.eventSubscriptions) {
       unsubscribe();
@@ -707,6 +893,69 @@ export class SmokeSystem {
       ? 'launch'
       : 'aerial';
 
+    const cfg = FIREWORK_CONFIG.SMOKE;
+    const defaultLife = cfg.trailLifeMin + Math.random() * (cfg.trailLifeMax - cfg.trailLifeMin);
+    const rawLife = options.life ?? defaultLife;
+    const effectiveLife = rawLife * this.lifespanMultiplier;
+
+    if (this.useGpuSimulation && !options.cpuOnly) {
+      const idx = this.gpuCursor;
+      const p3 = idx * 3;
+      const p4 = idx * 4;
+
+      this.positionsArray[p3] = origin.x;
+      this.positionsArray[p3 + 1] = origin.y;
+      this.positionsArray[p3 + 2] = origin.z;
+
+      this.velocitiesArray[p3] = velocity.x;
+      this.velocitiesArray[p3 + 1] = velocity.y;
+      this.velocitiesArray[p3 + 2] = velocity.z;
+
+      const pColor = options.color || new THREE.Color(0xf2f5f9);
+      this.colorsArray[p3] = pColor.r;
+      this.colorsArray[p3 + 1] = pColor.g;
+      this.colorsArray[p3 + 2] = pColor.b;
+
+      const baseScale = (options.scale ?? cfg.trailBaseScale) * this.density;
+      const baseOpacity = (options.opacity ?? cfg.trailOpacity) * this.density;
+      const seed = options.seed ?? Math.random();
+
+      this.sizesArray[idx] = baseScale;
+      this.opacitiesArray[idx] = baseOpacity;
+      this.seedsArray[idx] = seed;
+
+      this.lifeDataArray[p4] = this.currentTime;
+      this.lifeDataArray[p4 + 1] = effectiveLife;
+      this.lifeDataArray[p4 + 2] = options.driftDelay ?? 0;
+      this.lifeDataArray[p4 + 3] = seed;
+
+      const growth = options.growth ?? cfg.trailGrowth;
+      const drag = options.drag ?? cfg.trailDrag;
+      const buoyancy = options.buoyancy ?? cfg.trailBuoyancy;
+
+      this.smokeParamsArray[p4] = baseScale;
+      this.smokeParamsArray[p4 + 1] = growth;
+      this.smokeParamsArray[p4 + 2] = drag;
+      this.smokeParamsArray[p4 + 3] = buoyancy;
+
+      this.markGpuIndexDirty(idx);
+      const nextCursor = (this.gpuCursor + 1) % this.maxGpuSmokeParticles;
+      if (nextCursor < this.gpuCursor) {
+        this.gpuDirtyWrapped = true;
+      }
+      this.gpuCursor = nextCursor;
+      if (this.gpuParticleCount < this.maxGpuSmokeParticles) {
+        this.gpuParticleCount++;
+      }
+      this.activePuffCount = this.gpuParticleCount;
+      if (category === 'launch') {
+        this.activeLaunchCount++;
+      } else {
+        this.activeAerialCount++;
+      }
+      return;
+    }
+
     const maxForCategory = this.maxPuffs[category] ?? 0;
     const currentCount = category === 'launch'
       ? this.activeLaunchCount
@@ -719,11 +968,6 @@ export class SmokeSystem {
     ) {
       return;
     }
-
-    const cfg = FIREWORK_CONFIG.SMOKE;
-    const defaultLife = cfg.trailLifeMin + Math.random() * (cfg.trailLifeMax - cfg.trailLifeMin);
-    const rawLife = options.life ?? defaultLife;
-    const effectiveLife = rawLife * this.lifespanMultiplier;
 
     const growth = options.growth ?? cfg.trailGrowth;
     const isHaze = Boolean(options.isHaze);
@@ -1200,6 +1444,75 @@ export class SmokeSystem {
       return;
     }
 
+    this.currentTime += deltaTime;
+
+    if (this.useGpuSimulation) {
+      this.smokeUniforms.uTime.value = this.currentTime;
+      this.updateWindVectors();
+      if (this.smokeUniforms.uWind) {
+        this.smokeUniforms.uWind.value.copy(this.currentWind);
+      }
+
+      if (this.gpuDirtyMin !== -1) {
+        const offset = this.gpuDirtyWrapped ? 0 : this.gpuDirtyMin;
+        const count = this.gpuDirtyWrapped
+          ? this.maxGpuSmokeParticles
+          : (this.gpuDirtyMax - this.gpuDirtyMin + 1);
+
+        this.positionsAttr.needsUpdate = true;
+        this.velocitiesAttr.needsUpdate = true;
+        this.colorsAttr.needsUpdate = true;
+        this.sizesAttr.needsUpdate = true;
+        this.opacitiesAttr.needsUpdate = true;
+        this.seedsAttr.needsUpdate = true;
+        this.lifeDataAttr.needsUpdate = true;
+        this.smokeParamsAttr.needsUpdate = true;
+
+        if (this.positionsAttr.updateRange) {
+          this.positionsAttr.updateRange.offset = offset * 3;
+          this.positionsAttr.updateRange.count = count * 3;
+        }
+        if (this.velocitiesAttr.updateRange) {
+          this.velocitiesAttr.updateRange.offset = offset * 3;
+          this.velocitiesAttr.updateRange.count = count * 3;
+        }
+        if (this.colorsAttr.updateRange) {
+          this.colorsAttr.updateRange.offset = offset * 3;
+          this.colorsAttr.updateRange.count = count * 3;
+        }
+        if (this.sizesAttr.updateRange) {
+          this.sizesAttr.updateRange.offset = offset;
+          this.sizesAttr.updateRange.count = count;
+        }
+        if (this.opacitiesAttr.updateRange) {
+          this.opacitiesAttr.updateRange.offset = offset;
+          this.opacitiesAttr.updateRange.count = count;
+        }
+        if (this.seedsAttr.updateRange) {
+          this.seedsAttr.updateRange.offset = offset;
+          this.seedsAttr.updateRange.count = count;
+        }
+        if (this.lifeDataAttr.updateRange) {
+          this.lifeDataAttr.updateRange.offset = offset * 4;
+          this.lifeDataAttr.updateRange.count = count * 4;
+        }
+        if (this.smokeParamsAttr.updateRange) {
+          this.smokeParamsAttr.updateRange.offset = offset * 4;
+          this.smokeParamsAttr.updateRange.count = count * 4;
+        }
+
+        this.gpuDirtyMin = -1;
+        this.gpuDirtyMax = -1;
+        this.gpuDirtyWrapped = false;
+      }
+
+      this.smokeGeometry.setDrawRange(
+        0,
+        this.gpuParticleCount
+      );
+      return;
+    }
+
     const elapsed = performance.now() / 1000;
     this.smokeUniforms.uTime.value = elapsed;
     const alive = [];
@@ -1436,6 +1749,14 @@ export class SmokeSystem {
     this.activePuffCount = 0;
     this.activeLaunchCount = 0;
     this.activeAerialCount = 0;
+    this.gpuCursor = 0;
+    this.gpuParticleCount = 0;
+    this.gpuDirtyMin = -1;
+    this.gpuDirtyMax = -1;
+    this.gpuDirtyWrapped = false;
+    if (this.lifeDataArray) {
+      this.lifeDataArray.fill(-999999.0);
+    }
     if (this.smokeGeometry) {
       this.smokeGeometry.setDrawRange(
         0,

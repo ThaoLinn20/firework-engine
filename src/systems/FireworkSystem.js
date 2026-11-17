@@ -4431,7 +4431,10 @@ export class FireworkSystem {
           shouldEmitRibbon = true;
         } else {
           const cfg = FIREWORK_CONFIG.BURST_SMOKE_TRAIL || {};
-          const minStep = cfg.minStepDist ?? 2.2;
+          const isGpu = Boolean(this.smokeSystem?.useGpuSimulation);
+          const minStep = isGpu
+            ? Math.max(0.65, (cfg.minStepDist ?? 1.4) * 0.55)
+            : (cfg.minStepDist ?? 1.4);
           if (p.position.distanceTo(p.lastSmokePos) >= minStep) {
             p.lastSmokePos.copy(p.position);
             shouldEmitRibbon = true;

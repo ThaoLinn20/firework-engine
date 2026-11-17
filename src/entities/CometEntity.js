@@ -465,9 +465,15 @@ export class CometEntity {
 
   setSmokeSystem(smokeSystem) {
     this.smokeSystem = smokeSystem;
+    if (smokeSystem?.useGpuSimulation) {
+      this.maxTrajectorySmoke = FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE?.gpuMaxPuffs ?? 48;
+    }
   }
 
   updateTrajectorySmoke(smokeSystem = this.smokeSystem) {
+    if (smokeSystem?.useGpuSimulation && this.maxTrajectorySmoke < (FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE?.gpuMaxPuffs ?? 48)) {
+      this.maxTrajectorySmoke = FIREWORK_CONFIG.COMET_TRAJECTORY_SMOKE?.gpuMaxPuffs ?? 48;
+    }
     if (!this.hasBurstSmoke || this.state !== CometEntity.STATE.LAUNCHING || this.trajectorySmokeCount >= this.maxTrajectorySmoke) {
       return false;
     }
@@ -480,7 +486,10 @@ export class CometEntity {
     } else {
       const distTraveled = currentPos.distanceTo(this.lastTrajectorySmokePos);
       const estDist = (this.initialVy * this.initialVy) / 60;
-      const stepDist = Math.max(1.8, Math.min(4.5, estDist / (this.maxTrajectorySmoke - 1)));
+      const isGpu = Boolean(smokeSystem?.useGpuSimulation);
+      const stepDist = isGpu
+        ? Math.max(0.7, Math.min(2.0, estDist / (this.maxTrajectorySmoke - 1)))
+        : Math.max(1.8, Math.min(4.5, estDist / (this.maxTrajectorySmoke - 1)));
       if (distTraveled >= stepDist) {
         this.lastTrajectorySmokePos.copy(currentPos);
         shouldSpawn = true;

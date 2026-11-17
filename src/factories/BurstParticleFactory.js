@@ -503,7 +503,13 @@ export class BurstParticleFactory {
     const smokeTrailStart = rawSmokeTrailStart + pDelay;
     const smokeTrailEnd = rawSmokeTrailStart + rawSmokeTrailDuration + pDelay;
 
-    const maxLeaders = FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxLeaders ?? 20;
+    const isGpuMode = Boolean(options.smokeSystem?.useGpuSimulation);
+    const maxLeaders = isGpuMode
+      ? (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.gpuMaxLeaders ?? 40)
+      : (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxLeaders ?? 20);
+    const maxPuffsPerLeader = isGpuMode
+      ? (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.gpuMaxPuffsPerLeader ?? 16)
+      : (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxPuffsPerLeader ?? 8);
     const stride = Math.max(1, Math.floor((totalParticleCount || 200) / maxLeaders));
     const isSmokeLeader = hasSmokeTrailTag && (
       options.isSmokeLeader !== undefined
@@ -802,7 +808,7 @@ export class BurstParticleFactory {
       smokeTrailDuration: rawSmokeTrailDuration,
       smokeDistanceAcc: 0.0,
       smokePuffCount: 0,
-      maxSmokePuffs: FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxPuffsPerLeader ?? 8,
+      maxSmokePuffs: maxPuffsPerLeader,
       lastSmokePos: null,
       lastVelocity: velocity ? velocity.clone() : new THREE.Vector3()
     };
