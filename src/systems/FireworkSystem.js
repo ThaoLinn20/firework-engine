@@ -377,6 +377,10 @@ export class FireworkSystem {
       ratioX,
       ratioY,
       ratioZ,
+      launchRatioX,
+      targetRatioX,
+      targetRatioY,
+      isTargetedTrajectory,
       sectorId = 'center',
       color,
       angleOffset = 0,
@@ -404,8 +408,33 @@ export class FireworkSystem {
 
     const shellPreset = this.shellPresetFactory.validatePreset(resolvedPreset ?? this.shellPresetFactory.randomPreset());
     const shellId = ++this.shellSequence;
-    const position = this.resolveLaunchPosition(ratioX, ratioZ, sectorId);
-    const targetHeight = this.resolveBurstHeight(shellPreset, ratioY);
+
+    const isTargeted = Boolean(isTargetedTrajectory || launchRatioX !== undefined || targetRatioX !== undefined);
+    const launchRx = launchRatioX !== undefined ? launchRatioX : (ratioX ?? Math.random());
+    const launchRz = ratioZ !== undefined ? ratioZ : (isTargeted ? 0.5 : Math.random());
+    const position = this.resolveLaunchPosition(launchRx, launchRz, sectorId);
+
+    let targetHeight;
+    let velocity;
+    let targetPos = null;
+
+    if (isTargeted) {
+      const targetRx = targetRatioX !== undefined ? targetRatioX : (ratioX !== undefined ? ratioX : launchRx);
+      const targetRy = targetRatioY !== undefined ? targetRatioY : ratioY;
+      targetPos = this.resolveBurstPosition(targetRx, targetRy, launchRz, sectorId);
+      targetHeight = targetPos.y;
+
+      const gravity = Math.abs(FIREWORK_CONFIG.GRAVITY);
+      const deltaY = Math.max(5, targetHeight - position.y);
+      const timeToApex = Math.sqrt((2 * deltaY) / gravity);
+      const vy = Math.sqrt(2 * gravity * deltaY);
+      const vx = (targetPos.x - position.x) / timeToApex;
+      const vz = (targetPos.z - position.z) / timeToApex;
+      velocity = new THREE.Vector3(vx, vy, vz);
+    } else {
+      targetHeight = this.resolveBurstHeight(shellPreset, ratioY);
+      velocity = this.resolveLaunchVelocity(targetHeight, angleOffset);
+    }
 
     // Tự động thu nhỏ kích thước pháo nếu nổ ở độ cao thấp (càng thấp càng bé)
     const normalizedHeight = THREE.MathUtils.clamp(
@@ -415,11 +444,6 @@ export class FireworkSystem {
     // Độ cao tối thiểu (0.0) -> size 60%, độ cao tối đa (1.0) -> size 100%
     const heightScale = THREE.MathUtils.lerp(0.6, 1.0, normalizedHeight);
     shellPreset.shellSize = (shellPreset.shellSize ?? 1) * heightScale;
-
-    const velocity = this.resolveLaunchVelocity(
-      targetHeight,
-      angleOffset
-    );
 
     const isCustomColor = Boolean(color)
       || Boolean(effectOverrides?.color)
@@ -470,7 +494,7 @@ export class FireworkSystem {
         }
       );
 
-      const burstPos = new THREE.Vector3(
+      const burstPos = targetPos ? targetPos.clone() : new THREE.Vector3(
         position.x,
         targetHeight,
         position.z
@@ -654,6 +678,33 @@ export class FireworkSystem {
     const z = -finalRadius * Math.sin(baseAngle); // negative Z because it curves into the screen
 
     return this.launchZone.center.clone().add(new THREE.Vector3(x, 0, z));
+  }
+
+  resolveBurstPosition(ratioX, ratioY, ratioZ, sectorId = 'center') {
+    const rx = ratioX ?? 0.5;
+    const rz = ratioZ ?? 0.5;
+
+    let sector;
+    if (sectorId && this.launchZone.sectors) {
+      sector = this.launchZone.sectors.find((s) => s.id === sectorId);
+    }
+    if (!sector && this.launchZone.sectors) {
+      sector = this.launchZone.sectors.find((s) => s.id === 'center') || this.launchZone.sectors[0];
+    }
+
+    const minAngle = sector ? sector.minAngle : Math.PI / 4;
+    const maxAngle = sector ? sector.maxAngle : (3 * Math.PI) / 4;
+    const baseAngle = maxAngle - rx * (maxAngle - minAngle);
+
+    const arcRadius = this.launchZone.arcRadius || 360;
+    const thicknessOffset = (rz - 0.5) * this.launchZone.launchRadiusZ * 2;
+    const finalRadius = arcRadius + thicknessOffset;
+
+    const x = finalRadius * Math.cos(baseAngle);
+    const z = -finalRadius * Math.sin(baseAngle);
+    const y = this.resolveBurstHeight(null, ratioY);
+
+    return this.launchZone.center.clone().add(new THREE.Vector3(x, 0, z)).setY(y);
   }
 
   resolveBurstHeight(preset = null, ratioY) {

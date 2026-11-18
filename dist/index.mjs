@@ -5583,7 +5583,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 		return r;
 	}
 	static createParticle(r = {}) {
-		let { position: i = new e.Vector3(), velocity: a = new e.Vector3(), color: o = new e.Color(16777215), baseColor: s = null, color2: c = null, age: l = 0, maxLife: u = 1, effectType: d = "standard", effects: f = [], crackle: p = !1, crackleTriggered: m = !1, phase: h = 0, preset: g = {}, heightProfile: _ = null, effectState: v = null, ghostDot: y = 0, spiralIndex: b = 0, isSpiralArm: x = !1, particleIndex: S = 0, totalParticleCount: C = 1, shellId: w = null, isDyingEmber: T = !1, isNestedTrigger: E = !1, hasBurstSmoke: k = !1, burstSmokeLimit: ee = .33, isCrossette: te = !1, crossetteSplitTime: A = 0, crossetteSplitDone: j = !0, isSecondBurst: M = !1, secondBurstDone: ne = !0, secondBurstConfig: N = null, secondBurstTime: re = 0, isChromaticWave: P = !1, radialDistanceRatio: F = 0, renderSize: ie = O, renderOpacity: I = 1, dynamicsProfile: L = null, dragCoefficient: R = D, hasTadpoleFlurry: ae = !1, tadpoleColor: z = r.tadpoleColor ?? r.preset?.tadpoleColor ?? null, tadpoleFlurryColor: oe = r.tadpoleFlurryColor ?? r.preset?.tadpoleFlurryColor ?? null, tadpoleArrowTimer: se = 0, tadpoleDeflectionScale: ce = 1, tadpoleSizeScale: le = 1, tadpoleDensityScale: ue = 1, hasFlurried: de = !1, hasErraticDart: fe = !1, erraticDartTriggerRatio: pe = .72, erraticDartTriggered: B = !1, erraticDartTrailTimer: V = 0, erraticDartFlash: me = 1, erraticDartWigglePhase: he = 0, erraticDartWiggleFreq: H = 22, erraticDartWiggleAmp: U = 26, isSecondBurstChild: ge = !1, isLongBurn: W = !1, isApexHang: _e = !1, isSlowBurst: ve = !1, hasNoTrail: G = !1, hasCascadeWave: ye = !1, phaseDelay: be = 0, frictionHeat: xe = 0, ringIndex: K = null, sizeVariance: Se = null, brightnessVariance: q = null, hasTerminalFlare: Ce = !1, terminalFlareTriggerRatio: we = null, terminalFlareDuration: Te = null, terminalFlareIntensity: Ee = null, terminalFlareSizeMultiplier: De = null } = r, Oe = n.BURST?.starSizeVariance ?? .06, ke = n.BURST?.starBrightnessVariance ?? .1, Ae = Se === null ? 1 + (Math.random() + Math.random() - 1) * Oe : Se, je = q === null ? 1 + (Math.random() + Math.random() - 1) * ke : q, Me = s ? s.clone() : o.clone(), Ne = a.length(), Pe = Ne > 1e-4 ? a.clone().normalize() : new e.Vector3(0, 1, 0), J = Number(be) || 0, Y = Array.isArray(f) && f.length > 0 ? f : Array.isArray(g?.effects) ? g.effects : [], Fe = t.getEffectTiming(Y, "crackle", u), Ie = r.crackle === void 0 ? Fe !== null : !!r.crackle, X = Fe ? Fe.start : Ie ? u * .65 : void 0, Le = Fe && Fe.end !== null ? Fe.end : Ie ? u : void 0, Re = X === void 0 ? void 0 : X + J, ze = Le === void 0 ? void 0 : Le + J, Be = t.getEffectTiming(Y, "tadpole-flurry", u) || t.getEffectTiming(Y, "tadpole_flurry", u), Ve = r.hasTadpoleFlurry === void 0 ? Be !== null : !!r.hasTadpoleFlurry, He = Be ? Be.start : Ve ? u * .18 : void 0, Ue = Be && Be.end !== null ? Be.end : Ve ? u * .85 : void 0, Z = He === void 0 ? void 0 : He + J, We = Ue === void 0 ? void 0 : Ue + J, Ge = t.getEffectTiming(Y, "erratic-dart", u) || t.getEffectTiming(Y, "erratic_dart", u), Ke = r.hasErraticDart === void 0 ? Ge !== null : !!r.hasErraticDart, qe = Ge && Ge.start > 0 ? Ge.start : Ke ? u * pe : void 0, Je = Ge && Ge.end !== null ? Ge.end : Ke ? u : void 0, Ye = qe === void 0 ? void 0 : qe + J, Xe = Je === void 0 ? void 0 : Je + J, Ze = t.getEffectTiming(Y, "crossette", u), Qe = r.isCrossette === void 0 ? Ze !== null : !!r.isCrossette, $e = (Ze && Ze.start > 0 ? Ze.start : A > 0 ? A : u * .5) + J, et = t.getEffectTiming(Y, "burst-smoke", u), tt = r.hasBurstSmoke === void 0 ? et !== null : !!r.hasBurstSmoke, nt = et ? et.start : tt ? 0 : void 0, rt = et && et.end !== null ? et.end : tt ? u * (ee ?? .33) : void 0, it = nt === void 0 ? void 0 : nt + J, at = rt === void 0 ? void 0 : rt + J, ot = t.getEffectTiming(Y, "smoke_trail", u) || t.getEffectTiming(Y, "smoke-trail", u), st = !!(r.hasSmokeTrail || r.smokeTrail || r.smoke_trail || r["smoke-trail"] || ot !== null || Array.isArray(g?.effects) && (g.effects.includes("smoke_trail") || g.effects.includes("smoke-trail") || g.effects.some((e) => typeof e == "object" && ["smoke_trail", "smoke-trail"].includes(e?.type || e?.key)))), ct = ot ? ot.start : r.smokeTrailStartTime === void 0 ? g?.smokeTrailStartTime === void 0 ? 0 : Number(g.smokeTrailStartTime) : Number(r.smokeTrailStartTime), lt = ot && ot.end !== null ? Math.max(.1, ot.end - ct) : r.smokeTrailDuration === void 0 ? g?.smokeTrailDuration === void 0 ? n.BURST_SMOKE_TRAIL?.duration ?? 1.5 : Number(g.smokeTrailDuration) : Number(r.smokeTrailDuration), Q = ct + J, ut = ct + lt + J, dt = !!r.smokeSystem?.useGpuSimulation, ft = dt ? n.BURST_SMOKE_TRAIL?.gpuMaxLeaders ?? 40 : n.BURST_SMOKE_TRAIL?.maxLeaders ?? 20, pt = dt ? n.BURST_SMOKE_TRAIL?.gpuMaxPuffsPerLeader ?? 16 : n.BURST_SMOKE_TRAIL?.maxPuffsPerLeader ?? 8, mt = Math.max(1, Math.floor((C || 200) / ft)), ht = st && (r.isSmokeLeader === void 0 ? S % mt === 0 : !!r.isSmokeLeader), gt = t.getEffectTiming(Y, "strobe", u) || t.getEffectTiming(Y, "white-strobe", u) || t.getEffectTiming(Y, "glitter-strobe", u), _t = gt ? gt.start : void 0, vt = gt && gt.end !== null ? gt.end : gt ? u : void 0, yt = _t === void 0 ? void 0 : _t + J, bt = vt === void 0 ? void 0 : vt + J, xt = t.getEffectTiming(Y, "ghost", u), St = xt ? xt.start : void 0, Ct = xt && xt.end !== null ? xt.end : xt ? u : void 0, wt = St === void 0 ? void 0 : St + J, Tt = Ct === void 0 ? void 0 : Ct + J, Et = t.getEffectTiming(Y, "no-trail", u) || t.getEffectTiming(Y, "notrail", u) || t.getEffectTiming(Y, "noTrail", u), Dt = r.hasNoTrail === void 0 ? g?.noTrail || Et !== null : !!r.hasNoTrail, Ot = Et ? Et.start : Dt ? 0 : void 0, kt = Et && Et.end !== null ? Et.end : Dt ? u : void 0, At = Ot === void 0 ? void 0 : Ot + J, jt = kt === void 0 ? void 0 : kt + J, Mt = t.getEffectTiming(Y, "dark_phase", u) || t.getEffectTiming(Y, "dark-phase", u), Nt = Mt ? Mt.start : void 0, Pt = Mt && Mt.end !== null ? Mt.end : Mt ? u : void 0, Ft = Nt === void 0 ? void 0 : Nt + J, It = Pt === void 0 ? void 0 : Pt + J, Lt = t.getEffectTiming(Y, "sync_strobe", u) || t.getEffectTiming(Y, "sync-strobe", u), Rt = Lt ? Lt.start : void 0, zt = Lt && Lt.end !== null ? Lt.end : Lt ? u : void 0, Bt = Rt === void 0 ? void 0 : Rt + J, Vt = zt === void 0 ? void 0 : zt + J, Ht = (e) => J === 0 || !Array.isArray(e) ? e : e.map((e) => ({
+		let { position: i = new e.Vector3(), velocity: a = new e.Vector3(), color: o = new e.Color(16777215), baseColor: s = null, color2: c = null, age: l = 0, maxLife: u = 1, effectType: d = "standard", effects: f = [], crackle: p = !1, crackleTriggered: m = !1, phase: h = 0, preset: g = {}, heightProfile: _ = null, effectState: v = null, ghostDot: y = 0, spiralIndex: b = 0, isSpiralArm: x = !1, particleIndex: S = 0, totalParticleCount: C = 1, shellId: w = null, isDyingEmber: T = !1, isNestedTrigger: E = !1, hasBurstSmoke: k = !1, burstSmokeLimit: A = .33, isCrossette: j = !1, crossetteSplitTime: M = 0, crossetteSplitDone: N = !0, isSecondBurst: P = !1, secondBurstDone: ee = !0, secondBurstConfig: F = null, secondBurstTime: te = 0, isChromaticWave: I = !1, radialDistanceRatio: L = 0, renderSize: ne = O, renderOpacity: R = 1, dynamicsProfile: z = null, dragCoefficient: B = D, hasTadpoleFlurry: re = !1, tadpoleColor: V = r.tadpoleColor ?? r.preset?.tadpoleColor ?? null, tadpoleFlurryColor: ie = r.tadpoleFlurryColor ?? r.preset?.tadpoleFlurryColor ?? null, tadpoleArrowTimer: ae = 0, tadpoleDeflectionScale: oe = 1, tadpoleSizeScale: se = 1, tadpoleDensityScale: ce = 1, hasFlurried: le = !1, hasErraticDart: ue = !1, erraticDartTriggerRatio: de = .72, erraticDartTriggered: H = !1, erraticDartTrailTimer: U = 0, erraticDartFlash: fe = 1, erraticDartWigglePhase: pe = 0, erraticDartWiggleFreq: W = 22, erraticDartWiggleAmp: G = 26, isSecondBurstChild: me = !1, isLongBurn: he = !1, isApexHang: ge = !1, isSlowBurst: _e = !1, hasNoTrail: K = !1, hasCascadeWave: ve = !1, phaseDelay: ye = 0, frictionHeat: be = 0, ringIndex: q = null, sizeVariance: xe = null, brightnessVariance: Se = null, hasTerminalFlare: Ce = !1, terminalFlareTriggerRatio: we = null, terminalFlareDuration: Te = null, terminalFlareIntensity: Ee = null, terminalFlareSizeMultiplier: De = null } = r, Oe = n.BURST?.starSizeVariance ?? .06, ke = n.BURST?.starBrightnessVariance ?? .1, Ae = xe === null ? 1 + (Math.random() + Math.random() - 1) * Oe : xe, je = Se === null ? 1 + (Math.random() + Math.random() - 1) * ke : Se, Me = s ? s.clone() : o.clone(), Ne = a.length(), Pe = Ne > 1e-4 ? a.clone().normalize() : new e.Vector3(0, 1, 0), J = Number(ye) || 0, Y = Array.isArray(f) && f.length > 0 ? f : Array.isArray(g?.effects) ? g.effects : [], Fe = t.getEffectTiming(Y, "crackle", u), Ie = r.crackle === void 0 ? Fe !== null : !!r.crackle, X = Fe ? Fe.start : Ie ? u * .65 : void 0, Le = Fe && Fe.end !== null ? Fe.end : Ie ? u : void 0, Re = X === void 0 ? void 0 : X + J, ze = Le === void 0 ? void 0 : Le + J, Be = t.getEffectTiming(Y, "tadpole-flurry", u) || t.getEffectTiming(Y, "tadpole_flurry", u), Ve = r.hasTadpoleFlurry === void 0 ? Be !== null : !!r.hasTadpoleFlurry, He = Be ? Be.start : Ve ? u * .18 : void 0, Ue = Be && Be.end !== null ? Be.end : Ve ? u * .85 : void 0, Z = He === void 0 ? void 0 : He + J, We = Ue === void 0 ? void 0 : Ue + J, Ge = t.getEffectTiming(Y, "erratic-dart", u) || t.getEffectTiming(Y, "erratic_dart", u), Ke = r.hasErraticDart === void 0 ? Ge !== null : !!r.hasErraticDart, qe = Ge && Ge.start > 0 ? Ge.start : Ke ? u * de : void 0, Je = Ge && Ge.end !== null ? Ge.end : Ke ? u : void 0, Ye = qe === void 0 ? void 0 : qe + J, Xe = Je === void 0 ? void 0 : Je + J, Ze = t.getEffectTiming(Y, "crossette", u), Qe = r.isCrossette === void 0 ? Ze !== null : !!r.isCrossette, $e = (Ze && Ze.start > 0 ? Ze.start : M > 0 ? M : u * .5) + J, et = t.getEffectTiming(Y, "burst-smoke", u), tt = r.hasBurstSmoke === void 0 ? et !== null : !!r.hasBurstSmoke, nt = et ? et.start : tt ? 0 : void 0, rt = et && et.end !== null ? et.end : tt ? u * (A ?? .33) : void 0, it = nt === void 0 ? void 0 : nt + J, at = rt === void 0 ? void 0 : rt + J, ot = t.getEffectTiming(Y, "smoke_trail", u) || t.getEffectTiming(Y, "smoke-trail", u), st = !!(r.hasSmokeTrail || r.smokeTrail || r.smoke_trail || r["smoke-trail"] || ot !== null || Array.isArray(g?.effects) && (g.effects.includes("smoke_trail") || g.effects.includes("smoke-trail") || g.effects.some((e) => typeof e == "object" && ["smoke_trail", "smoke-trail"].includes(e?.type || e?.key)))), ct = ot ? ot.start : r.smokeTrailStartTime === void 0 ? g?.smokeTrailStartTime === void 0 ? 0 : Number(g.smokeTrailStartTime) : Number(r.smokeTrailStartTime), lt = ot && ot.end !== null ? Math.max(.1, ot.end - ct) : r.smokeTrailDuration === void 0 ? g?.smokeTrailDuration === void 0 ? n.BURST_SMOKE_TRAIL?.duration ?? 1.5 : Number(g.smokeTrailDuration) : Number(r.smokeTrailDuration), Q = ct + J, ut = ct + lt + J, dt = !!r.smokeSystem?.useGpuSimulation, ft = dt ? n.BURST_SMOKE_TRAIL?.gpuMaxLeaders ?? 40 : n.BURST_SMOKE_TRAIL?.maxLeaders ?? 20, pt = dt ? n.BURST_SMOKE_TRAIL?.gpuMaxPuffsPerLeader ?? 16 : n.BURST_SMOKE_TRAIL?.maxPuffsPerLeader ?? 8, mt = Math.max(1, Math.floor((C || 200) / ft)), ht = st && (r.isSmokeLeader === void 0 ? S % mt === 0 : !!r.isSmokeLeader), gt = t.getEffectTiming(Y, "strobe", u) || t.getEffectTiming(Y, "white-strobe", u) || t.getEffectTiming(Y, "glitter-strobe", u), _t = gt ? gt.start : void 0, vt = gt && gt.end !== null ? gt.end : gt ? u : void 0, yt = _t === void 0 ? void 0 : _t + J, bt = vt === void 0 ? void 0 : vt + J, xt = t.getEffectTiming(Y, "ghost", u), St = xt ? xt.start : void 0, Ct = xt && xt.end !== null ? xt.end : xt ? u : void 0, wt = St === void 0 ? void 0 : St + J, Tt = Ct === void 0 ? void 0 : Ct + J, Et = t.getEffectTiming(Y, "no-trail", u) || t.getEffectTiming(Y, "notrail", u) || t.getEffectTiming(Y, "noTrail", u), Dt = r.hasNoTrail === void 0 ? g?.noTrail || Et !== null : !!r.hasNoTrail, Ot = Et ? Et.start : Dt ? 0 : void 0, kt = Et && Et.end !== null ? Et.end : Dt ? u : void 0, At = Ot === void 0 ? void 0 : Ot + J, jt = kt === void 0 ? void 0 : kt + J, Mt = t.getEffectTiming(Y, "dark_phase", u) || t.getEffectTiming(Y, "dark-phase", u), Nt = Mt ? Mt.start : void 0, Pt = Mt && Mt.end !== null ? Mt.end : Mt ? u : void 0, Ft = Nt === void 0 ? void 0 : Nt + J, It = Pt === void 0 ? void 0 : Pt + J, Lt = t.getEffectTiming(Y, "sync_strobe", u) || t.getEffectTiming(Y, "sync-strobe", u), Rt = Lt ? Lt.start : void 0, zt = Lt && Lt.end !== null ? Lt.end : Lt ? u : void 0, Bt = Rt === void 0 ? void 0 : Rt + J, Vt = zt === void 0 ? void 0 : zt + J, Ht = (e) => J === 0 || !Array.isArray(e) ? e : e.map((e) => ({
 			...e,
 			start: e.start + J,
 			end: e.end !== null && e.end !== void 0 ? e.end + J : null
@@ -5593,7 +5593,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			...t.getEffectTimings(Y, "noTrail", u)
 		]), Jt = Ht([...t.getEffectTimings(Y, "tadpole-flurry", u), ...t.getEffectTimings(Y, "tadpole_flurry", u)]), Yt = Ht([...t.getEffectTimings(Y, "erratic-dart", u), ...t.getEffectTimings(Y, "erratic_dart", u)]), Xt = Ht([...t.getEffectTimings(Y, "dark_phase", u), ...t.getEffectTimings(Y, "dark-phase", u)]), Zt = Ht([...t.getEffectTimings(Y, "sync_strobe", u), ...t.getEffectTimings(Y, "sync-strobe", u)]), Qt = {};
 		Ut.length > 0 && (Qt.strobe = Ut), $.length > 0 && (Qt["white-strobe"] = $), Wt.length > 0 && (Qt["glitter-strobe"] = Wt), Gt.length > 0 && (Qt.ghost = Gt), Kt.length > 0 && (Qt.crackle = Kt), qt.length > 0 && (Qt["no-trail"] = qt), Jt.length > 0 && (Qt["tadpole-flurry"] = Jt), Yt.length > 0 && (Qt["erratic-dart"] = Yt), Xt.length > 0 && (Qt.dark_phase = Xt, Qt["dark-phase"] = Xt), Zt.length > 0 && (Qt.sync_strobe = Zt, Qt["sync-strobe"] = Zt);
-		let $t = !!(ye || J > 0), en = t.getEffectTiming(Y, "terminal-flare", u) || t.getEffectTiming(Y, "terminal_flare", u) || t.getEffectTiming(Y, "burnout-flash", u) || t.getEffectTiming(Y, "burnout_flash", u), tn = r.hasTerminalFlare === void 0 ? !!(g?.terminalFlare || g?.["terminal-flare"] || g?.terminal_flare) || en !== null : !!r.hasTerminalFlare, nn = r.terminalFlareTriggerRatio !== null && r.terminalFlareTriggerRatio !== void 0 ? Number(r.terminalFlareTriggerRatio) : g?.terminalFlareTriggerRatio === void 0 ? n.TERMINAL_FLARE?.defaultTriggerRatio ?? .85 : Number(g.terminalFlareTriggerRatio), rn = r.terminalFlareDuration !== null && r.terminalFlareDuration !== void 0 ? Number(r.terminalFlareDuration) : g?.terminalFlareDuration === void 0 ? n.TERMINAL_FLARE?.defaultDuration ?? .15 : Number(g.terminalFlareDuration), an = r.terminalFlareIntensity !== null && r.terminalFlareIntensity !== void 0 ? Number(r.terminalFlareIntensity) : g?.terminalFlareIntensity === void 0 ? n.TERMINAL_FLARE?.defaultIntensity ?? 2.2 : Number(g.terminalFlareIntensity), on = r.terminalFlareSizeMultiplier !== null && r.terminalFlareSizeMultiplier !== void 0 ? Number(r.terminalFlareSizeMultiplier) : g?.terminalFlareSizeMultiplier === void 0 ? n.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.15 : Number(g.terminalFlareSizeMultiplier), sn = r.terminalFlareColor !== null && r.terminalFlareColor !== void 0 ? r.terminalFlareColor : g?.terminalFlareColor === void 0 ? n.TERMINAL_FLARE?.defaultColor ?? "random" : g.terminalFlareColor, cn = null;
+		let $t = !!(ve || J > 0), en = t.getEffectTiming(Y, "terminal-flare", u) || t.getEffectTiming(Y, "terminal_flare", u) || t.getEffectTiming(Y, "burnout-flash", u) || t.getEffectTiming(Y, "burnout_flash", u), tn = r.hasTerminalFlare === void 0 ? !!(g?.terminalFlare || g?.["terminal-flare"] || g?.terminal_flare) || en !== null : !!r.hasTerminalFlare, nn = r.terminalFlareTriggerRatio !== null && r.terminalFlareTriggerRatio !== void 0 ? Number(r.terminalFlareTriggerRatio) : g?.terminalFlareTriggerRatio === void 0 ? n.TERMINAL_FLARE?.defaultTriggerRatio ?? .85 : Number(g.terminalFlareTriggerRatio), rn = r.terminalFlareDuration !== null && r.terminalFlareDuration !== void 0 ? Number(r.terminalFlareDuration) : g?.terminalFlareDuration === void 0 ? n.TERMINAL_FLARE?.defaultDuration ?? .15 : Number(g.terminalFlareDuration), an = r.terminalFlareIntensity !== null && r.terminalFlareIntensity !== void 0 ? Number(r.terminalFlareIntensity) : g?.terminalFlareIntensity === void 0 ? n.TERMINAL_FLARE?.defaultIntensity ?? 2.2 : Number(g.terminalFlareIntensity), on = r.terminalFlareSizeMultiplier !== null && r.terminalFlareSizeMultiplier !== void 0 ? Number(r.terminalFlareSizeMultiplier) : g?.terminalFlareSizeMultiplier === void 0 ? n.TERMINAL_FLARE?.defaultSizeMultiplier ?? 1.15 : Number(g.terminalFlareSizeMultiplier), sn = r.terminalFlareColor !== null && r.terminalFlareColor !== void 0 ? r.terminalFlareColor : g?.terminalFlareColor === void 0 ? n.TERMINAL_FLARE?.defaultColor ?? "random" : g.terminalFlareColor, cn = null;
 		if (tn) {
 			let t = n.TERMINAL_FLARE?.palette || [
 				"#ffffff",
@@ -5612,7 +5612,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			}
 			else cn = new e.Color(t[Math.floor(Math.random() * t.length)]);
 		}
-		let ln = r.dissolveThreshold === void 0 ? $t ? n.CASCADE_WAVE?.dissolveStart ?? .92 : W ? L?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : L?.dissolveStart ?? n.BURST?.dissolveStart ?? .85 : r.dissolveThreshold, un = r.attenuationStart === void 0 ? $t ? n.CASCADE_WAVE?.attenuationStart ?? .75 : L?.attenuationStart ?? n.BURST?.attenuationStart ?? .35 : r.attenuationStart, dn = r.fadeExp === void 0 ? $t ? 1.5 : L?.dissolveExponent ?? n.SYSTEM?.burstFadeExponent ?? 2.8 : r.fadeExp, fn = r.minDissolveFloor === void 0 ? $t ? 0 : .08 : r.minDissolveFloor;
+		let ln = r.dissolveThreshold === void 0 ? $t ? n.CASCADE_WAVE?.dissolveStart ?? .92 : he ? z?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : z?.dissolveStart ?? n.BURST?.dissolveStart ?? .85 : r.dissolveThreshold, un = r.attenuationStart === void 0 ? $t ? n.CASCADE_WAVE?.attenuationStart ?? .75 : z?.attenuationStart ?? n.BURST?.attenuationStart ?? .35 : r.attenuationStart, dn = r.fadeExp === void 0 ? $t ? 1.5 : z?.dissolveExponent ?? n.SYSTEM?.burstFadeExponent ?? 2.8 : r.fadeExp, fn = r.minDissolveFloor === void 0 ? $t ? 0 : .08 : r.minDissolveFloor;
 		return {
 			position: i.clone(),
 			prevPosition: i.clone(),
@@ -5642,49 +5642,49 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			totalParticleCount: C,
 			shellId: w ?? Math.floor(Math.random() * 1e8),
 			isDyingEmber: !!T,
-			isLongBurn: !!W,
-			isApexHang: !!_e,
-			isSlowBurst: !!ve,
+			isLongBurn: !!he,
+			isApexHang: !!ge,
+			isSlowBurst: !!_e,
 			isNestedTrigger: !!E,
 			effects: Array.isArray(f) ? [...f] : [],
 			hasBurstSmoke: !!tt,
 			burstSmokeStart: it,
 			burstSmokeEnd: at,
-			burstSmokeLimit: ee,
+			burstSmokeLimit: A,
 			isCrossette: !!Qe,
 			crossetteSplitTime: $e,
-			crossetteSplitDone: !!j,
-			isSecondBurst: !!M,
-			secondBurstDone: !!ne,
-			secondBurstConfig: N,
-			secondBurstTime: re,
-			isChromaticWave: !!P,
-			radialDistanceRatio: F,
-			renderSize: ie,
-			renderOpacity: I,
-			dynamicsProfile: L,
-			dragCoefficient: R,
+			crossetteSplitDone: !!N,
+			isSecondBurst: !!P,
+			secondBurstDone: !!ee,
+			secondBurstConfig: F,
+			secondBurstTime: te,
+			isChromaticWave: !!I,
+			radialDistanceRatio: L,
+			renderSize: ne,
+			renderOpacity: R,
+			dynamicsProfile: z,
+			dragCoefficient: B,
 			hasTadpoleFlurry: !!Ve,
-			tadpoleColor: z,
-			tadpoleFlurryColor: oe || z,
+			tadpoleColor: V,
+			tadpoleFlurryColor: ie || V,
 			tadpoleStart: Z,
 			tadpoleEnd: We,
-			tadpoleArrowTimer: se,
-			tadpoleDeflectionScale: Number(ce) || 1,
-			tadpoleSizeScale: Number(le) || 1,
-			tadpoleDensityScale: Number(ue) || 1,
-			hasFlurried: !!de,
+			tadpoleArrowTimer: ae,
+			tadpoleDeflectionScale: Number(oe) || 1,
+			tadpoleSizeScale: Number(se) || 1,
+			tadpoleDensityScale: Number(ce) || 1,
+			hasFlurried: !!le,
 			hasErraticDart: !!Ke,
 			erraticDartTriggerTime: Ye,
 			erraticDartEnd: Xe,
-			erraticDartTriggerRatio: pe,
-			erraticDartTriggered: !!B,
-			erraticDartTrailTimer: V,
-			erraticDartFlash: me,
-			erraticDartWigglePhase: he,
-			erraticDartWiggleFreq: H,
-			erraticDartWiggleAmp: U,
-			isSecondBurstChild: !!ge,
+			erraticDartTriggerRatio: de,
+			erraticDartTriggered: !!H,
+			erraticDartTrailTimer: U,
+			erraticDartFlash: fe,
+			erraticDartWigglePhase: pe,
+			erraticDartWiggleFreq: W,
+			erraticDartWiggleAmp: G,
+			isSecondBurstChild: !!me,
 			strobeStart: yt,
 			strobeEnd: bt,
 			syncStrobeStart: Bt,
@@ -5697,8 +5697,8 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 			noTrailStart: At,
 			noTrailEnd: jt,
 			effectWindows: Qt,
-			ringIndex: K === null ? null : Number(K),
-			frictionHeat: Number(xe) || 0,
+			ringIndex: q === null ? null : Number(q),
+			frictionHeat: Number(be) || 0,
 			phaseDelay: J,
 			hasCascadeWave: $t,
 			dissolveThreshold: ln,
@@ -5774,7 +5774,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 		}
 		return u;
 	}
-}, ee = [
+}, A = [
 	"sphere",
 	"ring",
 	"heart",
@@ -5799,13 +5799,13 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 	"sphere_rings",
 	"horsetail",
 	"text_word"
-], te = /* @__PURE__ */ "standard.flow.willow.falling-leaves.falling-comets.falling-comets-glitter.snow.wave.galaxy-spin.bouquet-comet.comet-ring.crysanthemum-trail.crysanthemum-smoke.crysanthemum-spiral.crysanthemum-spiral-v2.sparking.sparking-v2.swimming-star.ghost-kamuro.double-helix.crossette.sparkle-trail.sparkling-branch-comet.tadpole-spiral.crysanthemum_discrete_trail.sphere_rings_wave.horsetail.text_word".split("."), A = [
+], j = /* @__PURE__ */ "standard.flow.willow.falling-leaves.falling-comets.falling-comets-glitter.snow.wave.galaxy-spin.bouquet-comet.comet-ring.crysanthemum-trail.crysanthemum-smoke.crysanthemum-spiral.crysanthemum-spiral-v2.sparking.sparking-v2.swimming-star.ghost-kamuro.double-helix.crossette.sparkle-trail.sparkling-branch-comet.tadpole-spiral.crysanthemum_discrete_trail.sphere_rings_wave.horsetail.text_word".split("."), M = [
 	"pistil",
 	"instantBurst",
 	"cascade-wave",
 	"cascade_wave",
 	"cascadeWave"
-], j = [
+], N = [
 	"no-trail",
 	"flow",
 	"strobe",
@@ -5830,7 +5830,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 	"burnout-flash",
 	"smoke_trail",
 	"smoke-trail"
-], M = [
+], P = [
 	"burst-smoke",
 	"pistil",
 	"apex-hang",
@@ -5843,7 +5843,7 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 	"terminal-flare",
 	"burnout_flash",
 	"burnout-flash"
-], ne = [...j, ...M], N = {
+], ee = [...N, ...P], F = {
 	strobe_breathing_pulse: {
 		shape: "sphere",
 		dynamics: "standard",
@@ -6664,15 +6664,15 @@ var D = n.BURST.baseDrag ?? 2.2, O = n.SYSTEM.baseBurstPointSize ?? 18, k = clas
 		effects: ["glitter-strobe"]
 	}
 };
-function re(e) {
-	if (!e) return N.random;
-	if (N[e]) return N[e];
+function te(e) {
+	if (!e) return F.random;
+	if (F[e]) return F[e];
 	let t = String(e).replace(/_([a-z0-9])/g, (e, t) => t.toUpperCase());
-	if (N[t]) return N[t];
+	if (F[t]) return F[t];
 	let n = String(e).replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
-	return N[n] ? N[n] : N.random;
+	return F[n] ? F[n] : F.random;
 }
-function P(e) {
+function I(e) {
 	if (!e) return {
 		shape: "sphere",
 		dynamics: "standard",
@@ -6682,7 +6682,7 @@ function P(e) {
 		},
 		effects: []
 	};
-	let t = re(typeof e.preset == "string" ? e.preset : e.preset?.type || e.type || "random"), n = e.shapeType || e.shape || t.shape, r = e.dynamicsType || e.dynamics || (e.flow ? "flow" : null) || t.dynamics, i = {
+	let t = te(typeof e.preset == "string" ? e.preset : e.preset?.type || e.type || "random"), n = e.shapeType || e.shape || t.shape, r = e.dynamicsType || e.dynamics || (e.flow ? "flow" : null) || t.dynamics, i = {
 		pistil: e.pistil === void 0 ? t.modifiers.pistil : !!e.pistil,
 		instantBurst: e.instantBurst === void 0 ? t.modifiers.instantBurst : !!e.instantBurst
 	}, a = [];
@@ -6693,7 +6693,7 @@ function P(e) {
 		effects: a
 	};
 }
-var F = [
+var L = [
 	"custom",
 	"peony",
 	"crysanthemum",
@@ -6708,7 +6708,7 @@ var F = [
 	"ghost_flare",
 	"ring",
 	"flow"
-], ie = {
+], ne = {
 	ratio: .2,
 	triggerTiming: .5,
 	distributionMode: "random",
@@ -6722,18 +6722,18 @@ var F = [
 	scale: .35,
 	effects: ["strobe"],
 	burstSound: "standard"
-}, I = {
+}, R = {
 	enabled: !1,
-	childShells: [{ ...ie }]
+	childShells: [{ ...ne }]
 };
-function L(e) {
+function z(e) {
 	if (!e) return {
-		...I,
+		...R,
 		enabled: !1
 	};
-	let t = e.secondBurst || (e.secondBurstEnabled ? I : null);
+	let t = e.secondBurst || (e.secondBurstEnabled ? R : null);
 	if (!t) return {
-		...I,
+		...R,
 		enabled: !1
 	};
 	let n = e.secondBurstEnabled === void 0 ? !!t.enabled : !!e.secondBurstEnabled, r = typeof t.ratio == "number" ? Math.max(.01, Math.min(1, t.ratio)) : .2, i = typeof t.triggerTiming == "number" ? Math.max(.15, Math.min(.9, t.triggerTiming)) : .5, a = [
@@ -6742,7 +6742,7 @@ function L(e) {
 		"simultaneous"
 	], o = a.includes(t.distributionMode) ? t.distributionMode : "random", s = [];
 	return s = Array.isArray(t.childShells) && t.childShells.length > 0 ? t.childShells.map((e) => {
-		let t = typeof e.ratio == "number" ? Math.max(.01, Math.min(1, e.ratio)) : r, n = typeof e.triggerTiming == "number" ? Math.max(.15, Math.min(.9, e.triggerTiming)) : i, s = a.includes(e.distributionMode) ? e.distributionMode : o, c = e.preset && e.preset !== "custom" ? re(e.preset) : null, l = e.shapeType || c?.shape || "sphere", u = e.dynamicsType || c?.dynamics || "standard", d = e.pistil === void 0 ? c?.modifiers?.pistil ?? !1 : !!e.pistil, f = e.instantBurst === void 0 ? c?.modifiers?.instantBurst ?? !1 : !!e.instantBurst, p = Array.isArray(e.effects) ? [...e.effects] : c?.effects ? [...c.effects] : ["strobe"];
+		let t = typeof e.ratio == "number" ? Math.max(.01, Math.min(1, e.ratio)) : r, n = typeof e.triggerTiming == "number" ? Math.max(.15, Math.min(.9, e.triggerTiming)) : i, s = a.includes(e.distributionMode) ? e.distributionMode : o, c = e.preset && e.preset !== "custom" ? te(e.preset) : null, l = e.shapeType || c?.shape || "sphere", u = e.dynamicsType || c?.dynamics || "standard", d = e.pistil === void 0 ? c?.modifiers?.pistil ?? !1 : !!e.pistil, f = e.instantBurst === void 0 ? c?.modifiers?.instantBurst ?? !1 : !!e.instantBurst, p = Array.isArray(e.effects) ? [...e.effects] : c?.effects ? [...c.effects] : ["strobe"];
 		return {
 			ratio: t,
 			triggerTiming: n,
@@ -6778,25 +6778,25 @@ function L(e) {
 	};
 }
 // src/factories/ShellPresetFactory.js
-var R = {
+var B = {
 	Red: "red",
 	Gold: "gold",
 	White: "white",
 	Blue: "blue"
-}, ae = [
+}, re = [
 	16766720,
 	16729344,
 	49151,
 	16738740,
 	8388564,
 	9055202
-], z = class {
+], V = class {
 	constructor() {
 		this.palette = [
-			R.Red,
-			R.Gold,
-			R.White,
-			R.Blue
+			B.Red,
+			B.Gold,
+			B.White,
+			B.Blue
 		], this.shapeRegistry = /* @__PURE__ */ new Set(/* @__PURE__ */ "sphere.ring.heart.willow.willow-up.willow-arch.star.lightning.oval.flower.cat.fish.smiley.half-flash.split-flash.galaxy.upward-spray.double-helix.sparkling-branches.sphere_uniform.sphere-uniform.egg.sphere_rings.horsetail.text_word.text-word".split(".")), this.effectRegistry = /* @__PURE__ */ new Set(/* @__PURE__ */ "standard.crackle.flow.snow.wave.flower.floral.falling-leaves.falling-comets.falling-comets-glitter.crysanthemum-trail.crysanthemum-smoke.crysanthemum-spiral.crysanthemum-spiral-v2.crysanthemum-cc.crysanthemum_discrete_trail.crysanthemum-discrete-trail.ghost.ghost-kamuro.galaxy-spin.comet-ring.bouquet-comet.willow.sparking.sparking-v2.swimming-star.double-helix.strobe.white-strobe.glitter-strobe.heart.oval.no-trail.notrail.no-burst.crossette.sparkle-trail.sparkle-apex.sparkling-branch-comet.tadpole-spiral.sphere_rings_wave.sphere-rings-wave.horsetail.horsetail_waterfall".split(".")), this.presetMenuEntries = [
 			{
 				key: "random",
@@ -7105,10 +7105,10 @@ var R = {
 		return t ? this.validatePreset(t()) : null;
 	}
 	basePreset(e = 1) {
-		let t = Math.random() < .25, n = Math.random() < .72, r = this.randomColor(n ? { limitWhite: !0 } : void 0), i = n && Math.random() < .42, a = i ? this.makePistilColor(r) : null, o = n && (Math.random() < .2 || r === R.White) ? a || this.randomColor({
+		let t = Math.random() < .25, n = Math.random() < .72, r = this.randomColor(n ? { limitWhite: !0 } : void 0), i = n && Math.random() < .42, a = i ? this.makePistilColor(r) : null, o = n && (Math.random() < .2 || r === B.White) ? a || this.randomColor({
 			notColor: r,
 			limitWhite: !0
-		}) : null, s = !i && r !== R.White && Math.random() < .42, c = t ? 1.1 : 1.25;
+		}) : null, s = !i && r !== B.White && Math.random() < .42, c = t ? 1.1 : 1.25;
 		return c *= 1, {
 			shellSize: e,
 			spreadSize: 300 + e * 100,
@@ -7695,7 +7695,7 @@ var R = {
 			starLife: 1200 + e * 120,
 			starLifeVariation: .5,
 			glitter: "light",
-			glitterColor: R.Gold,
+			glitterColor: B.Gold,
 			pistil: !1,
 			streamers: !1
 		};
@@ -8103,14 +8103,14 @@ var R = {
 		};
 	}
 	randomColor(e = {}) {
-		let t = ae[Math.floor(Math.random() * ae.length)];
-		return e.limitWhite && Math.random() < .2 ? R.White : (e.notColor, t);
+		let t = re[Math.floor(Math.random() * re.length)];
+		return e.limitWhite && Math.random() < .2 ? B.White : (e.notColor, t);
 	}
 	makePistilColor(e) {
-		return e === R.White ? R.Gold : R.White;
+		return e === B.White ? B.Gold : B.White;
 	}
 	whiteOrGold() {
-		return Math.random() < .5 ? R.White : R.Gold;
+		return Math.random() < .5 ? B.White : B.Gold;
 	}
 	galaxyShell(e = 1.45) {
 		let t = Math.random() < .5 ? 46296 : 43158;
@@ -8244,7 +8244,7 @@ var R = {
 			launchSmoke: !1
 		};
 	}
-}, oe = [
+}, ie = [
 	{
 		name: "ruby_gold",
 		primary: "#ff2244",
@@ -8280,7 +8280,7 @@ var R = {
 		primary: "#ffffff",
 		secondary: "#80d8ff"
 	}
-], se = {
+], ae = {
 	mini: {
 		minParticles: 120,
 		maxParticles: 220,
@@ -8391,15 +8391,15 @@ var R = {
 		pistilChance: 1,
 		strobeChance: .95
 	}
-}, ce = class {
+}, oe = class {
 	constructor() {
 		this.history = [];
 	}
 	generate(e = {}) {
-		let t = e.tier && se[e.tier] ? e.tier : "mini", n = se[t], r = e.shape || this.pickRandom(n.allowedShapes), i = e.dynamics || this.pickRandom(n.allowedDynamics), a = e.palette || this.pickRandom(oe), o = e.particleCount ? Math.max(n.minParticles, Math.min(n.maxParticles, e.particleCount)) : Math.floor(n.minParticles + Math.random() * (n.maxParticles - n.minParticles)), s = {}, c = [];
+		let t = e.tier && ae[e.tier] ? e.tier : "mini", n = ae[t], r = e.shape || this.pickRandom(n.allowedShapes), i = e.dynamics || this.pickRandom(n.allowedDynamics), a = e.palette || this.pickRandom(ie), o = e.particleCount ? Math.max(n.minParticles, Math.min(n.maxParticles, e.particleCount)) : Math.floor(n.minParticles + Math.random() * (n.maxParticles - n.minParticles)), s = {}, c = [];
 		(e.pistil === void 0 ? Math.random() < n.pistilChance : e.pistil) && (s.pistil = !0, s.pistilColor = a.secondary, s.pistilCount = Math.floor(o * .25));
 		let l = e.effect || (Math.random() < n.strobeChance ? this.pickRandom(n.allowedEffects) : null);
-		l && j.includes(l) && (c.push(l), s[l] = !0);
+		l && N.includes(l) && (c.push(l), s[l] = !0);
 		let u = e.speed || (t === "super" ? 36 : t === "grand" ? 32 : t === "medium" ? 28 : 24);
 		return {
 			type: "firework",
@@ -8437,7 +8437,7 @@ var R = {
 	pickRandom(e) {
 		return !e || e.length === 0 ? null : e[Math.floor(Math.random() * e.length)];
 	}
-}, le = new ce(), ue = .6, de = 10, fe = 3.8, pe = .95, B = class t {
+}, se = new oe(), ce = .6, le = 10, ue = 3.8, de = .95, H = class t {
 	static STATE = {
 		INIT: "init",
 		LAUNCHING: "launching",
@@ -8473,7 +8473,7 @@ var R = {
 		this.hasSputter = this.sputterEnabled && Math.random() < C, this.shellType === "floral-child" && (this.hasSputter = !1, this.launchStartIntensity = 1), this.sputterTimer = 0, this.sputterIntervalMin = y?.sputterIntervalMin ?? .22, this.sputterIntervalMax = y?.sputterIntervalMax ?? .48, this.nextSputterTime = this.sputterIntervalMin + Math.random() * (this.sputterIntervalMax - this.sputterIntervalMin), this.sputterDurationMin = y?.sputterDurationMin ?? .035, this.sputterDurationMax = y?.sputterDurationMax ?? .075, this.sputterKickAmp = y?.sputterKickAmp ?? .85, this.currentSputterRemaining = 0, this.isSputtering = !1, this.endFlicker = y?.endFlicker !== !1;
 		let w = Array.isArray(u?.effects) ? u.effects : [];
 		this.isStrobe = !!u?.strobe || w.includes("strobe") || w.includes("white-strobe") || w.includes("glitter-strobe") || u?.effectType === "glitter-strobe" || u?.effectType === "falling-comets-glitter", this.strobePhase = Math.random() * Math.PI * 2, this.strobeSpeed = 38 + Math.random() * 16, this.mesh = new e.Group();
-		let T = !!u?.detachedTrail || u?.cometTrail === "detached" || u?.cometTrail === "detached-trail" || this.shellType === "comet_cluster_detached", E = !!u?.thinTrail && !T, D = T ? ue * 1.85 : E ? ue * 1.35 : ue, O = new e.SphereGeometry(D, 8, 8), k = T ? o.clone().offsetHSL(0, .05, .3).multiplyScalar(8.5) : E ? o.clone().offsetHSL(0, .05, .22).multiplyScalar(3.5) : o.clone().multiplyScalar(3.2), ee = new e.MeshBasicMaterial({
+		let T = !!u?.detachedTrail || u?.cometTrail === "detached" || u?.cometTrail === "detached-trail" || this.shellType === "comet_cluster_detached", E = !!u?.thinTrail && !T, D = T ? ce * 1.85 : E ? ce * 1.35 : ce, O = new e.SphereGeometry(D, 8, 8), k = T ? o.clone().offsetHSL(0, .05, .3).multiplyScalar(8.5) : E ? o.clone().offsetHSL(0, .05, .22).multiplyScalar(3.5) : o.clone().multiplyScalar(3.2), A = new e.MeshBasicMaterial({
 			color: k,
 			transparent: !0,
 			opacity: 1,
@@ -8481,27 +8481,27 @@ var R = {
 			blending: e.AdditiveBlending,
 			toneMapped: !1
 		});
-		this.coreMesh = new e.Mesh(O, ee), this.mesh.add(this.coreMesh);
-		let te = T ? .7 : E ? .55 : .5, A = T ? 10 : E ? 4 : 3.5, j = new e.SphereGeometry(D * te, 8, 8), M = new e.MeshBasicMaterial({
-			color: new e.Color(16777215).multiplyScalar(A),
+		this.coreMesh = new e.Mesh(O, A), this.mesh.add(this.coreMesh);
+		let j = T ? .7 : E ? .55 : .5, M = T ? 10 : E ? 4 : 3.5, N = new e.SphereGeometry(D * j, 8, 8), P = new e.MeshBasicMaterial({
+			color: new e.Color(16777215).multiplyScalar(M),
 			transparent: !0,
 			opacity: 1,
 			depthWrite: !1,
 			blending: e.AdditiveBlending,
 			toneMapped: !1
 		});
-		this.innerCoreMesh = new e.Mesh(j, M), this.mesh.add(this.innerCoreMesh);
-		let ne = T ? 28 : E ? 18 : de, N = new Float32Array(ne * 3), re = new Float32Array(ne * 3);
-		for (let t = 0; t < ne; t++) {
-			let n = Math.random() * Math.PI * 2, r = (Math.random() - .5) * Math.PI, i = fe * (T ? .15 + Math.random() * .35 : E ? .28 + Math.random() * .55 : .35 + Math.random() * .65), a = new e.Vector3(Math.cos(n) * Math.cos(r) * i, Math.sin(r) * i * .75, Math.sin(n) * Math.cos(r) * i);
-			N[t * 3] = a.x, N[t * 3 + 1] = a.y, N[t * 3 + 2] = a.z;
+		this.innerCoreMesh = new e.Mesh(N, P), this.mesh.add(this.innerCoreMesh);
+		let ee = T ? 28 : E ? 18 : le, F = new Float32Array(ee * 3), te = new Float32Array(ee * 3);
+		for (let t = 0; t < ee; t++) {
+			let n = Math.random() * Math.PI * 2, r = (Math.random() - .5) * Math.PI, i = ue * (T ? .15 + Math.random() * .35 : E ? .28 + Math.random() * .55 : .35 + Math.random() * .65), a = new e.Vector3(Math.cos(n) * Math.cos(r) * i, Math.sin(r) * i * .75, Math.sin(n) * Math.cos(r) * i);
+			F[t * 3] = a.x, F[t * 3 + 1] = a.y, F[t * 3 + 2] = a.z;
 			let s = o.clone().offsetHSL((Math.random() - .5) * .04, (Math.random() - .5) * .08, (Math.random() - .5) * .14), c = T ? 7 : E ? 3.2 : 2.2;
-			re[t * 3] = s.r * c, re[t * 3 + 1] = s.g * c, re[t * 3 + 2] = s.b * c;
+			te[t * 3] = s.r * c, te[t * 3 + 1] = s.g * c, te[t * 3 + 2] = s.b * c;
 		}
-		let P = new e.BufferGeometry();
-		P.setAttribute("position", new e.BufferAttribute(N, 3)), P.setAttribute("color", new e.BufferAttribute(re, 3));
-		let F = T ? pe * 2.6 : E ? pe * 1.6 : pe, ie = new e.PointsMaterial({
-			size: F,
+		let I = new e.BufferGeometry();
+		I.setAttribute("position", new e.BufferAttribute(F, 3)), I.setAttribute("color", new e.BufferAttribute(te, 3));
+		let L = T ? de * 2.6 : E ? de * 1.6 : de, ne = new e.PointsMaterial({
+			size: L,
 			color: 16777215,
 			vertexColors: !0,
 			transparent: !0,
@@ -8510,7 +8510,7 @@ var R = {
 			blending: e.AdditiveBlending,
 			toneMapped: !1
 		});
-		this.haloPoints = new e.Points(P, ie), this.mesh.add(this.haloPoints), this.mesh.position.copy(r), this.state = t.STATE.LAUNCHING;
+		this.haloPoints = new e.Points(I, ne), this.mesh.add(this.haloPoints), this.mesh.position.copy(r), this.state = t.STATE.LAUNCHING;
 	}
 	getProgress() {
 		if (this.shellType === "floral-child") {
@@ -8560,8 +8560,8 @@ var R = {
 		let a = !!(this.preset?.sparkleAtEnd && r > .6);
 		if (this.isStrobe && !this.preset?.sparkleAtEnd || a) {
 			let e = Math.sin(this.age * this.strobeSpeed + this.strobePhase) > .35, t = e ? 1.8 + Math.random() * .8 : .35;
-			this.mesh.scale.setScalar(t), this.coreMesh.material && (a && e && this.coreMesh.material.color.setHex(16777215), this.coreMesh.material.opacity = e ? 1 : .2), this.innerCoreMesh?.material && (this.innerCoreMesh.material.opacity = e ? 1 : .2), this.haloPoints.material && (this.haloPoints.material.opacity = e ? 1 : .1, this.haloPoints.material.size = pe * (e ? 2.8 : .4));
-		} else this.mesh.scale.setScalar(1 + Math.sin(this.age * 12) * .05), this.coreMesh.material && (this.coreMesh.material.opacity = 1), this.innerCoreMesh?.material && (this.innerCoreMesh.material.opacity = 1), this.haloPoints.material && (this.haloPoints.material.opacity = .95, this.haloPoints.material.size = pe * 1.5);
+			this.mesh.scale.setScalar(t), this.coreMesh.material && (a && e && this.coreMesh.material.color.setHex(16777215), this.coreMesh.material.opacity = e ? 1 : .2), this.innerCoreMesh?.material && (this.innerCoreMesh.material.opacity = e ? 1 : .2), this.haloPoints.material && (this.haloPoints.material.opacity = e ? 1 : .1, this.haloPoints.material.size = de * (e ? 2.8 : .4));
+		} else this.mesh.scale.setScalar(1 + Math.sin(this.age * 12) * .05), this.coreMesh.material && (this.coreMesh.material.opacity = 1), this.innerCoreMesh?.material && (this.innerCoreMesh.material.opacity = 1), this.haloPoints.material && (this.haloPoints.material.opacity = .95, this.haloPoints.material.size = de * 1.5);
 		return this.canBurst();
 	}
 	canBurst() {
@@ -8577,7 +8577,7 @@ var R = {
 	markDead() {
 		this.state = t.STATE.DEAD;
 	}
-}, V = 1.2, me = new e.Vector3(), he = new e.Vector3(), H = new e.Quaternion(), U = new e.Vector3(0, 1, 0), ge = new e.Vector3(1, 0, 0), W = new e.Vector3(), _e = new e.Vector3(), ve = new e.Vector3(), G = new e.Vector3(), ye = new e.Vector3(), be = new e.Color(), xe = new e.Color(15922680), K = class t {
+}, U = 1.2, fe = new e.Vector3(), pe = new e.Vector3(), W = new e.Quaternion(), G = new e.Vector3(0, 1, 0), me = new e.Vector3(1, 0, 0), he = new e.Vector3(), ge = new e.Vector3(), _e = new e.Vector3(), K = new e.Vector3(), ve = new e.Vector3(), ye = new e.Color(), be = new e.Color(15922680), q = class t {
 	static STATE = {
 		INIT: "init",
 		LAUNCHING: "launching",
@@ -8658,7 +8658,7 @@ var R = {
 		} else {
 			let t = !!this.isTadpole, n = v || !!this.preset?.isSingleComet || !!this.preset?.superBrightHead || t || this.preset?.shellType === "comet_single", r = !!this.isStrobeStar, i = t && this.tadpoleColor ? new e.Color(this.tadpoleColor) : a;
 			n ? this.coreColor = i.clone().offsetHSL(0, .05, .3).multiplyScalar(9) : r ? this.coreColor.multiplyScalar(.4) : this.coreColor = i.clone().offsetHSL(0, .04, .15).multiplyScalar(4.5);
-			let o = (t || n ? V * 1.6 : V) * y, s = new e.SphereGeometry(o, 8, 8), c = new e.MeshBasicMaterial({
+			let o = (t || n ? U * 1.6 : U) * y, s = new e.SphereGeometry(o, 8, 8), c = new e.MeshBasicMaterial({
 				color: this.coreColor,
 				transparent: !0,
 				opacity: r ? .85 : 1,
@@ -8696,7 +8696,7 @@ var R = {
 		return this.hasNoTrail || this.isGhostDarkPhase || this.isGhostInvisible ? !1 : this.lastTrailSpawnPos.distanceToSquared(this.mesh.position) >= e && (this.lastTrailSpawnPos.copy(this.mesh.position), !0);
 	}
 	updateRotation() {
-		me.subVectors(this.mesh.position, this.prevPosition), me.lengthSq() > 1e-4 ? (me.normalize(), H.setFromUnitVectors(U, me), this.mesh.setRotationFromQuaternion(H)) : this.velocity.lengthSq() > 0 && (he.copy(this.velocity).normalize(), H.setFromUnitVectors(U, he), this.mesh.setRotationFromQuaternion(H));
+		fe.subVectors(this.mesh.position, this.prevPosition), fe.lengthSq() > 1e-4 ? (fe.normalize(), W.setFromUnitVectors(G, fe), this.mesh.setRotationFromQuaternion(W)) : this.velocity.lengthSq() > 0 && (pe.copy(this.velocity).normalize(), W.setFromUnitVectors(G, pe), this.mesh.setRotationFromQuaternion(W));
 	}
 	calculateFlashEnvelope(e, t, n) {
 		if (e <= 0) return 0;
@@ -8717,7 +8717,7 @@ var R = {
 		if (i) {
 			this.trajectorySmokeCount++;
 			let t = n.COMET_TRAJECTORY_SMOKE || {}, i = (t.lifeMin ?? 6) + Math.random() * ((t.lifeMax ?? 9) - (t.lifeMin ?? 6));
-			ye.copy(this.velocity).multiplyScalar(t.wakeVelocityRatio ?? .04), be.copy(xe).lerp(this.color, .2);
+			ve.copy(this.velocity).multiplyScalar(t.wakeVelocityRatio ?? .04), ye.copy(be).lerp(this.color, .2);
 			let a = {
 				category: "aerial",
 				isNucleus: !0,
@@ -8730,11 +8730,11 @@ var R = {
 				drag: t.drag ?? .95,
 				buoyancy: t.buoyancy ?? .15,
 				opacity: t.opacity ?? .28,
-				color: be
+				color: ye
 			};
-			return e ? e.spawnPuff(r, ye, a) : p.emit("smoke:puff", {
+			return e ? e.spawnPuff(r, ve, a) : p.emit("smoke:puff", {
 				position: r.clone(),
-				velocity: ye.clone(),
+				velocity: ve.clone(),
 				options: a
 			}), !0;
 		}
@@ -8750,9 +8750,9 @@ var R = {
 				this.tadpolePhase = (this.tadpolePhase || 0) + i * n, this.tadpoleSwayAngle === void 0 && (this.tadpoleSwayAngle = Math.random() * Math.PI * 2);
 				let a = Math.sin(this.tadpolePhase) * r, o = Math.sin(this.tadpolePhase * .6) * (r * .25);
 				if (this.velocity.lengthSq() > .04) {
-					W.copy(this.velocity).normalize();
-					let e = Math.abs(W.y) > .88 ? ge : U;
-					_e.crossVectors(W, e).normalize(), ve.crossVectors(_e, W).normalize(), G.set(0, 0, 0).addScaledVector(_e, a * Math.cos(this.tadpoleSwayAngle) - o * Math.sin(this.tadpoleSwayAngle)).addScaledVector(ve, a * Math.sin(this.tadpoleSwayAngle) + o * Math.cos(this.tadpoleSwayAngle)), this.mesh.position.copy(this.ballisticPosition).add(G);
+					he.copy(this.velocity).normalize();
+					let e = Math.abs(he.y) > .88 ? me : G;
+					ge.crossVectors(he, e).normalize(), _e.crossVectors(ge, he).normalize(), K.set(0, 0, 0).addScaledVector(ge, a * Math.cos(this.tadpoleSwayAngle) - o * Math.sin(this.tadpoleSwayAngle)).addScaledVector(_e, a * Math.sin(this.tadpoleSwayAngle) + o * Math.cos(this.tadpoleSwayAngle)), this.mesh.position.copy(this.ballisticPosition).add(K);
 				} else this.mesh.position.copy(this.ballisticPosition);
 			} else if (this.spiral) {
 				let e = Math.max(.1, this.initialVy / 30), t = Math.min(1, this.age / e), n = Math.sin(t * Math.PI * .95), r = (this.spiral.radius ?? 11.5) * (.25 + .75 * n), i = (this.spiral.frequency ?? 4.6) * Math.PI * 2, a = (this.spiral.phase ?? 0) + (this.spiral.direction ?? 1) * i * (this.age / e), o = r * Math.cos(a), s = r * Math.sin(a);
@@ -8857,7 +8857,7 @@ var R = {
 			(e.isMesh || e.isPoints) && (e.geometry && e.geometry.dispose(), e.material && (Array.isArray(e.material) ? e.material.forEach((e) => e.dispose()) : e.material.dispose()));
 		});
 	}
-}, Se = class {
+}, xe = class {
 	constructor(t, n = 300) {
 		this.scene = t, this.maxShells = n;
 		let r = new e.SphereGeometry(.6, 8, 8), i = new e.MeshBasicMaterial({
@@ -8905,7 +8905,7 @@ var R = {
 	destroy() {
 		this.scene.remove(this.coreMesh), this.scene.remove(this.haloPoints), this.coreMesh.geometry && this.coreMesh.geometry.dispose(), this.coreMesh.material && this.coreMesh.material.dispose(), this.haloGeometry && this.haloGeometry.dispose(), this.haloPoints.material && this.haloPoints.material.dispose();
 	}
-}, q = n.GRAVITY, Ce = n.BURST.baseParticles, we = n.BURST.minParticles, Te = n.BURST.maxParticles, Ee = n.BURST.baseSpeed, De = n.BURST.baseLife, Oe = n.BURST.dissolveStart, ke = n.BURST.baseDrag ?? 2.2, Ae = n.BURST.dragJitter ?? .5, je = n.BURST.speedJitter ?? .15, Me = n.BURST.lifeJitter ?? .2, Ne = n.SYSTEM.colors, Pe = n.SYSTEM.burstFadeExponent;
+}, Se = n.GRAVITY, Ce = n.BURST.baseParticles, we = n.BURST.minParticles, Te = n.BURST.maxParticles, Ee = n.BURST.baseSpeed, De = n.BURST.baseLife, Oe = n.BURST.dissolveStart, ke = n.BURST.baseDrag ?? 2.2, Ae = n.BURST.dragJitter ?? .5, je = n.BURST.speedJitter ?? .15, Me = n.BURST.lifeJitter ?? .2, Ne = n.SYSTEM.colors, Pe = n.SYSTEM.burstFadeExponent;
 n.SYSTEM.crackleCloudSpeed;
 var J = n.SYSTEM.baseBurstPointSize;
 n.SYSTEM.defaultTrailColor;
@@ -8928,7 +8928,7 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 	b: 0
 }, We = new e.Vector3(), Ge = new e.Vector3(), Ke = new e.Vector3(), qe = new e.Color(), Je = new e.Color(14542318), Ye = new e.Vector3(), Xe = new e.Vector3(), Ze = new e.Color(), Qe = new e.Color(15922680), $e = new e.Color(), et = new e.Vector3(), tt = new e.Color(16777215), nt = class {
 	constructor(t, n, r = null, i = null) {
-		this.scene = t, this.trailSystem = n, this.smokeSystem = r, this.activeFireworks = [], this.shellPresetFactory = i || new z(), this.launchZone = u, this.launchPosition = this.launchZone.center.clone(), this.autoLaunchEnabled = !1, this.autoLaunchTimer = 0, this.autoLaunchInterval = 3, this.shellSequence = 0, this.lastSecondBurstAudioTime = 0, this.diagnostics = {
+		this.scene = t, this.trailSystem = n, this.smokeSystem = r, this.activeFireworks = [], this.shellPresetFactory = i || new V(), this.launchZone = u, this.launchPosition = this.launchZone.center.clone(), this.autoLaunchEnabled = !1, this.autoLaunchTimer = 0, this.autoLaunchInterval = 3, this.shellSequence = 0, this.lastSecondBurstAudioTime = 0, this.diagnostics = {
 			launched: 0,
 			bursted: 0,
 			shapeFallbacks: 0,
@@ -8945,7 +8945,7 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 			brightnessMax: 1.45,
 			sizeCurve: .9,
 			brightnessCurve: 1.15
-		}, this.instancedShellRenderer = new Se(t), this.allocatedMaxBurstParticles = 5e4, this.maxBurstParticles = 6e3, this.graphicsQualityMultiplier = 1, this.burstParticles = [], this.burstPositionsArray = new Float32Array(this.allocatedMaxBurstParticles * 3), this.burstColorsArray = new Float32Array(this.allocatedMaxBurstParticles * 3), this.burstSizesArray = new Float32Array(this.allocatedMaxBurstParticles), this.burstOpacitiesArray = new Float32Array(this.allocatedMaxBurstParticles), this.globalBurstGeometry = new e.BufferGeometry(), this.globalBurstGeometry.setAttribute("position", new e.BufferAttribute(this.burstPositionsArray, 3)), this.globalBurstGeometry.setAttribute("color", new e.BufferAttribute(this.burstColorsArray, 3)), this.globalBurstGeometry.setAttribute("aSize", new e.BufferAttribute(this.burstSizesArray, 1)), this.globalBurstGeometry.setAttribute("aOpacity", new e.BufferAttribute(this.burstOpacitiesArray, 1)), this.burstUniforms = { uEdgeSoftness: { value: d.post?.particleEdgeSoftness ?? .75 } }, this.globalBurstMaterial = new e.PointsMaterial({
+		}, this.instancedShellRenderer = new xe(t), this.allocatedMaxBurstParticles = 5e4, this.maxBurstParticles = 6e3, this.graphicsQualityMultiplier = 1, this.burstParticles = [], this.burstPositionsArray = new Float32Array(this.allocatedMaxBurstParticles * 3), this.burstColorsArray = new Float32Array(this.allocatedMaxBurstParticles * 3), this.burstSizesArray = new Float32Array(this.allocatedMaxBurstParticles), this.burstOpacitiesArray = new Float32Array(this.allocatedMaxBurstParticles), this.globalBurstGeometry = new e.BufferGeometry(), this.globalBurstGeometry.setAttribute("position", new e.BufferAttribute(this.burstPositionsArray, 3)), this.globalBurstGeometry.setAttribute("color", new e.BufferAttribute(this.burstColorsArray, 3)), this.globalBurstGeometry.setAttribute("aSize", new e.BufferAttribute(this.burstSizesArray, 1)), this.globalBurstGeometry.setAttribute("aOpacity", new e.BufferAttribute(this.burstOpacitiesArray, 1)), this.burstUniforms = { uEdgeSoftness: { value: d.post?.particleEdgeSoftness ?? .75 } }, this.globalBurstMaterial = new e.PointsMaterial({
 			vertexColors: !0,
 			transparent: !0,
 			depthTest: !0,
@@ -8985,63 +8985,70 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 	registerWarning(e) {
 		this.diagnostics.warnings += 1, this.diagnostics.lastWarning = e, console.warn(e), this.emitDiagnostics();
 	}
-	launchRandom(t = null, n = {}) {
-		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o = "center", color: s, angleOffset: c = 0, effectOverrides: l } = n, u = t;
-		typeof t == "string" && (u = this.shellPresetFactory.createPresetByKey(t)), l && typeof l == "object" && (l.textWord && (l.textPoints = null, l._glyphCacheKey = null), u = {
-			...u,
-			...l
-		}, (l.textWord || l.textScale || l.letterSpacing) && (u.textPoints = null, u._glyphCacheKey = null));
-		let d = this.shellPresetFactory.validatePreset(u ?? this.shellPresetFactory.randomPreset()), f = ++this.shellSequence, p = this.resolveLaunchPosition(r, a, o), m = this.resolveBurstHeight(d, i), h = e.MathUtils.clamp((m - this.launchZone.minBurstY) / Math.max(this.launchZone.maxBurstY - this.launchZone.minBurstY, 1), 0, 1), g = e.MathUtils.lerp(.6, 1, h);
-		d.shellSize = (d.shellSize ?? 1) * g;
-		let _ = this.resolveLaunchVelocity(m, c), v = !!s || !!l?.color || !!d.hasCustomColor || !!d.customColor;
-		d.hasCustomColor = v;
-		let y = s || (d.color ? d.color : Ne[Math.floor(Math.random() * Ne.length)]), b = new e.Color(y), x = Array.isArray(d.effects) && d.effects.includes("no-burst") || !!d["no-burst"], S = !!d.instantBurst || x, C = _ && _.lengthSq() > .001 ? _.clone().normalize() : new e.Vector3(0, 1, 0);
-		if (S) {
+	launchRandom(t = null, r = {}) {
+		let { ratioX: i, ratioY: a, ratioZ: o, launchRatioX: s, targetRatioX: c, targetRatioY: l, isTargetedTrajectory: u, sectorId: d = "center", color: f, angleOffset: p = 0, effectOverrides: m } = r, h = t;
+		typeof t == "string" && (h = this.shellPresetFactory.createPresetByKey(t)), m && typeof m == "object" && (m.textWord && (m.textPoints = null, m._glyphCacheKey = null), h = {
+			...h,
+			...m
+		}, (m.textWord || m.textScale || m.letterSpacing) && (h.textPoints = null, h._glyphCacheKey = null));
+		let g = this.shellPresetFactory.validatePreset(h ?? this.shellPresetFactory.randomPreset()), _ = ++this.shellSequence, v = !!(u || s !== void 0 || c !== void 0), y = s === void 0 ? i ?? Math.random() : s, b = o === void 0 ? v ? .5 : Math.random() : o, x = this.resolveLaunchPosition(y, b, d), S, C, w = null;
+		if (v) {
+			let t = c === void 0 ? i === void 0 ? y : i : c, r = l === void 0 ? a : l;
+			w = this.resolveBurstPosition(t, r, b, d), S = w.y;
+			let o = Math.abs(n.GRAVITY), s = Math.max(5, S - x.y), u = Math.sqrt(2 * s / o), f = Math.sqrt(2 * o * s), p = (w.x - x.x) / u, m = (w.z - x.z) / u;
+			C = new e.Vector3(p, f, m);
+		} else S = this.resolveBurstHeight(g, a), C = this.resolveLaunchVelocity(S, p);
+		let T = e.MathUtils.clamp((S - this.launchZone.minBurstY) / Math.max(this.launchZone.maxBurstY - this.launchZone.minBurstY, 1), 0, 1), E = e.MathUtils.lerp(.6, 1, T);
+		g.shellSize = (g.shellSize ?? 1) * E;
+		let D = !!f || !!m?.color || !!g.hasCustomColor || !!g.customColor;
+		g.hasCustomColor = D;
+		let O = f || (g.color ? g.color : Ne[Math.floor(Math.random() * Ne.length)]), k = new e.Color(O), A = Array.isArray(g.effects) && g.effects.includes("no-burst") || !!g["no-burst"], j = !!g.instantBurst || A, M = C && C.lengthSq() > .001 ? C.clone().normalize() : new e.Vector3(0, 1, 0);
+		if (j) {
 			this.emitFireworkEvent("firework:launch", {
-				shellId: f,
-				shellType: d.shellType ?? d.shapeType,
-				shapeType: d.shapeType,
-				effectType: d.effectType ?? "standard",
-				colorHex: b.getHex(),
-				hasCustomColor: v,
-				sound: d.sound || null,
+				shellId: _,
+				shellType: g.shellType ?? g.shapeType,
+				shapeType: g.shapeType,
+				effectType: g.effectType ?? "standard",
+				colorHex: k.getHex(),
+				hasCustomColor: D,
+				sound: g.sound || null,
 				position: {
-					x: p.x,
-					y: p.y,
-					z: p.z
+					x: x.x,
+					y: x.y,
+					z: x.z
 				},
 				velocity: {
-					x: _.x,
-					y: _.y,
-					z: _.z
-				},
-				direction: {
 					x: C.x,
 					y: C.y,
 					z: C.z
 				},
-				intensity: .2 + (d.shellSize ?? 1) / 6 * .45
+				direction: {
+					x: M.x,
+					y: M.y,
+					z: M.z
+				},
+				intensity: .2 + (g.shellSize ?? 1) / 6 * .45
 			});
-			let t = new e.Vector3(p.x, m, p.z), n = this.isBouquetShell(d), r = !!(d.multiNested || d.preset === "multi_nested" || d.preset === "multiNested" || Array.isArray(d.stages) && d.stages.length > 0);
+			let t = w ? w.clone() : new e.Vector3(x.x, S, x.z), n = this.isBouquetShell(g), r = !!(g.multiNested || g.preset === "multi_nested" || g.preset === "multiNested" || Array.isArray(g.stages) && g.stages.length > 0);
 			if (n) {
-				let n = _ && _.lengthSq() > .001 ? _.clone().normalize() : new e.Vector3(0, 1, 0);
-				this.triggerBouquetBurst(t, b, d, f, n, _);
-			} else r ? this.triggerMultiNestedBurst(t, b, d, f) : this.createBurst(t, b, d.shapeType ?? d.shape ?? "willow", d, f);
+				let n = C && C.lengthSq() > .001 ? C.clone().normalize() : new e.Vector3(0, 1, 0);
+				this.triggerBouquetBurst(t, k, g, _, n, C);
+			} else r ? this.triggerMultiNestedBurst(t, k, g, _) : this.createBurst(t, k, g.shapeType ?? g.shape ?? "willow", g, _);
 			this.diagnostics.bursted += 1;
-			for (let e of d.__contract?.warnings ?? []) this.registerWarning(`[Shell ${f}] ${e}`);
+			for (let e of g.__contract?.warnings ?? []) this.registerWarning(`[Shell ${_}] ${e}`);
 			this.emitDiagnostics();
-			let i = .35 + ((d.shellSize ?? 1) - 1) / 5 * .65, a = Array.isArray(d.effects) && d.effects.includes("strobe") || d.effectType === "strobe" || !!d.strobe, o = !!d.isDyingEmber, s = d?.starLifeMultiplier !== void 0 && !isNaN(Number(d.starLifeMultiplier)) ? Math.max(.01, Number(d.starLifeMultiplier)) : 1, c = !x && (Array.isArray(d.effects) && d.effects.some((e) => (typeof e == "object" && e ? e.type || e.key : e) === "burst-smoke") || !!d["burst-smoke"] || !!d.burstSmoke);
+			let i = .35 + ((g.shellSize ?? 1) - 1) / 5 * .65, a = Array.isArray(g.effects) && g.effects.includes("strobe") || g.effectType === "strobe" || !!g.strobe, o = !!g.isDyingEmber, s = g?.starLifeMultiplier !== void 0 && !isNaN(Number(g.starLifeMultiplier)) ? Math.max(.01, Number(g.starLifeMultiplier)) : 1, c = !A && (Array.isArray(g.effects) && g.effects.some((e) => (typeof e == "object" && e ? e.type || e.key : e) === "burst-smoke") || !!g["burst-smoke"] || !!g.burstSmoke);
 			this.emitFireworkEvent("firework:burst", {
-				shellId: f,
-				shellType: d.shellType ?? d.shapeType,
-				shapeType: d.shapeType,
-				effectType: d.effectType,
-				effects: d.effects,
+				shellId: _,
+				shellType: g.shellType ?? g.shapeType,
+				shapeType: g.shapeType,
+				effectType: g.effectType,
+				effects: g.effects,
 				hasBurstSmoke: c,
 				burstSmoke: c,
-				sound: d.sound || null,
-				noBurstSound: x || !!d.noBurstSound,
-				colorHex: b.getHex(),
+				sound: g.sound || null,
+				noBurstSound: A || !!g.noBurstSound,
+				colorHex: k.getHex(),
 				position: {
 					x: t.x,
 					y: t.y,
@@ -9054,33 +9061,33 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 			});
 			return;
 		}
-		let w = this.createShell(p, _, m, b, d, f);
-		this.activeFireworks.push(w), this.diagnostics.launched += 1;
-		for (let e of d.__contract?.warnings ?? []) this.registerWarning(`[Shell ${f}] ${e}`);
+		let N = this.createShell(x, C, S, k, g, _);
+		this.activeFireworks.push(N), this.diagnostics.launched += 1;
+		for (let e of g.__contract?.warnings ?? []) this.registerWarning(`[Shell ${_}] ${e}`);
 		this.emitDiagnostics(), this.emitFireworkEvent("firework:launch", {
-			shellId: f,
-			shellType: w.shellType,
-			shapeType: w.shapeType,
-			effectType: d.effectType ?? "standard",
-			colorHex: b.getHex(),
-			hasCustomColor: v,
-			sound: d.sound || null,
+			shellId: _,
+			shellType: N.shellType,
+			shapeType: N.shapeType,
+			effectType: g.effectType ?? "standard",
+			colorHex: k.getHex(),
+			hasCustomColor: D,
+			sound: g.sound || null,
 			position: {
-				x: p.x,
-				y: p.y,
-				z: p.z
+				x: x.x,
+				y: x.y,
+				z: x.z
 			},
 			velocity: {
-				x: _.x,
-				y: _.y,
-				z: _.z
-			},
-			direction: {
 				x: C.x,
 				y: C.y,
 				z: C.z
 			},
-			intensity: .2 + (d.shellSize ?? 1) / 6 * .45
+			direction: {
+				x: M.x,
+				y: M.y,
+				z: M.z
+			},
+			intensity: .2 + (g.shellSize ?? 1) / 6 * .45
 		});
 	}
 	getLaunchZone() {
@@ -9103,6 +9110,12 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 		let u = (this.launchZone.arcRadius || 360) + (a - .5) * this.launchZone.launchRadiusZ * 2, d = u * Math.cos(l), f = -u * Math.sin(l);
 		return this.launchZone.center.clone().add(new e.Vector3(d, 0, f));
 	}
+	resolveBurstPosition(t, n, r, i = "center") {
+		let a = t ?? .5, o = r ?? .5, s;
+		i && this.launchZone.sectors && (s = this.launchZone.sectors.find((e) => e.id === i)), !s && this.launchZone.sectors && (s = this.launchZone.sectors.find((e) => e.id === "center") || this.launchZone.sectors[0]);
+		let c = s ? s.minAngle : Math.PI / 4, l = s ? s.maxAngle : 3 * Math.PI / 4, u = l - a * (l - c), d = (this.launchZone.arcRadius || 360) + (o - .5) * this.launchZone.launchRadiusZ * 2, f = d * Math.cos(u), p = -d * Math.sin(u), m = this.resolveBurstHeight(null, n);
+		return this.launchZone.center.clone().add(new e.Vector3(f, 0, p)).setY(m);
+	}
 	resolveBurstHeight(t = null, n) {
 		if (n !== void 0) return e.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, n);
 		let r = (Math.max(1, Math.min(6, t?.shellSize ?? 1)) - 1) / 5, i = e.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, .42 + r * .32), a = e.MathUtils.lerp(16, 28, r);
@@ -9118,7 +9131,7 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 	}
 	createShell(e, t, n, r, i = null, a = null) {
 		let o = i?.shapeType ?? i?.shape ?? this.pickFireworkShape();
-		return new B({
+		return new H({
 			shellId: a,
 			position: e,
 			velocity: t,
@@ -9458,52 +9471,52 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 			}
 			O = t.clone().lerp(new e.Color(16777215), y);
 		}
-		let ee = c === "ring" && a?.shapeRenderMode === "jupiter", te = !!a?.pistil && !E && !D, A = ee || te, j = 0;
-		ee ? j = Math.min(.85, Math.max(.15, a?.ringCoreRatio ?? .42)) : te && (j = m < 80 ? .5 : .65);
-		let M = A ? Math.max(8, Math.floor(m * j)) : 0;
-		A && m - M < 16 && (M = Math.max(8, m - 16));
-		let ne = Math.max(1, m - M), N = ee ? {
+		let A = c === "ring" && a?.shapeRenderMode === "jupiter", j = !!a?.pistil && !E && !D, M = A || j, N = 0;
+		A ? N = Math.min(.85, Math.max(.15, a?.ringCoreRatio ?? .42)) : j && (N = m < 80 ? .5 : .65);
+		let P = M ? Math.max(8, Math.floor(m * N)) : 0;
+		M && m - P < 16 && (P = Math.max(8, m - 16));
+		let ee = Math.max(1, m - P), F = A ? {
 			...a,
 			shapeRenderMode: "outline"
 		} : a;
 		x.clone().multiplyScalar(b);
-		let re = O ? O.clone().multiplyScalar(b) : null, P = !(!a?.nestedBurst || a?.isNestedChild), F = /* @__PURE__ */ new Set();
-		if (P) for (let e = 0; e < 8; e++) {
+		let te = O ? O.clone().multiplyScalar(b) : null, I = !(!a?.nestedBurst || a?.isNestedChild), L = /* @__PURE__ */ new Set();
+		if (I) for (let e = 0; e < 8; e++) {
 			let t = Math.floor((e + .5) * (m / 8));
-			F.add(t);
+			L.add(t);
 		}
-		let ie = De * .82, { isCrossetteShell: I, isTadpoleFlurryShell: R, isErraticDartShell: ae, hasBurstSmoke: z, hasSmokeTrail: oe, isLongBurn: se, isApexHang: ce, isSlowBurst: le, hasNoTrail: ue, hasCascadeWave: de, hasTerminalFlare: fe } = k.resolveActiveEffectFlags({
+		let ne = De * .82, { isCrossetteShell: R, isTadpoleFlurryShell: B, isErraticDartShell: re, hasBurstSmoke: V, hasSmokeTrail: ie, isLongBurn: ae, isApexHang: oe, isSlowBurst: se, hasNoTrail: ce, hasCascadeWave: le, hasTerminalFlare: ue } = k.resolveActiveEffectFlags({
 			preset: a,
 			effects: l,
 			dynamicsType: p
-		}), pe = a?.cascadeDuration !== void 0 && !isNaN(Number(a.cascadeDuration)) ? Math.max(.05, Number(a.cascadeDuration)) : n.CASCADE_WAVE?.defaultDuration ?? .6, B = a?.cascadeMode || a?.cascadeDirection || (n.CASCADE_WAVE?.defaultMode ?? "radial-outward"), V = Ve.set(0, 1, 0), me = He.identity(), he = !1, H = null;
-		if (de) {
-			if (B === "random" || B === "random-direction" || B === "random_direction" || B === "parallel-rings" || B === "parallel_rings" || B === "parallel-rings-top-down" || B === "parallel_rings_top_down") {
+		}), de = a?.cascadeDuration !== void 0 && !isNaN(Number(a.cascadeDuration)) ? Math.max(.05, Number(a.cascadeDuration)) : n.CASCADE_WAVE?.defaultDuration ?? .6, H = a?.cascadeMode || a?.cascadeDirection || (n.CASCADE_WAVE?.defaultMode ?? "radial-outward"), U = Ve.set(0, 1, 0), fe = He.identity(), pe = !1, W = null;
+		if (le) {
+			if (H === "random" || H === "random-direction" || H === "random_direction" || H === "parallel-rings" || H === "parallel_rings" || H === "parallel-rings-top-down" || H === "parallel_rings_top_down") {
 				let e = Math.random() * Math.PI * 2, t = (Math.random() - .5) * .4, n = Math.sqrt(Math.max(0, 1 - t * t));
-				V.set(-Math.sin(e) * n, Math.cos(e) * n, t).normalize();
-			} else if (B === "bottom-up" || B === "parallel-rings-bottom-up" || B === "parallel_rings_bottom_up") V.set(0, -1, 0);
-			else if (B === "left-to-right" || B === "horizontal-left-right" || B === "horizontal_left_right") V.set(-1, 0, 0);
-			else if (B === "right-to-left" || B === "horizontal-right-left" || B === "horizontal_right_left") V.set(1, 0, 0);
-			else if (B === "diagonal-down" || B === "diagonal_down") V.set(-1, 1, 0).normalize();
-			else if (B === "diagonal-up" || B === "diagonal_up") V.set(-1, -1, 0).normalize();
-			else if (B === "custom-angle" || B === "custom_angle" || a?.cascadeAngle !== void 0 && !isNaN(Number(a.cascadeAngle))) {
+				U.set(-Math.sin(e) * n, Math.cos(e) * n, t).normalize();
+			} else if (H === "bottom-up" || H === "parallel-rings-bottom-up" || H === "parallel_rings_bottom_up") U.set(0, -1, 0);
+			else if (H === "left-to-right" || H === "horizontal-left-right" || H === "horizontal_left_right") U.set(-1, 0, 0);
+			else if (H === "right-to-left" || H === "horizontal-right-left" || H === "horizontal_right_left") U.set(1, 0, 0);
+			else if (H === "diagonal-down" || H === "diagonal_down") U.set(-1, 1, 0).normalize();
+			else if (H === "diagonal-up" || H === "diagonal_up") U.set(-1, -1, 0).normalize();
+			else if (H === "custom-angle" || H === "custom_angle" || a?.cascadeAngle !== void 0 && !isNaN(Number(a.cascadeAngle))) {
 				let e = (Number(a?.cascadeAngle) || 0) * Math.PI / 180;
-				V.set(-Math.sin(e), Math.cos(e), 0).normalize();
-			} else if (B === "random-shuffle" || B === "random_shuffle" || B === "random-rings") {
-				he = !0;
+				U.set(-Math.sin(e), Math.cos(e), 0).normalize();
+			} else if (H === "random-shuffle" || H === "random_shuffle" || H === "random-rings") {
+				pe = !0;
 				let e = a?.cascadeRings ?? a?.ringCount ?? n.CASCADE_WAVE?.defaultRings ?? 8, t = Math.max(3, Math.min(24, Math.round(Number(e) || 8))), r = Array.from({ length: t }, (e, t) => t);
 				for (let e = r.length - 1; e > 0; e--) {
 					let t = Math.floor(Math.random() * (e + 1)), n = r[e];
 					r[e] = r[t], r[t] = n;
 				}
-				H = r;
+				W = r;
 			}
-			Math.abs(V.y - 1) > 1e-4 && (Math.abs(V.y + 1) < 1e-4 ? me.setFromAxisAngle(ze, Math.PI) : me.setFromUnitVectors(Be, V));
+			Math.abs(U.y - 1) > 1e-4 && (Math.abs(U.y + 1) < 1e-4 ? fe.setFromAxisAngle(ze, Math.PI) : fe.setFromUnitVectors(Be, U));
 		}
-		let U = a?.starLifeMultiplier !== void 0 && !isNaN(Number(a.starLifeMultiplier)) ? Math.max(.01, Number(a.starLifeMultiplier)) : se ? n.BURST?.longBurnMultiplier ?? 2.2 : 1, ge = se || U >= 1.5, W = /* @__PURE__ */ new Map();
-		if (I && m > 0) {
+		let G = a?.starLifeMultiplier !== void 0 && !isNaN(Number(a.starLifeMultiplier)) ? Math.max(.01, Number(a.starLifeMultiplier)) : ae ? n.BURST?.longBurnMultiplier ?? 2.2 : 1, me = ae || G >= 1.5, he = /* @__PURE__ */ new Map();
+		if (R && m > 0) {
 			let t = [];
-			for (let e = 0; e < m; e++) A && e < M || t.push(e);
+			for (let e = 0; e < m; e++) M && e < P || t.push(e);
 			let r = t.length >= 6 ? t : Array.from({ length: m }, (e, t) => t), i = n.CROSSETTE?.minSplitParticles ?? 6, a = n.CROSSETTE?.maxSplitParticles ?? 8, o = Math.min(r.length, i + Math.floor(Math.random() * (a - i + 1)));
 			for (let e = 0; e < o; e++) {
 				let t = e + Math.floor(Math.random() * (r.length - e)), n = r[e];
@@ -9516,13 +9529,13 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 			}
 			for (let t = 0; t < s.length; t++) {
 				let n = s[t], r = .35 + (s.length > 1 ? t / (s.length - 1) : .5) * .3 + (Math.random() - .5) * .04;
-				W.set(n, e.MathUtils.clamp(r, .32, .68));
+				he.set(n, e.MathUtils.clamp(r, .32, .68));
 			}
 		}
-		let _e = !!((a?.secondBurst?.enabled || a?.secondBurstEnabled) && m > 0), ve = /* @__PURE__ */ new Map();
-		if (_e) {
-			let t = L(a).childShells, n = [];
-			for (let e = 0; e < m; e++) A && e < M || n.push(e);
+		let ge = !!((a?.secondBurst?.enabled || a?.secondBurstEnabled) && m > 0), _e = /* @__PURE__ */ new Map();
+		if (ge) {
+			let t = z(a).childShells, n = [];
+			for (let e = 0; e < m; e++) M && e < P || n.push(e);
 			let r = n.length >= 8 ? [...n] : Array.from({ length: m }, (e, t) => t);
 			for (let e = 0; e < r.length; e++) {
 				let t = e + Math.floor(Math.random() * (r.length - e)), n = r[e];
@@ -9541,46 +9554,46 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 						let t = o.length > 1 ? n / (o.length - 1) : .5;
 						i = e.MathUtils.clamp(s - .15 + t * .3 + (Math.random() - .5) * .02, .15, .85);
 					} else i = c === "random" ? e.MathUtils.clamp(s + (Math.random() - .5) * .3, .15, .85) : e.MathUtils.clamp(s + (Math.random() - .5) * .04, .15, .85);
-					ve.set(r, {
+					_e.set(r, {
 						childShell: t,
 						timingRatio: i
 					});
 				}
 			});
 		}
-		let G = [];
+		let K = [];
 		for (let r = 0; r < m; r++) {
-			let i = A && r < M, s = i ? "sphere" : c, u = i ? r : r - M, f = i ? M : ne, g = u / f * Math.PI * 2, y = p === "crysanthemum-spiral-v2", ee = y ? Math.floor(m * .38) : 0, te = y && r < ee, j, L = null, se = null;
-			if (te) {
-				let t = r / Math.max(1, ee - 1), n = t * 3.5 * Math.PI * 2, i = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * t)));
-				j = new e.Vector3(Math.sin(i) * Math.cos(n), Math.cos(i), Math.sin(i) * Math.sin(n)).applyQuaternion(h);
-			} else L = w.direction(s, g, u, f, i ? a : N), se = L.clone(), j = s === "willow-arch" || s === "willow-up" ? L.applyQuaternion(_) : s === "sphere_rings" || s === "sphere-rings" || de && (B === "parallel-rings" || B === "parallel_rings" || B === "parallel-rings-top-down" || B === "parallel_rings_top_down" || B === "parallel-rings-bottom-up" || B === "parallel_rings_bottom_up" || B === "parallel-rings-equator-out" || B === "parallel_rings_equator_out" || B === "left-to-right" || B === "right-to-left" || B === "diagonal-down" || B === "diagonal-up" || B === "custom-angle" || B === "custom_angle" || B === "random" || B === "random-direction" || B === "random_direction" || B === "random-shuffle" || B === "random_shuffle" || B === "random-rings") ? L.applyQuaternion(me).applyQuaternion(_) : s === "heart" || s === "text_word" ? L.clone() : L.applyQuaternion(h);
-			let ye = !i && N?.shapeRenderMode === "outline" && (s === "ring" || s === "heart" || s === "star") || s === "half-flash" || s === "split-flash" || s === "galaxy" || s === "egg" || s === "sphere_rings" || s === "text_word";
-			ye || j.normalize();
-			let be = .9 + Math.random() * .2, xe = .5 + Math.random() * .8, K = .34 + Math.random() * .18, Se = T.getDynamicsProfile(p, s, i ? a : N), q = Se?.baseSpeed ?? Ee, Ce;
-			if (i) Ce = q * K;
-			else if (s === "text_word") Ce = q * (.98 + (Math.random() - .5) * .04);
+			let i = M && r < P, s = i ? "sphere" : c, u = i ? r : r - P, f = i ? P : ee, g = u / f * Math.PI * 2, y = p === "crysanthemum-spiral-v2", A = y ? Math.floor(m * .38) : 0, j = y && r < A, N, z = null, ae = null;
+			if (j) {
+				let t = r / Math.max(1, A - 1), n = t * 3.5 * Math.PI * 2, i = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * t)));
+				N = new e.Vector3(Math.sin(i) * Math.cos(n), Math.cos(i), Math.sin(i) * Math.sin(n)).applyQuaternion(h);
+			} else z = w.direction(s, g, u, f, i ? a : F), ae = z.clone(), N = s === "willow-arch" || s === "willow-up" ? z.applyQuaternion(_) : s === "sphere_rings" || s === "sphere-rings" || le && (H === "parallel-rings" || H === "parallel_rings" || H === "parallel-rings-top-down" || H === "parallel_rings_top_down" || H === "parallel-rings-bottom-up" || H === "parallel_rings_bottom_up" || H === "parallel-rings-equator-out" || H === "parallel_rings_equator_out" || H === "left-to-right" || H === "right-to-left" || H === "diagonal-down" || H === "diagonal-up" || H === "custom-angle" || H === "custom_angle" || H === "random" || H === "random-direction" || H === "random_direction" || H === "random-shuffle" || H === "random_shuffle" || H === "random-rings") ? z.applyQuaternion(fe).applyQuaternion(_) : s === "heart" || s === "text_word" ? z.clone() : z.applyQuaternion(h);
+			let ve = !i && F?.shapeRenderMode === "outline" && (s === "ring" || s === "heart" || s === "star") || s === "half-flash" || s === "split-flash" || s === "galaxy" || s === "egg" || s === "sphere_rings" || s === "text_word";
+			ve || N.normalize();
+			let ye = .9 + Math.random() * .2, be = .5 + Math.random() * .8, q = .34 + Math.random() * .18, xe = T.getDynamicsProfile(p, s, i ? a : F), Se = xe?.baseSpeed ?? Ee, Ce;
+			if (i) Ce = Se * q;
+			else if (s === "text_word") Ce = Se * (.98 + (Math.random() - .5) * .04);
 			else if (s === "ring" || s === "heart" || s === "star") {
 				let e = .12;
-				(a?.shellType === "ring" || a?.shellType === "ringV2" || a?.shellType === "ring_v2") && (e = .015), Ce = q * (1 + (Math.random() - .5) * e);
-			} else if (s === "galaxy") Ce = q * (1.15 + Math.random() * .2);
-			else if (s === "egg") Ce = q * (.96 + Math.random() * .08);
-			else if (s === "sphere_rings") Ce = q * (.98 + (Math.random() - .5) * .04);
+				(a?.shellType === "ring" || a?.shellType === "ringV2" || a?.shellType === "ring_v2") && (e = .015), Ce = Se * (1 + (Math.random() - .5) * e);
+			} else if (s === "galaxy") Ce = Se * (1.15 + Math.random() * .2);
+			else if (s === "egg") Ce = Se * (.96 + Math.random() * .08);
+			else if (s === "sphere_rings") Ce = Se * (.98 + (Math.random() - .5) * .04);
 			else if (s === "horsetail" || s === "waterfall") {
 				let e = Math.max(f, 1);
-				Ce = q * (.9 + (u + .5) / e * .2 + (Math.random() - .5) * .05);
-			} else Ce = s === "sphere" || s === "half-flash" || s === "split-flash" ? q * (s === "half-flash" || s === "split-flash" ? .97 + Math.random() * .06 : be) : q * xe;
-			let we = Math.max(.6, Math.min(6, a?.shellSize ?? 1)), Te = !de && (a?.shellType === "strobeDyingEmbers" && Math.random() < .5 || Math.random() < .05), Oe = Se?.speedJitter ?? je, Pe = s === "text_word" || s === "sphere_rings" || s === "sphere-rings" ? 1 : 1 + (Math.random() - .5) * (Oe * 2), J = ce ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, Y = le ? (n.DYNAMICS_PROFILES?.floating?.baseSpeed ?? 36) / (n.BURST?.baseSpeed ?? 74) : 1, Fe = Ce * (ye ? 1.15 : 1) * we * Pe * (Te ? .85 : 1) * J * Y, Ie = j.clone().normalize(), X = j.multiplyScalar(Fe), Le = x;
+				Ce = Se * (.9 + (u + .5) / e * .2 + (Math.random() - .5) * .05);
+			} else Ce = s === "sphere" || s === "half-flash" || s === "split-flash" ? Se * (s === "half-flash" || s === "split-flash" ? .97 + Math.random() * .06 : ye) : Se * be;
+			let we = Math.max(.6, Math.min(6, a?.shellSize ?? 1)), Te = !le && (a?.shellType === "strobeDyingEmbers" && Math.random() < .5 || Math.random() < .05), Oe = xe?.speedJitter ?? je, Pe = s === "text_word" || s === "sphere_rings" || s === "sphere-rings" ? 1 : 1 + (Math.random() - .5) * (Oe * 2), J = oe ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, Y = se ? (n.DYNAMICS_PROFILES?.floating?.baseSpeed ?? 36) / (n.BURST?.baseSpeed ?? 74) : 1, Fe = Ce * (ve ? 1.15 : 1) * we * Pe * (Te ? .85 : 1) * J * Y, Ie = N.clone().normalize(), X = N.multiplyScalar(Fe), Le = x;
 			if (i) {
 				let t = new e.Color(Ne[Math.random() * Ne.length | 0]);
 				Le = (a?.pistilColor ? new e.Color(a.pistilColor) : t).lerp(S, .08 + Math.random() * .12);
 			} else if (p === "ghost") Le = Ie.x * C.ghostAxis.x + Ie.y * C.ghostAxis.y + Ie.z * C.ghostAxis.z < 0 ? x : O;
 			else if (p === "crysanthemum-cc") Le = x;
-			else if (s === "sphere_rings" && L?.ringIndex !== void 0) {
+			else if (s === "sphere_rings" && z?.ringIndex !== void 0) {
 				if (a?.ringColors && Array.isArray(a.ringColors) && a.ringColors.length > 0) {
-					let t = a.ringColors[L.ringIndex % a.ringColors.length];
+					let t = a.ringColors[z.ringIndex % a.ringColors.length];
 					Le = new e.Color(t);
-				} else Le = a?.colorPerRing && O ? L.ringIndex % 2 == 0 ? x : O : x;
+				} else Le = a?.colorPerRing && O ? z.ringIndex % 2 == 0 ? x : O : x;
 			}
 			let Re = Le.clone().multiplyScalar(b), ze = 0;
 			if (p === "ghost") {
@@ -9591,97 +9604,97 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 			if (p === "crysanthemum-spiral") {
 				let e = X.length(), t = e > 0 ? X.x / e : 0, n = e > 0 ? X.y / e : 0, r = e > 0 ? X.z / e : 0, i = (n + 1) * .5, a = (Math.atan2(r, t) + Math.PI) / (Math.PI * 2), o = (1 - i) * 3.5 + a;
 				Be = Math.max(0, Math.min(1, o / 4.5));
-			} else p === "crysanthemum-spiral-v2" && (Be = te ? r / Math.max(1, ee - 1) : 1);
-			let Ve = P && F.has(r), He, Ue = X, Z = 0;
-			if (de && m > 1) {
-				if (B === "parallel-rings-equator-out" || B === "parallel_rings_equator_out") {
+			} else p === "crysanthemum-spiral-v2" && (Be = j ? r / Math.max(1, A - 1) : 1);
+			let Ve = I && L.has(r), He, Ue = X, Z = 0;
+			if (le && m > 1) {
+				if (H === "parallel-rings-equator-out" || H === "parallel_rings_equator_out") {
 					let e = a?.cascadeRings ?? a?.ringCount ?? n.CASCADE_WAVE?.defaultRings ?? 8, t = Math.max(3, Math.min(24, Math.round(Number(e) || 8)));
-					if (L?.ringIndex !== void 0 && L?.ringIndex !== null) {
-						let e = ((L?.ringCount ?? t) - 1) / 2;
-						Z = Math.abs(L.ringIndex - e) / Math.max(.5, e);
+					if (z?.ringIndex !== void 0 && z?.ringIndex !== null) {
+						let e = ((z?.ringCount ?? t) - 1) / 2;
+						Z = Math.abs(z.ringIndex - e) / Math.max(.5, e);
 					} else {
-						let e = Math.abs(j.dot(V));
+						let e = Math.abs(N.dot(U));
 						Z = Math.min(t - 1, Math.floor(e * t)) / Math.max(1, t - 1);
 					}
-				} else if (he && H) {
+				} else if (pe && W) {
 					let e = a?.cascadeRings ?? a?.ringCount ?? n.CASCADE_WAVE?.defaultRings ?? 8, t = Math.max(3, Math.min(24, Math.round(Number(e) || 8)));
-					if (L?.ringIndex !== void 0 && L?.ringIndex !== null) Z = H[L.ringIndex % H.length] / Math.max(1, H.length - 1);
+					if (z?.ringIndex !== void 0 && z?.ringIndex !== null) Z = W[z.ringIndex % W.length] / Math.max(1, W.length - 1);
 					else {
-						let e = j.dot(V), n = Math.max(0, Math.min(1, (1 - e) * .5)), r = Math.min(t - 1, Math.floor(n * t));
-						Z = H[r % H.length] / Math.max(1, H.length - 1);
+						let e = N.dot(U), n = Math.max(0, Math.min(1, (1 - e) * .5)), r = Math.min(t - 1, Math.floor(n * t));
+						Z = W[r % W.length] / Math.max(1, W.length - 1);
 					}
-				} else if (B === "random" || B === "random-direction" || B === "random_direction" || B === "custom-angle" || B === "custom_angle" || B === "left-to-right" || B === "right-to-left" || B === "diagonal-down" || B === "diagonal-up" || B === "parallel-rings" || B === "parallel_rings" || B === "parallel-rings-top-down" || B === "parallel_rings_top_down" || B === "parallel-rings-bottom-up" || B === "parallel_rings_bottom_up" || B === "top-down" || B === "top_down" || B === "bottom-up" || B === "bottom_up") {
+				} else if (H === "random" || H === "random-direction" || H === "random_direction" || H === "custom-angle" || H === "custom_angle" || H === "left-to-right" || H === "right-to-left" || H === "diagonal-down" || H === "diagonal-up" || H === "parallel-rings" || H === "parallel_rings" || H === "parallel-rings-top-down" || H === "parallel_rings_top_down" || H === "parallel-rings-bottom-up" || H === "parallel_rings_bottom_up" || H === "top-down" || H === "top_down" || H === "bottom-up" || H === "bottom_up") {
 					let e = a?.cascadeRings ?? a?.ringCount ?? n.CASCADE_WAVE?.defaultRings ?? 8, t = Math.max(3, Math.min(24, Math.round(Number(e) || 8)));
-					if (L?.ringIndex !== void 0 && L?.ringIndex !== null) {
-						let e = L?.ringCount ?? t;
-						Z = L.ringIndex / Math.max(1, e - 1);
+					if (z?.ringIndex !== void 0 && z?.ringIndex !== null) {
+						let e = z?.ringCount ?? t;
+						Z = z.ringIndex / Math.max(1, e - 1);
 					} else {
-						let e = j.dot(V), n = Math.max(0, Math.min(1, (1 - e) * .5));
+						let e = N.dot(U), n = Math.max(0, Math.min(1, (1 - e) * .5));
 						Z = Math.min(t - 1, Math.floor(n * t)) / Math.max(1, t - 1);
 					}
-				} else if (B === "clockwise" || B === "clockwise_sweep") {
-					let e = se || j;
+				} else if (H === "clockwise" || H === "clockwise_sweep") {
+					let e = ae || N;
 					Z = (Math.atan2(e.z, e.x) + Math.PI) / (Math.PI * 2);
-				} else if (B === "counter-clockwise" || B === "counter_clockwise_sweep") {
-					let e = se || j;
+				} else if (H === "counter-clockwise" || H === "counter_clockwise_sweep") {
+					let e = ae || N;
 					Z = 1 - (Math.atan2(e.z, e.x) + Math.PI) / (Math.PI * 2);
-				} else if (B === "sequential" || B === "index") Z = r / Math.max(1, m - 1);
-				else if (B === "radial-inward" || B === "radial_inward") {
-					let e = Ce / (q * 1.5 || 1);
+				} else if (H === "sequential" || H === "index") Z = r / Math.max(1, m - 1);
+				else if (H === "radial-inward" || H === "radial_inward") {
+					let e = Ce / (Se * 1.5 || 1);
 					Z = Math.max(0, Math.min(1, 1 - e));
-				} else Z = A ? i ? r / Math.max(1, M - 1) * .35 : .35 + (r - M) / Math.max(1, m - M - 1) * .65 : r / Math.max(1, m - 1), Z = Math.max(0, Math.min(1, Z));
+				} else Z = M ? i ? r / Math.max(1, P - 1) * .35 : .35 + (r - P) / Math.max(1, m - P - 1) * .65 : r / Math.max(1, m - 1), Z = Math.max(0, Math.min(1, Z));
 			}
-			let We = de ? Z * pe : 0;
+			let We = le ? Z * de : 0;
 			if (Ve) {
-				He = ie;
-				let e = q * 1 * we;
-				Ue = j.clone().normalize().multiplyScalar(e);
+				He = ne;
+				let e = Se * 1 * we;
+				Ue = N.clone().normalize().multiplyScalar(e);
 			} else {
-				let e = de ? n.CASCADE_WAVE?.lifeJitter ?? .02 : Se?.lifeJitter ?? Me;
-				He = De * (1 + (Math.random() - .5) * (e * 2)) * (ge ? U : Te ? 2 * U : (ce ? 1.35 : 1) * U) + We;
+				let e = le ? n.CASCADE_WAVE?.lifeJitter ?? .02 : xe?.lifeJitter ?? Me;
+				He = De * (1 + (Math.random() - .5) * (e * 2)) * (me ? G : Te ? 2 * G : (oe ? 1.35 : 1) * G) + We;
 			}
-			let Ge = a?.drag === void 0 ? Se?.baseDrag ?? ke : a.drag, Ke = Se?.dragJitter ?? Ae, qe = s === "text_word" ? 1 : 1 + (Math.random() - .5) * (Ke * 2), Je = Math.max(.1, Ge * qe), Ye = R && !Te && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), Xe = n.COMET_TADPOLE?.variance || {}, Ze = Math.random() < (Xe.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((Xe.deflectionMax ?? 3.2) - 1.8) : (Xe.deflectionMin ?? .25) + Math.random() * .75, Qe = (Xe.sizeMin ?? .55) + Math.random() * ((Xe.sizeMax ?? 1.65) - (Xe.sizeMin ?? .55)), $e = (Xe.densityMin ?? .5) + Math.random() * ((Xe.densityMax ?? 1.8) - (Xe.densityMin ?? .5)), et = ae && !Te && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), tt = Ye && a?.tadpoleColor ? new e.Color(a.tadpoleColor).multiplyScalar(b) : Re, nt = k.createParticle({
+			let Ge = a?.drag === void 0 ? xe?.baseDrag ?? ke : a.drag, Ke = xe?.dragJitter ?? Ae, qe = s === "text_word" ? 1 : 1 + (Math.random() - .5) * (Ke * 2), Je = Math.max(.1, Ge * qe), Ye = B && !Te && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), Xe = n.COMET_TADPOLE?.variance || {}, Ze = Math.random() < (Xe.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((Xe.deflectionMax ?? 3.2) - 1.8) : (Xe.deflectionMin ?? .25) + Math.random() * .75, Qe = (Xe.sizeMin ?? .55) + Math.random() * ((Xe.sizeMax ?? 1.65) - (Xe.sizeMin ?? .55)), $e = (Xe.densityMin ?? .5) + Math.random() * ((Xe.densityMax ?? 1.8) - (Xe.densityMin ?? .5)), et = re && !Te && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), tt = Ye && a?.tadpoleColor ? new e.Color(a.tadpoleColor).multiplyScalar(b) : Re, nt = k.createParticle({
 				position: t,
 				velocity: Ue,
 				color: tt,
 				baseColor: tt,
-				color2: re,
+				color2: te,
 				age: 0,
 				maxLife: He,
-				isLongBurn: ge,
-				isApexHang: ce,
-				isSlowBurst: le,
+				isLongBurn: me,
+				isApexHang: oe,
+				isSlowBurst: se,
 				effectType: E ? "ghost" : D ? "crysanthemum-cc" : p,
 				crackle: !a?.isNestedChild && !Te && (d || p === "crackle"),
 				crackleTriggered: !1,
-				phase: s === "sphere_rings" && L?.ringIndex !== void 0 && L?.ringIndex !== null ? L.ringIndex * .75 : C.phase ? C.phase[r] : 0,
+				phase: s === "sphere_rings" && z?.ringIndex !== void 0 && z?.ringIndex !== null ? z.ringIndex * .75 : C.phase ? C.phase[r] : 0,
 				preset: a,
 				heightProfile: v,
 				effectState: C,
 				ghostDot: ze,
 				spiralIndex: Be,
-				isSpiralArm: !!te,
-				ringIndex: L?.ringIndex ?? null,
+				isSpiralArm: !!j,
+				ringIndex: z?.ringIndex ?? null,
 				particleIndex: r,
 				totalParticleCount: m,
 				shellId: o ?? Math.floor(Math.random() * 1e8),
 				isDyingEmber: Te,
 				isNestedTrigger: Ve,
 				effects: l,
-				hasNoTrail: ue,
+				hasNoTrail: ce,
 				dragCoefficient: Je,
-				dynamicsProfile: Se,
-				hasBurstSmoke: z,
-				hasSmokeTrail: oe,
+				dynamicsProfile: xe,
+				hasBurstSmoke: V,
+				hasSmokeTrail: ie,
 				smokeTrailStartTime: a?.smokeTrailStartTime,
 				smokeTrailDuration: a?.smokeTrailDuration,
 				burstSmokeLimit: .28 + Math.random() * .1,
-				isCrossette: I && !Te && W.has(r),
-				crossetteSplitTime: He * (W.get(r) ?? .5),
+				isCrossette: R && !Te && he.has(r),
+				crossetteSplitTime: He * (he.get(r) ?? .5),
 				crossetteSplitDone: !1,
-				isSecondBurst: _e && !Te && ve.has(r),
-				secondBurstConfig: ve.get(r)?.childShell || null,
-				secondBurstTime: He * (ve.get(r)?.timingRatio ?? .5),
+				isSecondBurst: ge && !Te && _e.has(r),
+				secondBurstConfig: _e.get(r)?.childShell || null,
+				secondBurstTime: He * (_e.get(r)?.timingRatio ?? .5),
 				secondBurstDone: !1,
 				hasTadpoleFlurry: Ye,
 				tadpoleColor: a?.tadpoleColor || null,
@@ -9700,27 +9713,27 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				erraticDartWiggleFreq: (n.ERRATIC_DART?.wobbleFreq ?? 22) * (.85 + Math.random() * .3),
 				erraticDartWiggleAmp: (n.ERRATIC_DART?.wobbleAmp ?? 26) * (.85 + Math.random() * .3),
 				phaseDelay: We,
-				hasCascadeWave: de,
-				hasTerminalFlare: fe,
+				hasCascadeWave: le,
+				hasTerminalFlare: ue,
 				terminalFlareTriggerRatio: a?.terminalFlareTriggerRatio,
 				terminalFlareDuration: a?.terminalFlareDuration,
 				terminalFlareIntensity: a?.terminalFlareIntensity,
 				terminalFlareSizeMultiplier: a?.terminalFlareSizeMultiplier,
 				terminalFlareColor: a?.terminalFlareColor
 			});
-			G.push(nt);
+			K.push(nt);
 		}
-		if (R && G.length > 0 && !G.some((e) => e.hasTadpoleFlurry)) {
-			let t = G.find((e) => !e.isDyingEmber) || G[0];
+		if (B && K.length > 0 && !K.some((e) => e.hasTadpoleFlurry)) {
+			let t = K.find((e) => !e.isDyingEmber) || K[0];
 			t && (t.hasTadpoleFlurry = !0, a?.tadpoleColor && (t.color = new e.Color(a.tadpoleColor).multiplyScalar(b), t.baseColor = t.color.clone()));
 		}
-		if (ae && G.length > 0 && !G.some((e) => e.hasErraticDart)) {
-			let e = G.find((e) => !e.isDyingEmber) || G[0];
+		if (re && K.length > 0 && !K.some((e) => e.hasErraticDart)) {
+			let e = K.find((e) => !e.isDyingEmber) || K[0];
 			e && (e.hasErraticDart = !0);
 		}
-		let ye = this.burstParticles.length + G.length - this.maxBurstParticles;
-		ye > 0 && this.burstParticles.splice(0, ye);
-		for (let e = 0; e < G.length; e++) this.burstParticles.push(G[e]);
+		let ve = this.burstParticles.length + K.length - this.maxBurstParticles;
+		ve > 0 && this.burstParticles.splice(0, ve);
+		for (let e = 0; e < K.length; e++) this.burstParticles.push(K[e]);
 	}
 	createRandomBurstRotation() {
 		return k.createRandomBurstRotation();
@@ -9729,13 +9742,13 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 		if (!t || !t.secondBurstConfig) return;
 		let i = t.secondBurstConfig, a = w.resolveShape(i.shapeType || "sphere"), o = i.dynamicsType || "standard", s = typeof i.scale == "number" ? i.scale : .35, c = new e.Color(i.color || "#ffd700"), l = Array.isArray(i.effects) ? i.effects : [], u = !!i.instantBurst, d = !!i.pistil, f = n.SECOND_BURST || {}, p = f.minParticlesPerChild ?? 8, m = f.maxParticlesPerChild ?? 16, h = Math.round(e.MathUtils.lerp(p, m, (s - .15) / .65) * this.graphicsQualityMultiplier), g = d ? Math.max(4, Math.min(18, Math.round(h * .4))) : 0, _ = h + g, v = n.SYSTEM?.maxBurstParticles ?? 2e4;
 		if (r.length + _ > v) return;
-		let y = u ? 1.25 : 1, b = (f.baseSpeed ?? 38) * (.8 + s * .5) * y, x = (f.defaultLife ?? .9) * (.85 + Math.random() * (f.lifeJitter ?? .3)), S = t.velocity.clone().multiplyScalar(.2), C = t.position.clone(), E = this.createRandomBurstRotation(), { isCrossetteShell: D, isTadpoleFlurryShell: O, isErraticDartShell: ee, hasBurstSmoke: te, hasSmokeTrail: A, isGhostEffect: j, isCCEffect: M, isLongBurn: ne, isApexHang: N, isSlowBurst: re, hasNoTrail: P } = k.resolveActiveEffectFlags({
+		let y = u ? 1.25 : 1, b = (f.baseSpeed ?? 38) * (.8 + s * .5) * y, x = (f.defaultLife ?? .9) * (.85 + Math.random() * (f.lifeJitter ?? .3)), S = t.velocity.clone().multiplyScalar(.2), C = t.position.clone(), E = this.createRandomBurstRotation(), { isCrossetteShell: D, isTadpoleFlurryShell: O, isErraticDartShell: A, hasBurstSmoke: j, hasSmokeTrail: M, isGhostEffect: N, isCCEffect: P, isLongBurn: ee, isApexHang: F, isSlowBurst: te, hasNoTrail: I } = k.resolveActiveEffectFlags({
 			preset: i,
 			effects: l,
 			dynamicsType: o
-		}), F = i?.starLifeMultiplier !== void 0 && !isNaN(Number(i.starLifeMultiplier)) ? Math.max(.01, Number(i.starLifeMultiplier)) : ne ? n.BURST?.longBurnMultiplier ?? 2.2 : 1, ie = null;
-		i.secondColor && i.secondColor !== i.color ? ie = new e.Color(i.secondColor) : (j || M) && (ie = c.clone());
-		let I = /* @__PURE__ */ new Map();
+		}), L = i?.starLifeMultiplier !== void 0 && !isNaN(Number(i.starLifeMultiplier)) ? Math.max(.01, Number(i.starLifeMultiplier)) : ee ? n.BURST?.longBurnMultiplier ?? 2.2 : 1, ne = null;
+		i.secondColor && i.secondColor !== i.color ? ne = new e.Color(i.secondColor) : (N || P) && (ne = c.clone());
+		let R = /* @__PURE__ */ new Map();
 		if (D && h >= 4) {
 			let t = Math.max(2, Math.min(4, Math.floor(h * .3))), n = Array.from({ length: h }, (e, t) => t);
 			for (let e = 0; e < t; e++) {
@@ -9744,36 +9757,36 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 			}
 			for (let r = 0; r < t; r++) {
 				let i = n[r], a = .35 + r / Math.max(1, t - 1) * .25;
-				I.set(i, e.MathUtils.clamp(a, .3, .65));
+				R.set(i, e.MathUtils.clamp(a, .3, .65));
 			}
 		}
-		let L = {
+		let z = {
 			...T.initialize(o, h, {
 				...i,
 				effects: l,
 				strobe: l.includes("strobe") || l.includes("white-strobe") || l.includes("glitter-strobe") || !!i.strobe,
 				crackle: l.includes("crackle") || !!i.crackle,
 				flow: l.includes("flow") || o === "flow",
-				ghost: j,
+				ghost: N,
 				crossette: D
 			}),
 			shapeType: a
-		}, R = T.getDynamicsProfile(o, a, i), ae = [];
+		}, B = T.getDynamicsProfile(o, a, i), re = [];
 		for (let d = 0; d < h; d++) {
-			let f = d / h * Math.PI * 2, p = w.direction(a, f, d, h, i).applyQuaternion(E).normalize(), m = (u ? .95 : .85) + Math.random() * .3, g = N ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, _ = re ? (n.DYNAMICS_PROFILES?.floating?.baseSpeed ?? 36) / (n.BURST?.baseSpeed ?? 74) : 1, v = p.multiplyScalar(b * m * g * _).add(S), y = ee && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), T = O && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), z = n.COMET_TADPOLE?.variance || {}, oe = Math.random() < (z.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((z.deflectionMax ?? 3.2) - 1.8) : (z.deflectionMin ?? .25) + Math.random() * .75, se = (z.sizeMin ?? .55) + Math.random() * ((z.sizeMax ?? 1.65) - (z.sizeMin ?? .55)), ce = (z.densityMin ?? .5) + Math.random() * ((z.densityMax ?? 1.8) - (z.densityMin ?? .5)), le = T && i?.tadpoleColor ? new e.Color(i.tadpoleColor).multiplyScalar(brightnessIntensity) : c, ue = k.createParticle({
+			let f = d / h * Math.PI * 2, p = w.direction(a, f, d, h, i).applyQuaternion(E).normalize(), m = (u ? .95 : .85) + Math.random() * .3, g = F ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, _ = te ? (n.DYNAMICS_PROFILES?.floating?.baseSpeed ?? 36) / (n.BURST?.baseSpeed ?? 74) : 1, v = p.multiplyScalar(b * m * g * _).add(S), y = A && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), T = O && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), V = n.COMET_TADPOLE?.variance || {}, ie = Math.random() < (V.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((V.deflectionMax ?? 3.2) - 1.8) : (V.deflectionMin ?? .25) + Math.random() * .75, ae = (V.sizeMin ?? .55) + Math.random() * ((V.sizeMax ?? 1.65) - (V.sizeMin ?? .55)), oe = (V.densityMin ?? .5) + Math.random() * ((V.densityMax ?? 1.8) - (V.densityMin ?? .5)), se = T && i?.tadpoleColor ? new e.Color(i.tadpoleColor).multiplyScalar(brightnessIntensity) : c, ce = k.createParticle({
 				position: C,
 				velocity: v,
-				color: le,
-				baseColor: le,
-				color2: ie,
+				color: se,
+				baseColor: se,
+				color2: ne,
 				age: 0,
-				maxLife: ne ? x * (n.BURST?.longBurnMultiplier ?? 2.2) : x * F * (N ? 1.35 : 1),
-				isLongBurn: ne || F >= 1.5,
-				isApexHang: N,
-				isSlowBurst: re,
-				effectType: j ? "ghost" : M ? "crysanthemum-cc" : o,
+				maxLife: ee ? x * (n.BURST?.longBurnMultiplier ?? 2.2) : x * L * (F ? 1.35 : 1),
+				isLongBurn: ee || L >= 1.5,
+				isApexHang: F,
+				isSlowBurst: te,
+				effectType: N ? "ghost" : P ? "crysanthemum-cc" : o,
 				crackle: l.includes("crackle") || !!i.crackle,
-				phase: L.phase && L.phase[d] !== void 0 ? L.phase[d] : Math.random() * Math.PI * 2,
+				phase: z.phase && z.phase[d] !== void 0 ? z.phase[d] : Math.random() * Math.PI * 2,
 				preset: {
 					shapeType: a,
 					dynamicsType: o,
@@ -9781,32 +9794,32 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					secondBurst: null
 				},
 				heightProfile: t.heightProfile,
-				effectState: L,
+				effectState: z,
 				particleIndex: d,
 				totalParticleCount: h,
 				shellId: t.shellId,
 				effects: l,
-				hasNoTrail: P,
-				hasBurstSmoke: te,
-				hasSmokeTrail: A,
+				hasNoTrail: I,
+				hasBurstSmoke: j,
+				hasSmokeTrail: M,
 				smokeTrailStartTime: i?.smokeTrailStartTime ?? t.preset?.smokeTrailStartTime,
 				smokeTrailDuration: i?.smokeTrailDuration ?? t.preset?.smokeTrailDuration,
 				burstSmokeLimit: .28 + Math.random() * .1,
-				isCrossette: D && I.has(d),
-				crossetteSplitTime: x * (I.get(d) ?? .5),
+				isCrossette: D && R.has(d),
+				crossetteSplitTime: x * (R.get(d) ?? .5),
 				crossetteSplitDone: !1,
 				renderSize: Math.max(16, (t.renderSize || J) * s * 1.35),
 				renderOpacity: .85,
 				isSecondBurstChild: !0,
-				dynamicsProfile: R,
-				dragCoefficient: R?.baseDrag ?? ke,
+				dynamicsProfile: B,
+				dragCoefficient: B?.baseDrag ?? ke,
 				hasTadpoleFlurry: T,
 				tadpoleColor: i?.tadpoleColor || null,
 				tadpoleFlurryColor: i?.tadpoleFlurryColor || i?.tadpoleColor || null,
 				tadpoleArrowTimer: Math.random() * .065,
-				tadpoleDeflectionScale: oe,
-				tadpoleSizeScale: se,
-				tadpoleDensityScale: ce,
+				tadpoleDeflectionScale: ie,
+				tadpoleSizeScale: ae,
+				tadpoleDensityScale: oe,
 				hasErraticDart: y,
 				erraticDartTriggerRatio: (n.ERRATIC_DART?.triggerRatioMin ?? .7) + Math.random() * ((n.ERRATIC_DART?.triggerRatioMax ?? .76) - (n.ERRATIC_DART?.triggerRatioMin ?? .7)),
 				erraticDartTrailTimer: Math.random() * (n.ERRATIC_DART?.trailInterval ?? .032),
@@ -9815,15 +9828,15 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				erraticDartWiggleFreq: (n.ERRATIC_DART?.wobbleFreq ?? 22) * (.85 + Math.random() * .3),
 				erraticDartWiggleAmp: (n.ERRATIC_DART?.wobbleAmp ?? 26) * (.85 + Math.random() * .3)
 			});
-			ae.push(ue), r.push(ue);
+			re.push(ce), r.push(ce);
 		}
-		if (ee && ae.length > 0 && !ae.some((e) => e.hasErraticDart) && (ae[0].hasErraticDart = !0), O && ae.length > 0 && !ae.some((e) => e.hasTadpoleFlurry) && (ae[0].hasTadpoleFlurry = !0), d && g > 0) {
+		if (A && re.length > 0 && !re.some((e) => e.hasErraticDart) && (re[0].hasErraticDart = !0), O && re.length > 0 && !re.some((e) => e.hasTadpoleFlurry) && (re[0].hasTadpoleFlurry = !0), d && g > 0) {
 			let a = new e.Color(i.pistilColor || "#ffffff"), o = b * .42, c = {
 				...T.initialize("standard", g, { effects: [] }),
 				shapeType: "sphere"
 			};
 			for (let e = 0; e < g; e++) {
-				let l = e / g * Math.PI * 2, u = w.direction("sphere", l, e, g, i).applyQuaternion(E).normalize(), d = .9 + Math.random() * .2, f = N ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, p = u.multiplyScalar(o * d * f).add(S), m = k.createParticle({
+				let l = e / g * Math.PI * 2, u = w.direction("sphere", l, e, g, i).applyQuaternion(E).normalize(), d = .9 + Math.random() * .2, f = F ? n.BURST?.apexSpeedMultiplier ?? 3 : 1, p = u.multiplyScalar(o * d * f).add(S), m = k.createParticle({
 					position: C,
 					velocity: p,
 					color: a,
@@ -9831,7 +9844,7 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					color2: null,
 					age: 0,
 					maxLife: x * .85,
-					isApexHang: N,
+					isApexHang: F,
 					effectType: "standard",
 					crackle: !1,
 					crackleTriggered: !1,
@@ -9855,9 +9868,9 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				r.push(m);
 			}
 		}
-		let z = performance.now(), oe = f.audioThrottleMs ?? 45;
-		if (z - this.lastSecondBurstAudioTime > oe) {
-			this.lastSecondBurstAudioTime = z;
+		let V = performance.now(), ie = f.audioThrottleMs ?? 45;
+		if (V - this.lastSecondBurstAudioTime > ie) {
+			this.lastSecondBurstAudioTime = V;
 			let e = i.burstSound || "standard", t = .98 + Math.random() * .12;
 			this.emitFireworkEvent("firework:burst", {
 				position: {
@@ -10131,13 +10144,13 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					s.frictionHeat = Math.min(1.5, (s.frictionHeat || 0) + e);
 				}
 			}
-			let C = s.velocity.x, w = s.velocity.y, E = s.velocity.z, D = T.processErraticDart(s, t, S, c), O = s.dynamicsProfile ?? n.DYNAMICS_PROFILES?.standard, ee = l === void 0 ? s.dragCoefficient ?? O?.baseDrag ?? ke : l;
+			let C = s.velocity.x, w = s.velocity.y, E = s.velocity.z, D = T.processErraticDart(s, t, S, c), O = s.dynamicsProfile ?? n.DYNAMICS_PROFILES?.standard, A = l === void 0 ? s.dragCoefficient ?? O?.baseDrag ?? ke : l;
 			if (O?.delayedGravity && !s.preset?.fixedGravity && l === void 0) {
 				let t = O.gravityRampStart ?? .32, n = O.gravityRampFull ?? .55, r = O.minGravity ?? .05, i = r + (1 - r) * e.MathUtils.smoothstep(S, t, n);
 				D *= i;
 			}
-			let te = Math.exp(-ee * t);
-			if (s.velocity.x *= te, s.velocity.y *= te, s.velocity.z *= te, s.isLongBurn || s.isDyingEmber) {
+			let j = Math.exp(-A * t);
+			if (s.velocity.x *= j, s.velocity.y *= j, s.velocity.z *= j, s.isLongBurn || s.isDyingEmber) {
 				let e = s.isLongBurn ? n.BURST?.longBurnGravityScale ?? .85 : 1.3;
 				D *= e, s.velocity.multiplyScalar(s.isLongBurn ? .995 : .994);
 			}
@@ -10161,18 +10174,18 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					}
 				}
 			}
-			let A = this.smokeSystem && this.smokeSystem.currentWind || h.currentWind;
-			if (A && (s.isLongBurn || s.isDyingEmber || s.isSlowBurst || s.effectType === "willow" || s.effectType === "willow-arch" || s.effectType === "falling-leaves" || s.effectType === "kamuro")) {
+			let M = this.smokeSystem && this.smokeSystem.currentWind || h.currentWind;
+			if (M && (s.isLongBurn || s.isDyingEmber || s.isSlowBurst || s.effectType === "willow" || s.effectType === "willow-arch" || s.effectType === "falling-leaves" || s.effectType === "kamuro")) {
 				let r = n.BURST, i = r?.windCouplingScale ?? .25, a = s.isLongBurn ? r?.windInfluenceLongBurn ?? .65 * i : s.isDyingEmber ? r?.windInfluenceDyingEmber ?? .85 * i : r?.windInfluenceFloating ?? .45 * i;
-				s.velocity.x = e.MathUtils.lerp(s.velocity.x, A.x, t * a), s.velocity.z = e.MathUtils.lerp(s.velocity.z, A.z, t * a);
+				s.velocity.x = e.MathUtils.lerp(s.velocity.x, M.x, t * a), s.velocity.z = e.MathUtils.lerp(s.velocity.z, M.z, t * a);
 			}
-			if (s.velocity.y += q * t * D, S >= (n.BURST?.phaseApexEnd ?? .65)) {
+			if (s.velocity.y += Se * t * D, S >= (n.BURST?.phaseApexEnd ?? .65)) {
 				let r = O?.terminalVelocity ?? (s.isLongBurn ? -10 : n.BURST?.terminalVelocity ?? -15);
 				s.velocity.y < r && (s.velocity.y = e.MathUtils.lerp(s.velocity.y, r, t * 4.5));
 			}
-			let j = s.velocity.x - C, M = s.velocity.y - w, ne = s.velocity.z - E, N = Math.sqrt(j * j + M * M + ne * ne);
-			if (N > 1.8) {
-				let e = Math.min(1, (N - 1.8) * .16);
+			let N = s.velocity.x - C, P = s.velocity.y - w, ee = s.velocity.z - E, F = Math.sqrt(N * N + P * P + ee * ee);
+			if (F > 1.8) {
+				let e = Math.min(1, (F - 1.8) * .16);
 				s.frictionHeat = Math.min(1.5, (s.frictionHeat || 0) + e);
 			}
 			if (s.frictionHeat > .001 ? s.frictionHeat *= Math.exp(-t * 12) : s.frictionHeat = 0, s.lastVelocity ||= new e.Vector3(), s.lastVelocity.set(s.velocity.x, s.velocity.y, s.velocity.z), s.prevPosition ? s.prevPosition.copy(s.position) : s.prevPosition = s.position.clone(), s.position.addScaledVector(s.velocity, t), s.position.y <= 0) {
@@ -10199,46 +10212,46 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				continue;
 			}
 			u && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01 && this.trailSystem?.spawnEffectSpark?.(s.position, Y);
-			let re = s.isLongBurn ? O?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : O?.dissolveStart ?? Oe, P = S > re ? (1 - (S - re) / (1 - re)) ** 2 : 1, F = !0, ie = 1;
+			let te = s.isLongBurn ? O?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : O?.dissolveStart ?? Oe, I = S > te ? (1 - (S - te) / (1 - te)) ** 2 : 1, L = !0, ne = 1;
 			if (s.effectType === "crysanthemum-spiral") {
 				let e = Math.min(1, S / .65), t = s.spiralIndex ?? 0;
-				if (F = t <= e, F) {
+				if (L = t <= e, L) {
 					let n = e - t;
-					n < .08 && (ie = 1 + (1 - n / .08) * .75);
+					n < .08 && (ne = 1 + (1 - n / .08) * .75);
 				}
 			} else if (s.effectType === "crysanthemum-spiral-v2") {
 				if (s.isSpiralArm) {
 					let e = Math.min(1, S / .52), t = s.spiralIndex ?? 0;
-					if (F = t <= e, F) {
+					if (L = t <= e, L) {
 						let n = e - t;
-						n < .08 && (ie = 1 + (1 - n / .08) * .85);
+						n < .08 && (ne = 1 + (1 - n / .08) * .85);
 					}
-				} else if (F = S >= .52, F) {
+				} else if (L = S >= .52, L) {
 					let e = S - .52;
-					e < .1 && (ie = 1 + (1 - e / .1) * .95);
+					e < .1 && (ne = 1 + (1 - e / .1) * .95);
 				}
 			}
-			let I = !0, L = 1, R = s.effectType === "sphere_rings_wave" || s.effectType === "sphere-rings-wave" || s.preset?.dynamicsType === "sphere_rings_wave" || s.preset?.dynamicsType === "sphere-rings-wave";
-			if (R) {
+			let R = !0, z = 1, B = s.effectType === "sphere_rings_wave" || s.effectType === "sphere-rings-wave" || s.preset?.dynamicsType === "sphere_rings_wave" || s.preset?.dynamicsType === "sphere-rings-wave";
+			if (B) {
 				let e = s.ringIndex !== null && s.ringIndex !== void 0 ? s.ringIndex : 2, t = s.preset?.ringWaveMode || "equator-outward", n = .08;
-				if (n = t === "pole-to-pole" ? .06 + e * .08 : .08 + Math.abs(e - 2) * .14, I = S >= n, I) {
+				if (n = t === "pole-to-pole" ? .06 + e * .08 : .08 + Math.abs(e - 2) * .14, R = S >= n, R) {
 					let e = S - n;
-					e < .08 && (L = 1 + (1 - e / .08) * 1.5);
+					e < .08 && (z = 1 + (1 - e / .08) * 1.5);
 				}
 			}
-			let ae = s.effectType === "crysanthemum-spiral" || s.effectType === "crysanthemum-spiral-v2", z = s.effectWindows && s.effectWindows.ghost || Array.isArray(s.effects) && s.effects.some((e) => typeof e == "object" && !!e && (e.type || e.key) === "ghost"), oe = T.isEffectActive(s, "ghost"), se = oe || !z && (s.effectType === "ghost" || Array.isArray(s.effects) && s.effects.includes("ghost") || Array.isArray(s.preset?.effects) && s.preset.effects.includes("ghost") || !!s.preset?.ghost || s.preset?.shellType === "ghost");
+			let re = s.effectType === "crysanthemum-spiral" || s.effectType === "crysanthemum-spiral-v2", V = s.effectWindows && s.effectWindows.ghost || Array.isArray(s.effects) && s.effects.some((e) => typeof e == "object" && !!e && (e.type || e.key) === "ghost"), ie = T.isEffectActive(s, "ghost"), ae = ie || !V && (s.effectType === "ghost" || Array.isArray(s.effects) && s.effects.includes("ghost") || Array.isArray(s.preset?.effects) && s.preset.effects.includes("ghost") || !!s.preset?.ghost || s.preset?.shellType === "ghost");
 			s.effectType === "crysanthemum-cc" || Array.isArray(s.effects) && s.effects.includes("crysanthemum-cc") || Array.isArray(s.preset?.effects) && s.preset.effects.includes("crysanthemum-cc") || s.preset?.shellType;
-			let ce = oe || !z && se && S < .4, le = s.effects?.includes("ghost-flare") || s.preset?.effects?.includes("ghost-flare") || s.effectType === "ghost-kamuro", ue = le && S <= .6, de = s.effectWindows && s.effectWindows["no-trail"] || Array.isArray(s.effects) && s.effects.some((e) => typeof e == "object" && !!e && [
+			let oe = ie || !V && ae && S < .4, se = s.effects?.includes("ghost-flare") || s.preset?.effects?.includes("ghost-flare") || s.effectType === "ghost-kamuro", ce = se && S <= .6, le = s.effectWindows && s.effectWindows["no-trail"] || Array.isArray(s.effects) && s.effects.some((e) => typeof e == "object" && !!e && [
 				"no-trail",
 				"notrail",
 				"noTrail"
-			].includes(e.type || e.key)), fe = T.isEffectActive(s, "no-trail") || !de && !!s.preset?.noTrail || s.effectType === "no-trail" || s.effectType === "notrail", pe = T.isEffectActive(s, "dark_phase") || T.isEffectActive(s, "dark-phase") || !!(s.preset?.darkPhase || s.preset?.["dark-phase"] || s.preset?.dark_phase);
-			if (d && (!ae || F) && (!R || I) && !ue && !ce && !fe && !pe && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01) {
+			].includes(e.type || e.key)), ue = T.isEffectActive(s, "no-trail") || !le && !!s.preset?.noTrail || s.effectType === "no-trail" || s.effectType === "notrail", de = T.isEffectActive(s, "dark_phase") || T.isEffectActive(s, "dark-phase") || !!(s.preset?.darkPhase || s.preset?.["dark-phase"] || s.preset?.dark_phase);
+			if (d && (!re || L) && (!B || R) && !ce && !oe && !ue && !de && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01) {
 				let e = s.effectState?.shapeType === "half-flash" && s.particleIndex >= s.totalParticleCount - 4, t = s.effectState?.shapeType === "split-flash" && s.particleIndex >= s.totalParticleCount - 5, r = s.effectState?.effectType === "comet-ring", i = n.BURST, a = i?.defaultTrailSpawnChance ?? .95;
-				if (Math.random() < (g === void 0 ? e || t || r || ae ? .95 : S < .65 ? a : .8 : g) * P) {
-					let e = (m ?? .25) * P;
+				if (Math.random() < (g === void 0 ? e || t || r || re ? .95 : S < .65 ? a : .8 : g) * I) {
+					let e = (m ?? .25) * I;
 					$e.copy(s.baseColor).multiplyScalar(e);
-					let t = (f || .8) * (.2 + .8 * P);
+					let t = (f || .8) * (.2 + .8 * I);
 					et.copy(s.velocity).multiplyScalar(r ? .7 : .25);
 					let n = r ? 0 : .8, a = r ? 1.2 : 1.6, o = s.prevPosition || s.position, c = o.distanceTo(s.position), l = g !== void 0 && g < .5, u = i?.trailStride ?? .45, d = i?.maxTrailSubSteps ?? 3, p = l ? 1 : Math.min(d, Math.max(1, Math.ceil(c / u)));
 					for (let e = 1; e <= p; e++) {
@@ -10247,35 +10260,35 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					}
 				}
 			}
-			if (s.hasTadpoleFlurry && !ce && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01) {
+			if (s.hasTadpoleFlurry && !oe && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01) {
 				let e = s.tadpoleStart === void 0 ? s.maxLife * .18 : s.tadpoleStart, r = s.tadpoleEnd === void 0 ? s.maxLife * .85 : s.tadpoleEnd;
 				if (s.age >= e && s.age <= r) {
 					s.tadpoleArrowTimer = (s.tadpoleArrowTimer || 0) + t;
 					let e = n.COMET_TADPOLE?.arrowInterval ?? .065;
-					s.tadpoleArrowTimer >= e && (s.tadpoleArrowTimer = 0, this.spawnBurstParticleArrowSparks(s, P));
+					s.tadpoleArrowTimer >= e && (s.tadpoleArrowTimer = 0, this.spawnBurstParticleArrowSparks(s, I));
 				}
-				s.age >= r && !s.hasFlurried && (s.hasFlurried = !0, this.spawnBurstParticleFlurry(s, P));
+				s.age >= r && !s.hasFlurried && (s.hasFlurried = !0, this.spawnBurstParticleFlurry(s, I));
 			}
 			if (s.hasErraticDart && s.erraticDartTriggered && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01) {
 				s.erraticDartTrailTimer = (s.erraticDartTrailTimer || 0) + t;
 				let e = (n.ERRATIC_DART || {}).trailInterval ?? .032;
-				s.erraticDartTrailTimer >= e && (s.erraticDartTrailTimer = 0, this.spawnErraticDartStreak(s, P));
+				s.erraticDartTrailTimer >= e && (s.erraticDartTrailTimer = 0, this.spawnErraticDartStreak(s, I));
 			}
-			let B = s.hasBurstSmoke && !s.isCrossetteBranch && (s.burstSmokeEnd === void 0 ? S <= (s.burstSmokeLimit ?? .33) : s.age >= (s.burstSmokeStart ?? 0) && s.age <= s.burstSmokeEnd);
-			if ((_ || B) && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01 && !n.SMOKE?.onlyBurstSmoke) {
+			let H = s.hasBurstSmoke && !s.isCrossetteBranch && (s.burstSmokeEnd === void 0 ? S <= (s.burstSmokeLimit ?? .33) : s.age >= (s.burstSmokeStart ?? 0) && s.age <= s.burstSmokeEnd);
+			if ((_ || H) && s.baseColor.r + s.baseColor.g + s.baseColor.b > .01 && !n.SMOKE?.onlyBurstSmoke) {
 				let t = .5;
-				t = B ? S < .15 ? .95 : .65 : S < .12 ? 1 : S < .52 ? .85 : .85 * (1 - (S - .52) / .48);
+				t = H ? S < .15 ? .95 : .65 : S < .12 ? 1 : S < .52 ? .85 : .85 * (1 - (S - .52) / .48);
 				let r = this.smokeSystem && this.smokeSystem.quality === "high" ? 3 : 5;
 				if (s.particleIndex % r === 0 && Math.random() < t) {
-					let t = new e.Color(15922681), r = s.preset?.hasCustomColor ? s.baseColor.clone() : t, i = s.velocity.clone().multiplyScalar(.14), a = B ? 1.1 : _ ? 1.4 : 1, o = n.SMOKE, c = v || (o.trailLifeMin + o.trailLifeMax) * .5, l = {
-						category: B ? "burst" : "aerial",
-						force: B,
+					let t = new e.Color(15922681), r = s.preset?.hasCustomColor ? s.baseColor.clone() : t, i = s.velocity.clone().multiplyScalar(.14), a = H ? 1.1 : _ ? 1.4 : 1, o = n.SMOKE, c = v || (o.trailLifeMin + o.trailLifeMax) * .5, l = {
+						category: H ? "burst" : "aerial",
+						force: H,
 						life: c * (.8 + .4 * Math.random()),
 						scale: (2.8 + Math.random() * 1.8) * a,
 						growth: 2.8,
 						drag: 2.5,
 						buoyancy: o.trailBuoyancy,
-						opacity: (y || .15) * P * (S < .15 ? 1.25 : 1) * a,
+						opacity: (y || .15) * I * (S < .15 ? 1.25 : 1) * a,
 						color: r
 					};
 					this.smokeSystem ? this.smokeSystem.addSmokePoint(s.position, i, l) : p.emit("smoke:spawn", {
@@ -10337,42 +10350,42 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					this.trailSystem.spawnEffectSpark(s.position, n, Math.random() < .85, r, i, a);
 				}
 			}
-			let V = s.heightProfile ?? {
+			let U = s.heightProfile ?? {
 				sizeMultiplier: 1,
 				brightnessMultiplier: 1
-			}, me = Math.min(Math.max(.82 + (V.brightnessMultiplier - 1) * .24, .72), 1.15), he = me;
-			s.isSecondBurstChild && (he *= .85);
-			let H = s.dissolveThreshold === void 0 ? s.hasCascadeWave ? n.CASCADE_WAVE?.dissolveStart ?? .92 : s.isLongBurn ? O?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : O?.dissolveStart ?? Oe : s.dissolveThreshold, U = s.attenuationStart === void 0 ? s.hasCascadeWave ? n.CASCADE_WAVE?.attenuationStart ?? .75 : O?.attenuationStart ?? n.BURST?.attenuationStart ?? .35 : s.attenuationStart;
-			if (S > U && S <= H) {
-				let e = (S - U) / (H - U);
-				he *= 1 - e * .15;
-			} else if (S > H) {
-				let t = e.MathUtils.clamp((S - H) / (1 - H), 0, 1), n = s.fadeExp === void 0 ? s.hasCascadeWave ? 1.5 : O?.dissolveExponent ?? Pe : s.fadeExp, r = s.minDissolveFloor === void 0 ? s.hasCascadeWave ? 0 : .08 : s.minDissolveFloor;
-				he = Math.max((1 - t) ** n * (me * .85), (1 - t) * r);
+			}, fe = Math.min(Math.max(.82 + (U.brightnessMultiplier - 1) * .24, .72), 1.15), pe = fe;
+			s.isSecondBurstChild && (pe *= .85);
+			let W = s.dissolveThreshold === void 0 ? s.hasCascadeWave ? n.CASCADE_WAVE?.dissolveStart ?? .92 : s.isLongBurn ? O?.longBurnDissolveStart ?? n.BURST?.longBurnDissolveStart ?? .72 : O?.dissolveStart ?? Oe : s.dissolveThreshold, G = s.attenuationStart === void 0 ? s.hasCascadeWave ? n.CASCADE_WAVE?.attenuationStart ?? .75 : O?.attenuationStart ?? n.BURST?.attenuationStart ?? .35 : s.attenuationStart;
+			if (S > G && S <= W) {
+				let e = (S - G) / (W - G);
+				pe *= 1 - e * .15;
+			} else if (S > W) {
+				let t = e.MathUtils.clamp((S - W) / (1 - W), 0, 1), n = s.fadeExp === void 0 ? s.hasCascadeWave ? 1.5 : O?.dissolveExponent ?? Pe : s.fadeExp, r = s.minDissolveFloor === void 0 ? s.hasCascadeWave ? 0 : .08 : s.minDissolveFloor;
+				pe = Math.max((1 - t) ** n * (fe * .85), (1 - t) * r);
 			}
 			if (s.hasErraticDart && s.erraticDartTriggered) {
 				let e = n.ERRATIC_DART?.boostLifeDuration ?? .95, t = (s.maxLife - s.age) / e;
-				he = t > .12 ? Math.max(he, .98) : Math.max(0, t / .12);
+				pe = t > .12 ? Math.max(pe, .98) : Math.max(0, t / .12);
 			}
-			let ge = s.effectType;
+			let me = s.effectType;
 			if (Array.isArray(s.effects)) {
 				for (let e of s.effects) if (T.effectsRegistry.has(e) && typeof T.effectsRegistry.get(e)?.materialOpacity == "function") {
-					ge = e;
+					me = e;
 					break;
 				}
 			}
-			let W = T.materialOpacity(ge, s.age, s.maxLife, he);
-			Ue.strobeFreqMultiplier = a, Ue.isSpiralIgnited = F, Ue.spiralFlashBonus = ie, Ue.isRingIgnited = I, Ue.ringFlashBonus = L, Ue.hasGhostFlare = le, Ue.profile = O, T.resolveParticleColor(s, S, Ue, Z);
-			let _e = s.brightnessVariance ?? 1;
-			s.color.setRGB(Z.r * _e, Z.g * _e, Z.b * _e);
-			let ve = (s.preset?.particleSize ?? J) * V.sizeMultiplier, G = ve;
-			if (se) {
-				if (z ? oe : S < .4) G = 0;
-				else if (!z && S < .48) {
+			let he = T.materialOpacity(me, s.age, s.maxLife, pe);
+			Ue.strobeFreqMultiplier = a, Ue.isSpiralIgnited = L, Ue.spiralFlashBonus = ne, Ue.isRingIgnited = R, Ue.ringFlashBonus = z, Ue.hasGhostFlare = se, Ue.profile = O, T.resolveParticleColor(s, S, Ue, Z);
+			let ge = s.brightnessVariance ?? 1;
+			s.color.setRGB(Z.r * ge, Z.g * ge, Z.b * ge);
+			let _e = (s.preset?.particleSize ?? J) * U.sizeMultiplier, K = _e;
+			if (ae) {
+				if (V ? ie : S < .4) K = 0;
+				else if (!V && S < .48) {
 					let t = (S - .4) / .08;
-					G = ve * e.MathUtils.lerp(0, 1, t);
+					K = _e * e.MathUtils.lerp(0, 1, t);
 				}
-			} else if (R && !I) G = 0;
+			} else if (B && !R) K = 0;
 			else {
 				let t = 1;
 				if (s.hasErraticDart && s.erraticDartTriggered) t = 1;
@@ -10382,9 +10395,9 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 						let r = S / n;
 						t = e.MathUtils.lerp(.82, 1.25, e.MathUtils.smoothstep(r, 0, 1));
 					} else t = 1.25 - (S - n) / .08499999999999999 * .25;
-				} else S > U && (t = 1 - (S - U) / (1 - U) * .45);
+				} else S > G && (t = 1 - (S - G) / (1 - G) * .45);
 				let n = 1 + Math.min(.25, (s.frictionHeat || 0) * .2);
-				G = ve * t * n;
+				K = _e * t * n;
 			}
 			if (s.hasTerminalFlare && S >= s.terminalFlareTriggerRatio) {
 				let t = (S - s.terminalFlareTriggerRatio) / Math.max(.01, s.terminalFlareDuration);
@@ -10393,21 +10406,21 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 					if (n > 0) {
 						let t = s.terminalFlareTargetColor || (s.terminalFlareColor && s.terminalFlareColor !== "random" ? new e.Color(s.terminalFlareColor) : new e.Color(1, 1, 1)), r = Math.min(1, n * 1.25);
 						s.color.r = e.MathUtils.lerp(s.color.r, t.r, r), s.color.g = e.MathUtils.lerp(s.color.g, t.g, r), s.color.b = e.MathUtils.lerp(s.color.b, t.b, r);
-						let i = Math.max(1, me) * s.terminalFlareIntensity;
-						W = e.MathUtils.lerp(W, i, n);
-						let a = ve * s.terminalFlareSizeMultiplier;
-						G = e.MathUtils.lerp(G, a, n);
+						let i = Math.max(1, fe) * s.terminalFlareIntensity;
+						he = e.MathUtils.lerp(he, i, n);
+						let a = _e * s.terminalFlareSizeMultiplier;
+						K = e.MathUtils.lerp(K, a, n);
 					}
-				} else t > 1 && (W = 0, G = 0);
+				} else t > 1 && (he = 0, K = 0);
 			}
-			let ye = T.isEffectActive(s, "dark_phase") || T.isEffectActive(s, "dark-phase") || !!(s.preset?.darkPhase || s.preset?.["dark-phase"] || s.preset?.dark_phase), be = T.isEffectActive(s, "sync_strobe") || T.isEffectActive(s, "sync-strobe") || !!(s.preset?.syncStrobe || s.preset?.["sync-strobe"] || s.preset?.sync_strobe), xe = !1;
-			if (be) {
+			let ve = T.isEffectActive(s, "dark_phase") || T.isEffectActive(s, "dark-phase") || !!(s.preset?.darkPhase || s.preset?.["dark-phase"] || s.preset?.dark_phase), ye = T.isEffectActive(s, "sync_strobe") || T.isEffectActive(s, "sync-strobe") || !!(s.preset?.syncStrobe || s.preset?.["sync-strobe"] || s.preset?.sync_strobe), be = !1;
+			if (ye) {
 				let e = s.age * 1e3, t = 140 * a;
-				xe = Math.floor(e / t) % 3 == 0;
+				be = Math.floor(e / t) % 3 == 0;
 			}
-			(ye || be && !xe) && (G = 0, W = 0);
-			let K = s.sizeVariance ?? 1;
-			s.renderSize = G * K, s.renderOpacity = W, r.push(s);
+			(ve || ye && !be) && (K = 0, he = 0);
+			let q = s.sizeVariance ?? 1;
+			s.renderSize = K * q, s.renderOpacity = he, r.push(s);
 		}
 		if (this.burstParticles = r, i.length > 0) {
 			let e = i[0];
@@ -10463,7 +10476,7 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 		this.eventSubscriptions.length = 0, this.burstLines && (this.scene && this.scene.remove(this.burstLines), this.burstLinesGeometry?.dispose(), this.burstLinesMaterial?.dispose());
 	}
 	burstAll() {
-		let e = this.activeFireworks.filter((e) => e.type === "shell" && e.state === B.STATE.LAUNCHING);
+		let e = this.activeFireworks.filter((e) => e.type === "shell" && e.state === H.STATE.LAUNCHING);
 		for (let t of e) t.velocity.y = -1;
 	}
 	update(e) {
@@ -10759,7 +10772,7 @@ function xt(e, t) {
 }
 var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e.Vector3(), Dt = new e.Vector3(), Ot = new e.Vector3(), kt = new e.Vector3(), At = new e.Vector3(), jt = new e.Vector3(), Mt = new e.Color(), Nt = new e.Color(15922680), Pt = new e.Color(), Ft = new e.Color(6710886), It = new e.Color(10057472), Lt = class {
 	constructor(e, t, n = null) {
-		this.scene = e, this.trailSystem = t, this.smokeSystem = n, this.activeComets = [], this.pendingDetachedLaunches = [], this.simulationTime = 0, this.launchZone = u, this.shellPresetFactory = new z(), this.instancedCometRenderer = new ft(this.scene), this.eventSubscriptions = [], this.graphicsQualityMultiplier = 1, this.setGraphicsQuality(typeof localStorage < "u" && localStorage?.getItem && localStorage.getItem("graphics_quality") || "medium"), this.eventSubscriptions.push(p.on("graphics:quality", (e) => this.setGraphicsQuality(e)), p.on("firework:clear", () => this.clear()), p.on("comet:spawn", (e) => this.spawnComet(e)));
+		this.scene = e, this.trailSystem = t, this.smokeSystem = n, this.activeComets = [], this.pendingDetachedLaunches = [], this.simulationTime = 0, this.launchZone = u, this.shellPresetFactory = new V(), this.instancedCometRenderer = new ft(this.scene), this.eventSubscriptions = [], this.graphicsQualityMultiplier = 1, this.setGraphicsQuality(typeof localStorage < "u" && localStorage?.getItem && localStorage.getItem("graphics_quality") || "medium"), this.eventSubscriptions.push(p.on("graphics:quality", (e) => this.setGraphicsQuality(e)), p.on("firework:clear", () => this.clear()), p.on("comet:spawn", (e) => this.spawnComet(e)));
 	}
 	setGraphicsQuality(e) {
 		this.graphicsQuality = e, e === "low" ? this.graphicsQualityMultiplier = .6 : e === "medium" ? this.graphicsQualityMultiplier = 1 : e === "high" && (this.graphicsQualityMultiplier = 1.25);
@@ -10778,7 +10791,7 @@ var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e
 	}
 	spawnComet({ position: t, velocity: n, color: r, preset: i = null, spiral: a = null, lifetime: o = null }) {
 		if (!t || !n) return null;
-		let s = r instanceof e.Color ? r.clone() : new e.Color(r ?? 16777215), c = new K({
+		let s = r instanceof e.Color ? r.clone() : new e.Color(r ?? 16777215), c = new q({
 			position: t.clone(),
 			velocity: n.clone(),
 			color: s,
@@ -10791,17 +10804,17 @@ var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e
 		}), c.coreMesh?.isPoints && this.scene.add(c.mesh), this.smokeSystem && c.setSmokeSystem(this.smokeSystem), this.activeComets.push(c), c;
 	}
 	launchRandom(t = null, n = {}) {
-		let { ratioX: r, ratioY: i, ratioZ: a, sectorId: o = "center", angleOffset: s, color: c, effectOverrides: l, spiral: u } = n, d = t;
-		typeof t == "string" ? d = this.shellPresetFactory.createPresetByKey(t) : t === null && (d = this.shellPresetFactory.createPresetByKey("comet_cluster"));
-		let f = d;
-		l && typeof l == "object" && (f = {
-			...d || {},
-			...l
+		let { ratioX: r, ratioY: i, ratioZ: a, launchRatioX: o, targetRatioX: s, targetRatioY: c, isTargetedTrajectory: l, sectorId: u = "center", angleOffset: d, color: f, effectOverrides: p, spiral: m } = n, h = t;
+		typeof t == "string" ? h = this.shellPresetFactory.createPresetByKey(t) : t === null && (h = this.shellPresetFactory.createPresetByKey("comet_cluster"));
+		let g = h;
+		p && typeof p == "object" && (g = {
+			...h || {},
+			...p
 		});
-		let p = u || l?.spiral || f?.spiral || null, m = f?.clusterCount ?? 1, h = m > 1 ? Math.max(2, Math.round(m * this.graphicsQualityMultiplier)) : 1, g = this.resolveLaunchPosition(r, a, o), _ = c ? new e.Color(c) : new e.Color(pt[Math.floor(Math.random() * pt.length)]);
-		if (f?.shellType === "comet_cluster_cc" && this.preset?.secondColor) {
-			let e = _.getHex();
-			f.secondColor = {
+		let _ = m || p?.spiral || g?.spiral || null, v = g?.clusterCount ?? 1, y = v > 1 ? Math.max(2, Math.round(v * this.graphicsQualityMultiplier)) : 1, b = o === void 0 ? r : o, x = this.resolveLaunchPosition(b, a, u), S = f ? new e.Color(f) : new e.Color(pt[Math.floor(Math.random() * pt.length)]);
+		if (g?.shellType === "comet_cluster_cc" && this.preset?.secondColor) {
+			let e = S.getHex();
+			g.secondColor = {
 				16777215: 16729344,
 				16766720: 49151,
 				16729344: 8388564,
@@ -10811,82 +10824,82 @@ var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e
 				9055202: 16766720
 			}[e] || 16777215;
 		}
-		let v = !!(f?.strobe || Array.isArray(f?.effects) && (f.effects.includes("strobe") || f.effects.includes("white-strobe") || f.effects.includes("glitter-strobe"))), y = v ? Math.max(1, Math.min(3, Math.round(h * .3))) : 0, b = !!f?.isCascade || f?.shellType === "comet_cluster_cascade", x = b && !c ? mt[Math.floor(Math.random() * mt.length)] : null, S = !b && h > 1 && !!(f?.shellType === "comet_cluster_detached" || f?.detachedTrail || ["detached", "detached-trail"].includes(f?.cometTrail)), C = S ? this.resolveBurstHeight(f, i) : null, w = S ? this.resolveLaunchVelocity(C, s || 0) : null, T = [], E = null;
-		if (S) {
-			let t = w.clone().normalize(), n = Math.abs(t.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), r = new e.Vector3().crossVectors(t, n).normalize(), i = new e.Vector3().crossVectors(t, r).normalize(), a = (e) => {
+		let C = !!(g?.strobe || Array.isArray(g?.effects) && (g.effects.includes("strobe") || g.effects.includes("white-strobe") || g.effects.includes("glitter-strobe"))), w = C ? Math.max(1, Math.min(3, Math.round(y * .3))) : 0, T = !!g?.isCascade || g?.shellType === "comet_cluster_cascade", E = T && !f ? mt[Math.floor(Math.random() * mt.length)] : null, D = !T && y > 1 && !!(g?.shellType === "comet_cluster_detached" || g?.detachedTrail || ["detached", "detached-trail"].includes(g?.cometTrail)), O = D ? this.resolveBurstHeight(g, i) : null, k = D ? this.resolveLaunchVelocity(O, d || 0) : null, A = [], j = null;
+		if (D) {
+			let t = k.clone().normalize(), n = Math.abs(t.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), r = new e.Vector3().crossVectors(t, n).normalize(), i = new e.Vector3().crossVectors(t, r).normalize(), a = (e) => {
 				for (let t = e.length - 1; t > 0; t--) {
 					let n = Math.floor(Math.random() * (t + 1));
 					[e[t], e[n]] = [e[n], e[t]];
 				}
 				return e;
-			}, o = w.length(), s = a(Array.from({ length: h }, (e, t) => {
-				let n = (t + Math.random()) / h, r = .22 + .94 * (.35 * n + .65 * n ** .9), i = (Math.random() - .5) * .04;
+			}, o = k.length(), s = a(Array.from({ length: y }, (e, t) => {
+				let n = (t + Math.random()) / y, r = .22 + .94 * (.35 * n + .65 * n ** .9), i = (Math.random() - .5) * .04;
 				return Math.max(.2, r + i);
-			})), c = a(Array.from({ length: h }, (e, t) => 5 * Math.sqrt((t + Math.random()) / h))), l = a(Array.from({ length: h }, (e, t) => Math.PI * 2 * (t + Math.random()) / h));
-			for (let e = 0; e < h; e++) {
+			})), c = a(Array.from({ length: y }, (e, t) => 5 * Math.sqrt((t + Math.random()) / y))), l = a(Array.from({ length: y }, (e, t) => Math.PI * 2 * (t + Math.random()) / y));
+			for (let e = 0; e < y; e++) {
 				let t = l[e], n = s[e], a = Math.min(5, Math.max(1.5, n * o * Math.tan(.14))), u = .85 + Math.random() * .3, d = Math.min(c[e] * u, a), f = r.clone().multiplyScalar(Math.cos(t)).addScaledVector(i, Math.sin(t)).multiplyScalar(d);
-				T.push(w.clone().multiplyScalar(s[e]).add(f));
+				A.push(k.clone().multiplyScalar(s[e]).add(f));
 			}
-			let u = T.map((e, t) => ({
+			let u = A.map((e, t) => ({
 				vy: e.y,
 				index: t
 			})).sort((e, t) => e.vy - t.vy);
-			E = Array(h);
-			for (let e = 0; e < u.length; e++) E[u[e].index] = h > 1 ? e / (h - 1) : 0;
+			j = Array(y);
+			for (let e = 0; e < u.length; e++) j[u[e].index] = y > 1 ? e / (y - 1) : 0;
 		}
-		for (let e = 0; e < h; e++) {
+		for (let e = 0; e < y; e++) {
 			let n, r, a;
-			if (b) {
-				let o = h > 1 ? e / (h - 1) : .5, l = Math.min(1, Math.max(0, o + (Math.random() - .5) * (.8 / h))), u = .3 + l * 1;
-				n = this.resolveBurstHeight(t, i) * u, r = this.resolveLaunchVelocity(n, s || 0);
-				let d = (1.2 + l * 6.8) * Math.sqrt(Math.random()), p = Math.random() * Math.PI * 2;
-				r.x += Math.cos(p) * d, r.z += Math.sin(p) * d, f?.secondColor && c ? (ht.set(c), gt.set(f.secondColor), a = ht.clone().lerp(gt, l)) : a = c ? _.clone().offsetHSL((l - .5) * .16, .05, (l - .4) * .4) : xt(x, l), a.offsetHSL((Math.random() - .5) * .02, (Math.random() - .5) * .03, (Math.random() - .5) * .05);
-			} else S ? r = T[e] : (n = this.resolveBurstHeight(t, i) * (.97 + Math.random() * .06), r = this.resolveLaunchVelocity(n, s || 0)), h > 1 && !S && (r.x += (Math.random() - .5) * 5, r.z += (Math.random() - .5) * 5, r.y *= .95 + Math.random() * .1), a = h > 1 ? _.clone().offsetHSL((Math.random() - .5) * .05, (Math.random() - .5) * .1, (Math.random() - .5) * .2) : _.clone();
-			let o = Number.isFinite(f?.detachedHeadScale) && f.detachedHeadScale > 0 ? f.detachedHeadScale : .42, l = S ? o * (.8 + Math.random() * .4) : o, u = {
-				...v ? {
-					...f,
-					isStrobeStar: e < y
-				} : f,
-				...S ? { detachedHeadScale: l } : {}
-			}, d = Math.ceil(h * .25), m = S && e >= d ? .12 * (e - d + Math.random()) / (h - d) : 0, C = Number.isFinite(f?.detachedLifetime) && f.detachedLifetime > 0 ? f.detachedLifetime : 2.5, w = Number.isFinite(f?.detachedSweepDuration) && f.detachedSweepDuration > 0 ? f.detachedSweepDuration : .12, D = C - .04, O = S && E ? E[e] * w : 0, k = {
-				position: g.clone(),
+			if (T) {
+				let o = y > 1 ? e / (y - 1) : .5, s = Math.min(1, Math.max(0, o + (Math.random() - .5) * (.8 / y))), c = .3 + s * 1;
+				n = this.resolveBurstHeight(t, i) * c, r = this.resolveLaunchVelocity(n, d || 0);
+				let l = (1.2 + s * 6.8) * Math.sqrt(Math.random()), u = Math.random() * Math.PI * 2;
+				r.x += Math.cos(u) * l, r.z += Math.sin(u) * l, g?.secondColor && f ? (ht.set(f), gt.set(g.secondColor), a = ht.clone().lerp(gt, s)) : a = f ? S.clone().offsetHSL((s - .5) * .16, .05, (s - .4) * .4) : xt(E, s), a.offsetHSL((Math.random() - .5) * .02, (Math.random() - .5) * .03, (Math.random() - .5) * .05);
+			} else D ? r = A[e] : (n = this.resolveBurstHeight(t, i) * (.97 + Math.random() * .06), r = this.resolveLaunchVelocity(n, d || 0)), y > 1 && !D && (r.x += (Math.random() - .5) * 5, r.z += (Math.random() - .5) * 5, r.y *= .95 + Math.random() * .1), a = y > 1 ? S.clone().offsetHSL((Math.random() - .5) * .05, (Math.random() - .5) * .1, (Math.random() - .5) * .2) : S.clone();
+			let o = Number.isFinite(g?.detachedHeadScale) && g.detachedHeadScale > 0 ? g.detachedHeadScale : .42, s = D ? o * (.8 + Math.random() * .4) : o, c = {
+				...C ? {
+					...g,
+					isStrobeStar: e < w
+				} : g,
+				...D ? { detachedHeadScale: s } : {}
+			}, l = Math.ceil(y * .25), u = D && e >= l ? .12 * (e - l + Math.random()) / (y - l) : 0, p = Number.isFinite(g?.detachedLifetime) && g.detachedLifetime > 0 ? g.detachedLifetime : 2.5, m = Number.isFinite(g?.detachedSweepDuration) && g.detachedSweepDuration > 0 ? g.detachedSweepDuration : .12, h = p - .04, v = D && j ? j[e] * m : 0, b = {
+				position: x.clone(),
 				velocity: r,
 				color: a,
-				preset: u,
-				spiral: p,
-				lifetime: S ? Math.max(.1, D + O - m) : null
+				preset: c,
+				spiral: _,
+				lifetime: D ? Math.max(.1, h + v - u) : null
 			};
-			if (S && e >= d) {
+			if (D && e >= l) {
 				let e = (t) => typeof t != "object" || !t ? t : typeof t.clone == "function" ? t.clone() : Array.isArray(t) ? t.map(e) : Object.fromEntries(Object.entries(t).map(([t, n]) => [t, e(n)]));
 				this.pendingDetachedLaunches.push({
-					time: this.simulationTime + m,
-					launch: e(k)
+					time: this.simulationTime + u,
+					launch: e(b)
 				});
-			} else this.spawnComet(k);
+			} else this.spawnComet(b);
 		}
 		this.pendingDetachedLaunches.sort((e, t) => e.time - t.time);
-		let D = C ?? this.resolveBurstHeight(t, i), O = w || this.resolveLaunchVelocity(D, s || 0), k = O.lengthSq() > .001 ? O.clone().normalize() : new e.Vector3(0, 1, 0);
+		let M = O ?? this.resolveBurstHeight(t, i), N = k || this.resolveLaunchVelocity(M, d || 0), P = N.lengthSq() > .001 ? N.clone().normalize() : new e.Vector3(0, 1, 0);
 		this.emitFireworkEvent("firework:launch", {
 			shellId: Date.now(),
 			shellType: "comet_cluster",
 			shapeType: "comet",
 			effectType: "comet",
-			colorHex: _.getHex(),
-			sound: (S ? f?.sound : t?.sound) || null,
+			colorHex: S.getHex(),
+			sound: (D ? g?.sound : t?.sound) || null,
 			position: {
-				x: g.x,
-				y: g.y,
-				z: g.z
+				x: x.x,
+				y: x.y,
+				z: x.z
 			},
 			velocity: {
-				x: O.x,
-				y: O.y,
-				z: O.z
+				x: N.x,
+				y: N.y,
+				z: N.z
 			},
 			direction: {
-				x: k.x,
-				y: k.y,
-				z: k.z
+				x: P.x,
+				y: P.y,
+				z: P.z
 			},
 			intensity: .8
 		});
@@ -10925,7 +10938,7 @@ var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e
 		for (let e = 0; e < 4; e++) {
 			let r = c[e].clone().multiplyScalar(15 + Math.random() * 3.5);
 			r.y += 1.5;
-			let i = new K({
+			let i = new q({
 				position: t.clone(),
 				velocity: r,
 				color: n.clone().offsetHSL(0, .05, .15),
@@ -11007,23 +11020,23 @@ var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e
 				continue;
 			}
 			this.smokeSystem && !i.smokeSystem && i.setSmokeSystem(this.smokeSystem);
-			let s = i.update(o), c = i.initialVy ? i.initialVy * i.initialVy / 60 : 0, l = i.mesh.position.y - (i.launchY ?? 0), u = c > 0 ? l / c : 0, d = i.hasStrobe && i.isStrobeStar && i.state === K.STATE.LAUNCHING && u >= (i.strobe?.activationThreshold ?? .5), f = i.hasStrobe && !i.isStrobeStar && i.state === K.STATE.LAUNCHING && i.age >= (i.dimStartTime ?? 999), m = !!i.isGhostDarkPhase, h = !!i.isGhostInvisible, g = i.preset?.cometTrail === "smoke" || !!i.preset?.flightSmoke && i.preset?.launchTrail === !1 || !!i.preset?.launchSmoke && i.preset?.launchTrail === !1, _ = !1;
+			let s = i.update(o), c = i.initialVy ? i.initialVy * i.initialVy / 60 : 0, l = i.mesh.position.y - (i.launchY ?? 0), u = c > 0 ? l / c : 0, d = i.hasStrobe && i.isStrobeStar && i.state === q.STATE.LAUNCHING && u >= (i.strobe?.activationThreshold ?? .5), f = i.hasStrobe && !i.isStrobeStar && i.state === q.STATE.LAUNCHING && i.age >= (i.dimStartTime ?? 999), m = !!i.isGhostDarkPhase, h = !!i.isGhostInvisible, g = i.preset?.cometTrail === "smoke" || !!i.preset?.flightSmoke && i.preset?.launchTrail === !1 || !!i.preset?.launchSmoke && i.preset?.launchTrail === !1, _ = !1;
 			if (i.noTrailTiming) {
 				let e = i.noTrailTiming.start ?? 0, t = i.noTrailTiming.end ?? i.totalLifetime ?? 9999;
 				_ = i.age >= e && i.age <= t;
 			}
 			let v = (i.noTrailTiming ? _ : !!i.hasNoTrail) || i.preset?.launchTrail === !1 || g;
-			i.hasCrossette && !i.hasSplitCrossette && (i.state === K.STATE.DECAYING || i.velocity.y <= 0) && (i.hasSplitCrossette = !0, this.spawnCrossetteCross(i.mesh.position, i.color, i.velocity));
+			i.hasCrossette && !i.hasSplitCrossette && (i.state === q.STATE.DECAYING || i.velocity.y <= 0) && (i.hasSplitCrossette = !0, this.spawnCrossetteCross(i.mesh.position, i.color, i.velocity));
 			let y = n.COMET_TADPOLE?.arrowFlurryStartProgress ?? .28;
-			if (i.isTadpole && i.state === K.STATE.LAUNCHING && i.tadpoleProgress !== void 0 && i.tadpoleProgress >= y) {
+			if (i.isTadpole && i.state === q.STATE.LAUNCHING && i.tadpoleProgress !== void 0 && i.tadpoleProgress >= y) {
 				i.tadpoleArrowTimer = (i.tadpoleArrowTimer || 0) + o;
 				let e = n.COMET_TADPOLE?.arrowInterval ?? .065;
 				i.tadpoleArrowTimer >= e && (i.tadpoleArrowTimer = 0, this.spawnTadpoleArrowSparks(i.mesh.position, i.color, i.velocity, !!i.hasStrobe, !!i.hasCrackle, i));
 			}
-			let b = i.state === K.STATE.DECAYING || i.tadpoleProgress !== void 0 && i.tadpoleProgress >= .88 || i.initialVy > 15 && i.velocity.y <= 6;
-			if (i.isTadpole && !i.hasFlurried && b && (i.hasFlurried = !0, this.spawnTadpoleFlurry(i.mesh.position, i.color, i.velocity, !!i.hasStrobe, !!i.hasCrackle, i)), i.hasCrackle && !i.hasCrackled && (i.state === K.STATE.DECAYING || i.velocity.y <= 0) && (i.hasCrackled = !0, this.trailSystem && typeof this.trailSystem.spawnMicroCrackle == "function")) for (let e = 0; e < 6; e++) Dt.set((Math.random() - .5) * 4.5, (Math.random() - .5) * 4.5, (Math.random() - .5) * 4.5), At.copy(i.mesh.position).add(Dt), this.trailSystem.spawnMicroCrackle(At, i.color);
+			let b = i.state === q.STATE.DECAYING || i.tadpoleProgress !== void 0 && i.tadpoleProgress >= .88 || i.initialVy > 15 && i.velocity.y <= 6;
+			if (i.isTadpole && !i.hasFlurried && b && (i.hasFlurried = !0, this.spawnTadpoleFlurry(i.mesh.position, i.color, i.velocity, !!i.hasStrobe, !!i.hasCrackle, i)), i.hasCrackle && !i.hasCrackled && (i.state === q.STATE.DECAYING || i.velocity.y <= 0) && (i.hasCrackled = !0, this.trailSystem && typeof this.trailSystem.spawnMicroCrackle == "function")) for (let e = 0; e < 6; e++) Dt.set((Math.random() - .5) * 4.5, (Math.random() - .5) * 4.5, (Math.random() - .5) * 4.5), At.copy(i.mesh.position).add(Dt), this.trailSystem.spawnMicroCrackle(At, i.color);
 			let x = !!(i.preset?.clusterCount && i.preset.clusterCount > 1 || i.preset?.shellType?.startsWith("comet_cluster") || i.preset?.type === "comet_cluster");
-			if (i.state === K.STATE.LAUNCHING) {
+			if (i.state === q.STATE.LAUNCHING) {
 				if (g && !m && !h) {
 					let e = i.prevPosition || i.mesh.position, t = i.mesh.position;
 					Ct.subVectors(t, e);
@@ -11098,7 +11111,7 @@ var St = new e.Vector3(), Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e
 					color: yt
 				}));
 			}
-			if (i.state === K.STATE.DECAYING || i.isFading || i.isGhostFlaring) {
+			if (i.state === q.STATE.DECAYING || i.isFading || i.isGhostFlaring) {
 				if (i.isGhostFlaring && !i.hasEmittedGhostFlare) {
 					i.hasEmittedGhostFlare = !0;
 					for (let e = 0; e < 4; e++) this.trailSystem.spawnEffectSpark(i.mesh.position, vt, !0, null, Math.random() * 1e3, .35 + Math.random() * .2, !1);
@@ -12677,4 +12690,4 @@ function qt(e, t = $.DYNAMICS) {
 		summary: `Effect preview for ${e}.`
 	};
 }
-export { F as AVAILABLE_CHILD_PRESETS, te as AVAILABLE_DYNAMICS, ne as AVAILABLE_EFFECT_TAGS, A as AVAILABLE_MODIFIERS, ee as AVAILABLE_SHAPES, m as AtmosphereManager, t as BASE_BURST_PROFILE, T as BurstEffectProcessor, k as BurstParticleFactory, w as BurstShapeGenerator, oe as COLOR_PALETTES, K as CometEntity, Lt as CometSystem, ie as DEFAULT_SECOND_BURST_CHILD_CONFIG, I as DEFAULT_SECOND_BURST_CONFIG, Wt as EFFECT_PREVIEW_METADATA, f as EventBus, n as FIREWORK_CONFIG, nt as FireworkSystem, ft as InstancedCometRenderer, Se as InstancedShellRenderer, u as LAUNCH_ZONE_CONFIG, s as LAYER_DEFAULT, c as LAYER_REFLECTION, l as LAYER_WATER, r as PARAMETER_DESCRIPTORS, N as PRESET_TEMPLATES, $ as PREVIEW_CATEGORIES, ce as ProceduralShellGenerator, B as ShellEntity, z as ShellPresetFactory, Ut as ShowEventDispatcher, Ht as SkyLightReactionSystem, Vt as SmokeSystem, g as TEXT_GLYPHS, se as TIER_BUDGETS, j as TIMED_EFFECT_TAGS, M as TOGGLE_MODIFIER_TAGS, b as TextGlyphAtlas, st as TrailSystem, h as atmosphereManager, qt as getEffectPreview, i as getParameterDescriptor, re as getTemplateForPreset, p as globalEventBus, y as layoutWord, a as normalizeParameter, o as normalizePresetParameters, Gt as normalizePreviewKey, le as proceduralShellGenerator, d as renderingConfig, P as resolveFireworkComposition, L as resolveSecondBurstConfig, _ as sanitizeText, v as splitCommentIntoWords };
+export { L as AVAILABLE_CHILD_PRESETS, j as AVAILABLE_DYNAMICS, ee as AVAILABLE_EFFECT_TAGS, M as AVAILABLE_MODIFIERS, A as AVAILABLE_SHAPES, m as AtmosphereManager, t as BASE_BURST_PROFILE, T as BurstEffectProcessor, k as BurstParticleFactory, w as BurstShapeGenerator, ie as COLOR_PALETTES, q as CometEntity, Lt as CometSystem, ne as DEFAULT_SECOND_BURST_CHILD_CONFIG, R as DEFAULT_SECOND_BURST_CONFIG, Wt as EFFECT_PREVIEW_METADATA, f as EventBus, n as FIREWORK_CONFIG, nt as FireworkSystem, ft as InstancedCometRenderer, xe as InstancedShellRenderer, u as LAUNCH_ZONE_CONFIG, s as LAYER_DEFAULT, c as LAYER_REFLECTION, l as LAYER_WATER, r as PARAMETER_DESCRIPTORS, F as PRESET_TEMPLATES, $ as PREVIEW_CATEGORIES, oe as ProceduralShellGenerator, H as ShellEntity, V as ShellPresetFactory, Ut as ShowEventDispatcher, Ht as SkyLightReactionSystem, Vt as SmokeSystem, g as TEXT_GLYPHS, ae as TIER_BUDGETS, N as TIMED_EFFECT_TAGS, P as TOGGLE_MODIFIER_TAGS, b as TextGlyphAtlas, st as TrailSystem, h as atmosphereManager, qt as getEffectPreview, i as getParameterDescriptor, te as getTemplateForPreset, p as globalEventBus, y as layoutWord, a as normalizeParameter, o as normalizePresetParameters, Gt as normalizePreviewKey, se as proceduralShellGenerator, d as renderingConfig, I as resolveFireworkComposition, z as resolveSecondBurstConfig, _ as sanitizeText, v as splitCommentIntoWords };

@@ -170,6 +170,10 @@ export class CometSystem {
       ratioX,
       ratioY,
       ratioZ,
+      launchRatioX,
+      targetRatioX,
+      targetRatioY,
+      isTargetedTrajectory,
       sectorId = 'center',
       angleOffset,
       color,
@@ -203,7 +207,8 @@ export class CometSystem {
         Math.round(rawClusterCount * this.graphicsQualityMultiplier)
       )
       : 1;
-    const basePosition = this.resolveLaunchPosition(ratioX, ratioZ, sectorId);
+    const launchRx = launchRatioX !== undefined ? launchRatioX : ratioX;
+    const basePosition = this.resolveLaunchPosition(launchRx, ratioZ, sectorId);
 
     // Use a unified color for the cluster, or mixed. We'll use a unified color for elegance.
     const clusterColor = color ? new THREE.Color(color) : new THREE.Color(FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)]);
