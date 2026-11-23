@@ -216,10 +216,21 @@ describe('BurstEffectProcessor', () => {
       state
     );
 
-    // Gravity should match snow's floating gravityScale (0.05)
+    // Gravity should match snow's floating gravityScale (0.05) during early life (progress <= 0.5)
     expect(result.gravityScale).toBe(0.05);
     // Aerodynamic damping from snow should decelerate velocity
     expect(velocity.length()).toBeLessThan(initialLength);
+
+    // In late life (progress > 0.5), gravity ramps up smoothly to pull particles down
+    const lateLifeResult = BurstEffectProcessor.updateVelocity(
+      velocity,
+      0,
+      0.016,
+      1.6,
+      2.0,
+      state
+    );
+    expect(lateLifeResult.gravityScale).toBeGreaterThan(0.20);
 
     // Modular application on top of another effect (e.g. standard)
     const modularVel = new THREE.Vector3(15, 10, 15);
@@ -237,6 +248,16 @@ describe('BurstEffectProcessor', () => {
       modularState
     );
     expect(modularResult.gravityScale).toBeLessThanOrEqual(0.05);
+
+    const modularLateResult = BurstEffectProcessor.updateVelocity(
+      modularVel,
+      0,
+      0.016,
+      1.8,
+      2.0,
+      modularState
+    );
+    expect(modularLateResult.gravityScale).toBeGreaterThan(0.25);
   });
 
   it('should evaluate isEffectActive across multiple discrete timing windows', () => {

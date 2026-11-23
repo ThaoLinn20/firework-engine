@@ -472,8 +472,16 @@ export class BurstEffectProcessor {
       const drift = Math.sin(age * 2 + (effectState.phase[index] || 0)) * 0.04;
       velocity.x += drift * deltaTime;
       velocity.z += drift * deltaTime * 0.7;
-      velocity.multiplyScalar(0.996);
-      gravityScale = Math.min(gravityScale, 0.05);
+      velocity.x *= 0.996;
+      velocity.z *= 0.996;
+
+      const progress = maxLife > 0 ? Math.min(1.0, age / maxLife) : 0;
+      let targetGravityScale = 0.05;
+      if (progress > 0.5) {
+        const t = (progress - 0.5) / 0.5;
+        targetGravityScale = 0.05 + 0.55 * (t * t);
+      }
+      gravityScale = Math.min(gravityScale, targetGravityScale);
     }
 
     // Custom shape logic for half-flash comets (jellyfish tentacles)
@@ -1128,8 +1136,16 @@ BurstEffectProcessor.registerEffect('snow', {
     const drift = Math.sin(age * 2 + (effectState.phase[index] || 0)) * 0.04;
     velocity.x += drift * deltaTime;
     velocity.z += drift * deltaTime * 0.7;
-    velocity.multiplyScalar(0.996);
-    return { gravityScale: 0.05 };
+    velocity.x *= 0.996;
+    velocity.z *= 0.996;
+
+    const progress = maxLife > 0 ? Math.min(1.0, age / maxLife) : 0;
+    let targetGravityScale = 0.05;
+    if (progress > 0.5) {
+      const t = (progress - 0.5) / 0.5;
+      targetGravityScale = 0.05 + 0.55 * (t * t);
+    }
+    return { gravityScale: targetGravityScale };
   }
 });
 

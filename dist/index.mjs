@@ -4985,8 +4985,14 @@ var w = class {
 			e.x = l * o - p * c, e.z = l * c + p * o, e.y += Math.sin(r * 3 + (a.phase[t] || 0)) * .02, e.multiplyScalar(.998), s = Math.min(s, .12), u = !0, d = Math.max(d, .25), f = Math.max(f, .3);
 		}
 		if (a?.slowBurst && o !== "snow" && o !== "slow-burst" && o !== "slow_burst") {
-			let i = Math.sin(r * 2 + (a.phase[t] || 0)) * .04;
-			e.x += i * n, e.z += i * n * .7, e.multiplyScalar(.996), s = Math.min(s, .05);
+			let o = Math.sin(r * 2 + (a.phase[t] || 0)) * .04;
+			e.x += o * n, e.z += o * n * .7, e.x *= .996, e.z *= .996;
+			let c = i > 0 ? Math.min(1, r / i) : 0, l = .05;
+			if (c > .5) {
+				let e = (c - .5) / .5;
+				l = .05 + e * e * .55;
+			}
+			s = Math.min(s, l);
 		}
 		if (a?.shapeType === "half-flash" && t >= a.phase.length - 4 && (u = !0, d = .42, f = .85), a?.shapeType === "split-flash" && t >= a.phase.length - 5 && (u = !0, d = .38, f = .9), a?.noTrail) u = !1;
 		else if (a?.noTrailTiming) {
@@ -5208,7 +5214,13 @@ T.registerEffect("standard", { updateVelocity() {
 	};
 } }), T.registerEffect("snow", { updateVelocity(e, t, n, r, i, a) {
 	let o = Math.sin(r * 2 + (a.phase[t] || 0)) * .04;
-	return e.x += o * n, e.z += o * n * .7, e.multiplyScalar(.996), { gravityScale: .05 };
+	e.x += o * n, e.z += o * n * .7, e.x *= .996, e.z *= .996;
+	let s = i > 0 ? Math.min(1, r / i) : 0, c = .05;
+	if (s > .5) {
+		let e = (s - .5) / .5;
+		c = .05 + e * e * .55;
+	}
+	return { gravityScale: c };
 } });
 var E = T.effectsRegistry.get("snow");
 T.registerEffect("slow-burst", E), T.registerEffect("slow_burst", E), T.registerEffect("crackle", { updateVelocity(e, t, n, r, i, a) {
