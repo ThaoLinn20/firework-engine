@@ -1663,6 +1663,9 @@ export class FireworkSystem {
       const stageParticleMultiplier = (stage.particleCountMultiplier !== undefined && !isNaN(Number(stage.particleCountMultiplier)))
         ? Math.max(0, Number(stage.particleCountMultiplier))
         : 1.0;
+      const stageStarLifeMultiplier = (stage.starLifeMultiplier !== undefined && !isNaN(Number(stage.starLifeMultiplier)))
+        ? Math.max(0.01, Number(stage.starLifeMultiplier))
+        : (preset?.starLifeMultiplier !== undefined ? Number(preset.starLifeMultiplier) : 1.0);
       const stagePreset = {
         ...preset,
         multiNested: false,
@@ -1672,6 +1675,7 @@ export class FireworkSystem {
         effects: stageEffects,
         shellSize: baseSize * stageScale,
         particleCountMultiplier: stageParticleMultiplier,
+        starLifeMultiplier: stageStarLifeMultiplier,
         strobe: stageEffectKeys.includes('strobe') || Boolean(stage.strobe),
         crackle: stageEffectKeys.includes('crackle') || Boolean(stage.crackle),
         noTrail: stageEffectKeys.includes('no-trail') || Boolean(stage.noTrail),

@@ -9367,7 +9367,7 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				let e = (c - 1) / (a.length - 1) * Math.PI * 2 + Math.random() * .2, t = (16 + Math.random() * 8) * s, n = (Math.random() - .5) * 10 * s;
 				p.x += Math.cos(e) * t, p.y += n, p.z += Math.sin(e) * t;
 			}
-			let m = Array.isArray(l.effects) ? l.effects : [], h = m.map((e) => typeof e == "object" && e ? e.type || e.key : e), g = l.particleCountMultiplier !== void 0 && !isNaN(Number(l.particleCountMultiplier)) ? Math.max(0, Number(l.particleCountMultiplier)) : 1, _ = {
+			let m = Array.isArray(l.effects) ? l.effects : [], h = m.map((e) => typeof e == "object" && e ? e.type || e.key : e), g = l.particleCountMultiplier !== void 0 && !isNaN(Number(l.particleCountMultiplier)) ? Math.max(0, Number(l.particleCountMultiplier)) : 1, _ = l.starLifeMultiplier !== void 0 && !isNaN(Number(l.starLifeMultiplier)) ? Math.max(.01, Number(l.starLifeMultiplier)) : r?.starLifeMultiplier === void 0 ? 1 : Number(r.starLifeMultiplier), v = {
 				...r,
 				multiNested: !1,
 				stages: null,
@@ -9376,17 +9376,18 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				effects: m,
 				shellSize: s * d,
 				particleCountMultiplier: g,
+				starLifeMultiplier: _,
 				strobe: h.includes("strobe") || !!l.strobe,
 				crackle: h.includes("crackle") || !!l.crackle,
 				noTrail: h.includes("no-trail") || !!l.noTrail,
 				crossette: h.includes("crossette") || !!l.crossette
 			};
-			u <= .001 ? this.createBurst(p, f, _.shapeType, _, i + "-stage-" + c) : this.scheduledBursts.push({
+			u <= .001 ? this.createBurst(p, f, v.shapeType, v, i + "-stage-" + c) : this.scheduledBursts.push({
 				timeRemaining: u,
 				position: p,
 				color: f,
-				shape: _.shapeType,
-				preset: _,
+				shape: v.shapeType,
+				preset: v,
 				shellId: i + "-stage-" + c
 			});
 		}

@@ -54,4 +54,45 @@ describe('MultiNested Instant Burst (launch = none)', () => {
     expect(createdShapes).toContain('star');
     expect(createdShapes).not.toContain('willow');
   });
+
+  it('should propagate stage-specific starLifeMultiplier into stagePreset', () => {
+    const scene = new THREE.Scene();
+    const trailSystem = { addLaunchParticle: vi.fn(), addBurstParticle: vi.fn(), update: vi.fn() };
+    const smokeSystem = { emitLaunchSmoke: vi.fn(), emitBurstSmoke: vi.fn(), update: vi.fn() };
+
+    const fireworkSystem = new FireworkSystem(scene, trailSystem, smokeSystem);
+    const createBurstSpy = vi.spyOn(fireworkSystem, 'createBurst');
+
+    const multiNestedPreset = {
+      shellType: 'multi_nested',
+      preset: 'multi_nested',
+      multiNested: true,
+      instantBurst: true,
+      stages: [
+        {
+          shapeType: 'sphere',
+          dynamicsType: 'standard',
+          scale: 1.0,
+          delay: 0,
+          color: '#ff0055',
+          starLifeMultiplier: 0.5
+        },
+        {
+          shapeType: 'sphere',
+          dynamicsType: 'willow',
+          scale: 0.7,
+          delay: 0,
+          color: '#ffd700',
+          starLifeMultiplier: 2.2
+        }
+      ]
+    };
+
+    fireworkSystem.launchRandom(multiNestedPreset);
+
+    expect(createBurstSpy).toHaveBeenCalledTimes(2);
+    const presetsPassed = createBurstSpy.mock.calls.map((call) => call[3]);
+    expect(presetsPassed[0].starLifeMultiplier).toBe(0.5);
+    expect(presetsPassed[1].starLifeMultiplier).toBe(2.2);
+  });
 });
