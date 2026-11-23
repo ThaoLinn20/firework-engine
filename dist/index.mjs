@@ -58,6 +58,8 @@ var t = {
 		apexExpansionDrag: 1.35,
 		apexGravityThreshold: .14,
 		apexSpeedMultiplier: 1.35,
+		apexHangGravityScale: .38,
+		apexHangTerminalVelocity: -7,
 		terminalVelocity: t.terminalVelocity,
 		phaseExpansionEnd: .35,
 		phaseApexEnd: .65,
@@ -5492,7 +5494,7 @@ T.registerEffect("slow-burst", E), T.registerEffect("slow_burst", E), T.register
 } }), T.registerEffect("apex-hang", { updateVelocity(t, r, i, a, o, s) {
 	let c = n.BURST?.apexExpansionDrag ?? 3.8, l = Math.exp(-c * i);
 	t.multiplyScalar(l);
-	let u = s?.initialSpeeds?.[r] ?? 0, d = n.BURST?.apexGravityThreshold ?? .18;
+	let u = s?.initialSpeeds?.[r] ?? 0, d = n.BURST?.apexGravityThreshold ?? .18, f = n.BURST?.apexHangGravityScale ?? .38;
 	if (u > .001) {
 		let n = t.length() / u;
 		if (n > d) return {
@@ -5501,18 +5503,18 @@ T.registerEffect("slow-burst", E), T.registerEffect("slow_burst", E), T.register
 		};
 		let r = 1 - n / d;
 		return {
-			gravityScale: e.MathUtils.smoothstep(r, 0, 1),
+			gravityScale: f * e.MathUtils.smoothstep(r, 0, 1),
 			spawnTrail: !1
 		};
 	}
-	let f = o > 0 ? a / o : 1, p = n.BURST?.apexHangEnd ?? .48;
-	if (f <= p) return {
+	let p = o > 0 ? a / o : 1, m = n.BURST?.apexHangEnd ?? .48;
+	if (p <= m) return {
 		gravityScale: 0,
 		spawnTrail: !1
 	};
-	let m = Math.min(1, (f - p) / .18);
+	let h = Math.min(1, (p - m) / .18);
 	return {
-		gravityScale: e.MathUtils.smoothstep(m, 0, 1),
+		gravityScale: f * e.MathUtils.smoothstep(h, 0, 1),
 		spawnTrail: !1
 	};
 } });
@@ -10177,18 +10179,18 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				s.velocity.x *= i, s.velocity.y *= i, s.velocity.z *= i;
 				let a = s.ejectionDir, o = s.initialSpeed ?? 0;
 				if (a && o > .001) {
-					let t = Math.max(0, s.velocity.dot(a)) / o, r = n.BURST?.apexGravityThreshold ?? .18;
+					let t = Math.max(0, s.velocity.dot(a)) / o, r = n.BURST?.apexGravityThreshold ?? .18, i = n.BURST?.apexHangGravityScale ?? .38;
 					if (t > r) D = 0;
 					else {
 						let n = 1 - t / r;
-						D = e.MathUtils.smoothstep(n, 0, 1);
+						D = i * e.MathUtils.smoothstep(n, 0, 1);
 					}
 				} else {
 					let t = n.BURST?.apexHangEnd ?? .48;
 					if (S < t) D = 0;
 					else {
-						let n = Math.min(1, (S - t) / .18);
-						D = e.MathUtils.smoothstep(n, 0, 1);
+						let r = Math.min(1, (S - t) / .18);
+						D = (n.BURST?.apexHangGravityScale ?? .38) * e.MathUtils.smoothstep(r, 0, 1);
 					}
 				}
 			}
@@ -10198,8 +10200,8 @@ var Y = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(), 
 				s.velocity.x = e.MathUtils.lerp(s.velocity.x, M.x, t * a), s.velocity.z = e.MathUtils.lerp(s.velocity.z, M.z, t * a);
 			}
 			if (s.velocity.y += Se * t * D, S >= (n.BURST?.phaseApexEnd ?? .65)) {
-				let r = O?.terminalVelocity ?? (s.isLongBurn ? -10 : n.BURST?.terminalVelocity ?? -15);
-				s.velocity.y < r && (s.velocity.y = e.MathUtils.lerp(s.velocity.y, r, t * 4.5));
+				let r = n.BURST?.apexHangTerminalVelocity ?? -7, i = s.isApexHang ? r : O?.terminalVelocity ?? (s.isLongBurn ? -10 : n.BURST?.terminalVelocity ?? -15);
+				s.velocity.y < i && (s.velocity.y = e.MathUtils.lerp(s.velocity.y, i, t * 4.5));
 			}
 			let N = s.velocity.x - C, P = s.velocity.y - w, ee = s.velocity.z - E, F = Math.sqrt(N * N + P * P + ee * ee);
 			if (F > 1.8) {

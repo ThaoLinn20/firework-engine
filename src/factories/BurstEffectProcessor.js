@@ -1643,6 +1643,7 @@ BurstEffectProcessor.registerEffect('apex-hang', {
 
     const initialSpeed = effectState?.initialSpeeds?.[index] ?? 0;
     const threshold = FIREWORK_CONFIG.BURST?.apexGravityThreshold ?? 0.18;
+    const maxApexGrav = FIREWORK_CONFIG.BURST?.apexHangGravityScale ?? 0.38;
 
     if (initialSpeed > 0.001) {
       const currentSpeed = velocity.length();
@@ -1655,7 +1656,7 @@ BurstEffectProcessor.registerEffect('apex-hang', {
       }
       const gravityBlend = 1.0 - (expRatio / threshold);
       return {
-        gravityScale: THREE.MathUtils.smoothstep(
+        gravityScale: maxApexGrav * THREE.MathUtils.smoothstep(
           gravityBlend,
           0.0,
           1.0
@@ -1677,7 +1678,7 @@ BurstEffectProcessor.registerEffect('apex-hang', {
       (lifeRatio - hangEnd) / 0.18
     );
     return {
-      gravityScale: THREE.MathUtils.smoothstep(
+      gravityScale: maxApexGrav * THREE.MathUtils.smoothstep(
         releaseProgress,
         0.0,
         1.0

@@ -3999,12 +3999,13 @@ export class FireworkSystem {
           );
           const expRatio = expSpeed / initialSpeed;
           const threshold = FIREWORK_CONFIG.BURST?.apexGravityThreshold ?? 0.18;
+          const maxApexGrav = FIREWORK_CONFIG.BURST?.apexHangGravityScale ?? 0.38;
 
           if (expRatio > threshold) {
             finalGravityScale = 0.0;
           } else {
             const gravityBlend = 1.0 - (expRatio / threshold);
-            finalGravityScale = THREE.MathUtils.smoothstep(
+            finalGravityScale = maxApexGrav * THREE.MathUtils.smoothstep(
               gravityBlend,
               0.0,
               1.0
@@ -4019,7 +4020,8 @@ export class FireworkSystem {
               1.0,
               (lifeRatio - hangEnd) / 0.18
             );
-            finalGravityScale = THREE.MathUtils.smoothstep(
+            const maxApexGrav = FIREWORK_CONFIG.BURST?.apexHangGravityScale ?? 0.38;
+            finalGravityScale = maxApexGrav * THREE.MathUtils.smoothstep(
               releaseProgress,
               0.0,
               1.0
@@ -4070,8 +4072,10 @@ export class FireworkSystem {
       // để tuyệt đối không cản trở vận tốc bung nở ban đầu của các hạt hướng xuống dưới.
       const phaseApexEnd = FIREWORK_CONFIG.BURST?.phaseApexEnd ?? 0.65;
       if (lifeRatio >= phaseApexEnd) {
-        const terminalVel = profile?.terminalVelocity
-          ?? (p.isLongBurn ? -10.0 : (FIREWORK_CONFIG.BURST?.terminalVelocity ?? -15.0));
+        const apexTerminalVel = FIREWORK_CONFIG.BURST?.apexHangTerminalVelocity ?? -7.0;
+        const terminalVel = p.isApexHang
+          ? apexTerminalVel
+          : (profile?.terminalVelocity ?? (p.isLongBurn ? -10.0 : (FIREWORK_CONFIG.BURST?.terminalVelocity ?? -15.0)));
         if (p.velocity.y < terminalVel) {
           const brakeRate = 4.5;
           p.velocity.y = THREE.MathUtils.lerp(p.velocity.y, terminalVel, deltaTime * brakeRate);

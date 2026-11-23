@@ -98,6 +98,10 @@ export const FIREWORK_CONFIG = {
     apexGravityThreshold: 0.14,
     // Hệ số nhân vận tốc bung nở ban đầu cho hiệu ứng apex-hang (nhịp nhàng)
     apexSpeedMultiplier: 1.35,
+    // Hệ số trần trọng lực chuyển tiếp cho hiệu ứng apex-hang (rơi rủ êm dịu)
+    apexHangGravityScale: 0.38,
+    // Vận tốc rơi tự do cực đại riêng cho hiệu ứng apex-hang (m/s)
+    apexHangTerminalVelocity: -7.0,
     // Vận tốc rơi tự do cực đại chuẩn cho hạt pháo hoa (m/s)
     terminalVelocity: BASE_BURST_PROFILE.terminalVelocity,
     // Mốc tỉ lệ vòng đời kết thúc pha bung nở (Phase 1)
