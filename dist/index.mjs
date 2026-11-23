@@ -4986,7 +4986,7 @@ var w = class {
 		}
 		if (a?.slowBurst && o !== "snow" && o !== "slow-burst" && o !== "slow_burst") {
 			let o = Math.sin(r * 2 + (a.phase[t] || 0)) * .04;
-			e.x += o * n, e.z += o * n * .7, e.x *= .996, e.z *= .996;
+			e.x += o * n, e.z += o * n * .7, e.multiplyScalar(.996);
 			let c = i > 0 ? Math.min(1, r / i) : 0, l = .05;
 			if (c > .5) {
 				let e = (c - .5) / .5;
@@ -5214,7 +5214,7 @@ T.registerEffect("standard", { updateVelocity() {
 	};
 } }), T.registerEffect("snow", { updateVelocity(e, t, n, r, i, a) {
 	let o = Math.sin(r * 2 + (a.phase[t] || 0)) * .04;
-	e.x += o * n, e.z += o * n * .7, e.x *= .996, e.z *= .996;
+	e.x += o * n, e.z += o * n * .7, e.multiplyScalar(.996);
 	let s = i > 0 ? Math.min(1, r / i) : 0, c = .05;
 	if (s > .5) {
 		let e = (s - .5) / .5;

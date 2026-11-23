@@ -472,8 +472,7 @@ export class BurstEffectProcessor {
       const drift = Math.sin(age * 2 + (effectState.phase[index] || 0)) * 0.04;
       velocity.x += drift * deltaTime;
       velocity.z += drift * deltaTime * 0.7;
-      velocity.x *= 0.996;
-      velocity.z *= 0.996;
+      velocity.multiplyScalar(0.996);
 
       const progress = maxLife > 0 ? Math.min(1.0, age / maxLife) : 0;
       let targetGravityScale = 0.05;
@@ -1136,8 +1135,7 @@ BurstEffectProcessor.registerEffect('snow', {
     const drift = Math.sin(age * 2 + (effectState.phase[index] || 0)) * 0.04;
     velocity.x += drift * deltaTime;
     velocity.z += drift * deltaTime * 0.7;
-    velocity.x *= 0.996;
-    velocity.z *= 0.996;
+    velocity.multiplyScalar(0.996);
 
     const progress = maxLife > 0 ? Math.min(1.0, age / maxLife) : 0;
     let targetGravityScale = 0.05;
