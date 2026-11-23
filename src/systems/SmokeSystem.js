@@ -303,6 +303,17 @@ export class SmokeSystem {
             calculatedPos.z += uWind.z * windShear * windAge * 0.72;
             calculatedPos.y += uWind.y * windAge * 0.50;
 
+            float horizontalWindSpeed = length(uWind.xz);
+            calculatedPos.y += horizontalWindSpeed * 0.25 * windAge * 0.50;
+
+            float turbPhase = seed * 6.2831853;
+            float turbFreq = 1.0 + fract(seed * 13.37) * 0.8;
+            float turbWave = sin(age * turbFreq + turbPhase);
+            float turbWaveZ = cos(age * turbFreq * 1.1 + turbPhase);
+            calculatedPos.x += turbWave * 0.45 * min(age, 2.5);
+            calculatedPos.z += turbWaveZ * 0.45 * min(age, 2.5);
+            calculatedPos.y += turbWave * 0.18 * min(age, 2.5);
+
             float tRatio = clamp(age / life, 0.0, 1.0);
             float disp = mix(0.05, 0.35 + 1.2 * tRatio, windActive);
             float dispAngle = seed * 6.2831853;
@@ -1033,17 +1044,22 @@ export class SmokeSystem {
       ? new THREE.Color(detail.colorHex)
       : defaultWhiteSmoke;
 
+    const baseScale = cfg.launchBaseScale ?? 24.0;
+    const scaleVariance = cfg.launchScaleVariance ?? 8.0;
+    const nucleusBoost = cfg.launchNucleusBoost ?? 4.8;
+    const launchBuoyancy = cfg.launchBuoyancy ?? 1.1;
+
     for (let i = 0; i < count; i++) {
       const isNucleus = (i === 0);
       const drift = new THREE.Vector3(
-        (Math.random() - 0.5) * 1.2,
-        1.5 + Math.random() * 1.0,
-        (Math.random() - 0.5) * 1.2
+        (Math.random() - 0.5) * 1.4,
+        2.4 + Math.random() * 1.4,
+        (Math.random() - 0.5) * 1.4
       );
       const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 1.8,
-        Math.random() * 1.2,
-        (Math.random() - 0.5) * 1.8
+        (Math.random() - 0.5) * 2.2,
+        Math.random() * 1.5,
+        (Math.random() - 0.5) * 2.2
       );
       this.spawnPuff(
         launchPos.clone().add(offset),
@@ -1051,12 +1067,12 @@ export class SmokeSystem {
         {
           category: 'launch',
           isNucleus: isNucleus,
-          nucleusBoost: 3.2,
+          nucleusBoost: nucleusBoost,
           life: cfg.trailLifeMin + Math.random() * (cfg.trailLifeMax - cfg.trailLifeMin),
-          scale: cfg.trailBaseScale + Math.random() * 3.0,
+          scale: baseScale + Math.random() * scaleVariance,
           growth: cfg.trailGrowth,
           drag: cfg.trailDrag,
-          buoyancy: cfg.trailBuoyancy,
+          buoyancy: launchBuoyancy,
           opacity: cfg.trailOpacity + Math.random() * 0.1,
           color: launchSmokeColor
         }
@@ -1569,6 +1585,22 @@ export class SmokeSystem {
           puff.velocity.z += noiseZ * deltaTime;
           puff.velocity.y += puff.buoyancy * deltaTime;
 
+          if (puff.category === 'launch') {
+            const horizontalWindSpeed = Math.sqrt(
+              this.currentWind.x * this.currentWind.x +
+              this.currentWind.z * this.currentWind.z
+            );
+            const windLoft = horizontalWindSpeed * (cfg.launchWindLoftFactor ?? 0.25);
+            const turbFreq = 1.0 + puff.seed * 0.8;
+            const turbPhase = puff.seed * 6.2831853;
+            const turbAmp = (cfg.launchTurbulenceAmplitude ?? 0.45) * 0.75;
+            const wave = Math.sin(elapsed * turbFreq + turbPhase);
+            const waveZ = Math.cos(elapsed * turbFreq * 1.1 + turbPhase);
+            puff.velocity.x += wave * turbAmp * deltaTime;
+            puff.velocity.z += waveZ * turbAmp * deltaTime;
+            puff.velocity.y += (windLoft + wave * 0.15) * deltaTime;
+          }
+
           puff.position.addScaledVector(
             puff.velocity,
             deltaTime
@@ -1648,6 +1680,22 @@ export class SmokeSystem {
             puff.velocity.x += noiseX * deltaTime;
             puff.velocity.z += noiseZ * deltaTime;
             puff.velocity.y += puff.buoyancy * deltaTime;
+
+            if (puff.category === 'launch') {
+              const horizontalWindSpeed = Math.sqrt(
+                this.currentWind.x * this.currentWind.x +
+                this.currentWind.z * this.currentWind.z
+              );
+              const windLoft = horizontalWindSpeed * (cfg.launchWindLoftFactor ?? 0.25);
+              const turbFreq = 1.0 + puff.seed * 0.8;
+              const turbPhase = puff.seed * 6.2831853;
+              const turbAmp = cfg.launchTurbulenceAmplitude ?? 0.45;
+              const wave = Math.sin(elapsed * turbFreq + turbPhase);
+              const waveZ = Math.cos(elapsed * turbFreq * 1.1 + turbPhase);
+              puff.velocity.x += wave * turbAmp * deltaTime;
+              puff.velocity.z += waveZ * turbAmp * deltaTime;
+              puff.velocity.y += (windLoft + wave * 0.18) * deltaTime;
+            }
 
             puff.position.addScaledVector(
               puff.velocity,

@@ -111,11 +111,33 @@ describe('SmokeSystem', () => {
     expect(smokeSystem.puffs.length).toBeGreaterThan(0);
     const launchPuff = smokeSystem.puffs[0];
     expect(launchPuff.category).toBe('launch');
-    expect(launchPuff.position.x).toBeGreaterThanOrEqual(8);
-    expect(launchPuff.position.x).toBeLessThanOrEqual(12);
+    expect(launchPuff.position.x).toBeGreaterThanOrEqual(7);
+    expect(launchPuff.position.x).toBeLessThanOrEqual(13);
     expect(launchPuff.drag).toBeDefined();
     expect(launchPuff.life).toBeGreaterThanOrEqual(FIREWORK_CONFIG.SMOKE.trailLifeMin);
     expect(launchPuff.life).toBeLessThanOrEqual(FIREWORK_CONFIG.SMOKE.trailLifeMax);
+    expect(launchPuff.baseScale).toBeGreaterThanOrEqual(FIREWORK_CONFIG.SMOKE.launchBaseScale);
+    expect(launchPuff.nucleusBoost).toBe(FIREWORK_CONFIG.SMOKE.launchNucleusBoost);
+    expect(launchPuff.buoyancy).toBe(FIREWORK_CONFIG.SMOKE.launchBuoyancy);
+    expect(launchPuff.velocity.y).toBeGreaterThanOrEqual(2.0);
+  });
+
+  it('should apply wind-coupled thermal lofting and turbulence to launch smoke on update', () => {
+    smokeSystem.setQuality('high');
+    smokeSystem.clear();
+    smokeSystem.setWindSpeed(2.0);
+    smokeSystem.setWindDirection(90);
+
+    smokeSystem.onLaunch({
+      position: { x: 0, y: 0, z: 0 }
+    });
+
+    const initialLaunchPuff = smokeSystem.puffs[0];
+
+    smokeSystem.update(0.5);
+
+    expect(initialLaunchPuff.position.y).toBeGreaterThan(0);
+    expect(initialLaunchPuff.velocity.y).toBeGreaterThan(0);
   });
 
   it('should apply exponential drag and wind lerp on update', () => {

@@ -566,10 +566,16 @@ export const FIREWORK_CONFIG = {
     burstDragMax: 3.6,
     // Lực đẩy nổi (buoyancy)
     trailBuoyancy: 0.35,
+    launchBuoyancy: 1.1,
     burstBuoyancyMin: 0.55,
     burstBuoyancyMax: 0.9,
     // Kích thước cơ bản và hệ số phồng to (growth)
     trailBaseScale: 14.0,
+    launchBaseScale: 24.0,
+    launchScaleVariance: 8.0,
+    launchNucleusBoost: 4.8,
+    launchWindLoftFactor: 0.25,
+    launchTurbulenceAmplitude: 0.45,
     trailGrowth: 3.5,
     burstBaseScale: 32.0,
     burstGrowth: 3.2,
