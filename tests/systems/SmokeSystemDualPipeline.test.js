@@ -153,4 +153,38 @@ describe('GPU-Driven Dual Pipeline Smoke Simulation', () => {
     expect(smokeSystem.smokeUniforms.uGpuSim.value).toBe(1.0);
     expect(smokeSystem.puffs.length).toBe(0);
   });
+
+  it('should protect living high-priority launch/burst smoke from being overwritten by low-priority aerial smoke', () => {
+    const origMax = smokeSystem.maxGpuSmokeParticles;
+    smokeSystem.maxGpuSmokeParticles = 4;
+    smokeSystem.clear();
+
+    // Spawn 4 high-priority launch/burst puffs
+    for (let i = 0; i < 4; i++) {
+      smokeSystem.spawnPuff(
+        new THREE.Vector3(i * 10, 100, 0),
+        new THREE.Vector3(0, 1, 0),
+        { category: 'launch', life: 10.0 }
+      );
+    }
+    expect(smokeSystem.gpuParticleCount).toBe(4);
+    expect(smokeSystem.priorityArray[0]).toBe(2);
+
+    // Try to spawn 4 low-priority aerial puffs while high-priority are alive
+    for (let i = 0; i < 4; i++) {
+      smokeSystem.spawnPuff(
+        new THREE.Vector3(999, 999, 999),
+        new THREE.Vector3(0, 1, 0),
+        { category: 'aerial', life: 5.0 }
+      );
+    }
+
+    // High priority launch smoke must NOT be overwritten: position at index 0 should remain 0, 100, 0
+    expect(smokeSystem.positionsArray[0]).toBe(0);
+    expect(smokeSystem.positionsArray[1]).toBe(100);
+    expect(smokeSystem.positionsArray[2]).toBe(0);
+    expect(smokeSystem.priorityArray[0]).toBe(2);
+
+    smokeSystem.maxGpuSmokeParticles = origMax;
+  });
 });

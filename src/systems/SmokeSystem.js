@@ -92,6 +92,7 @@ export class SmokeSystem {
     this.seedsArray = new Float32Array(this.allocatedCapacity);
     this.lifeDataArray = new Float32Array(this.allocatedCapacity * 4);
     this.smokeParamsArray = new Float32Array(this.allocatedCapacity * 4);
+    this.priorityArray = new Uint8Array(this.allocatedCapacity);
 
     this.lifeDataArray.fill(-999999.0);
 
@@ -912,7 +913,45 @@ export class SmokeSystem {
     const effectiveLife = rawLife * this.lifespanMultiplier;
 
     if (this.useGpuSimulation && !options.cpuOnly) {
-      const idx = this.gpuCursor;
+      const isHighPriority = category === 'launch'
+        || options.category === 'burst'
+        || Boolean(options.isNucleus);
+      const newPriority = isHighPriority ? 2 : 1;
+
+      let targetIndex = -1;
+      let fallbackCandidate = -1;
+      const maxProbes = 16;
+
+      for (let i = 0; i < maxProbes; i++) {
+        const candidate = (this.gpuCursor + i) % this.maxGpuSmokeParticles;
+        const p4 = candidate * 4;
+        const birthTime = this.lifeDataArray[p4];
+        const life = this.lifeDataArray[p4 + 1];
+        const isAlive = (this.currentTime - birthTime) < life && birthTime >= 0;
+
+        if (!isAlive) {
+          targetIndex = candidate;
+          break;
+        }
+
+        const slotPriority = this.priorityArray[candidate];
+        if (newPriority > slotPriority && fallbackCandidate === -1) {
+          fallbackCandidate = candidate;
+        } else if (newPriority === slotPriority && slotPriority < 2 && fallbackCandidate === -1) {
+          fallbackCandidate = candidate;
+        }
+      }
+
+      if (targetIndex === -1 && fallbackCandidate !== -1) {
+        targetIndex = fallbackCandidate;
+      }
+
+      // Prioritize preserving existing smoke: drop new low-priority puff when ring buffer is full of alive smoke
+      if (targetIndex === -1) {
+        return;
+      }
+
+      const idx = targetIndex;
       const p3 = idx * 3;
       const p4 = idx * 4;
 
@@ -951,14 +990,15 @@ export class SmokeSystem {
       this.smokeParamsArray[p4 + 2] = drag;
       this.smokeParamsArray[p4 + 3] = buoyancy;
 
+      this.priorityArray[idx] = newPriority;
       this.markGpuIndexDirty(idx);
-      const nextCursor = (this.gpuCursor + 1) % this.maxGpuSmokeParticles;
+      const nextCursor = (idx + 1) % this.maxGpuSmokeParticles;
       if (nextCursor < this.gpuCursor) {
         this.gpuDirtyWrapped = true;
       }
       this.gpuCursor = nextCursor;
       if (this.gpuParticleCount < this.maxGpuSmokeParticles) {
-        this.gpuParticleCount++;
+        this.gpuParticleCount = Math.max(this.gpuParticleCount, idx + 1);
       }
       this.activePuffCount = this.gpuParticleCount;
       if (category === 'launch') {
@@ -1806,6 +1846,9 @@ export class SmokeSystem {
     this.gpuDirtyWrapped = false;
     if (this.lifeDataArray) {
       this.lifeDataArray.fill(-999999.0);
+    }
+    if (this.priorityArray) {
+      this.priorityArray.fill(0);
     }
     if (this.smokeGeometry) {
       this.smokeGeometry.setDrawRange(

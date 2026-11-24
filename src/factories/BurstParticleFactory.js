@@ -511,7 +511,7 @@ export class BurstParticleFactory {
       ? (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.gpuMaxPuffsPerLeader ?? 16)
       : (FIREWORK_CONFIG.BURST_SMOKE_TRAIL?.maxPuffsPerLeader ?? 8);
     const stride = Math.max(1, Math.floor((totalParticleCount || 200) / maxLeaders));
-    const isSmokeLeader = hasSmokeTrailTag && (
+    const isSmokeLeader = (hasSmokeTrailTag || effectiveHasBurstSmoke) && (
       options.isSmokeLeader !== undefined
         ? Boolean(options.isSmokeLeader)
         : (particleIndex % stride === 0)

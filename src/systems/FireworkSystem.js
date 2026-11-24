@@ -4415,6 +4415,7 @@ export class FireworkSystem {
       }
 
       const isStarBurstSmoke = p.hasBurstSmoke
+        && p.isSmokeLeader
         && !p.isCrossetteBranch
         && (
           p.burstSmokeEnd !== undefined
