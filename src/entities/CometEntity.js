@@ -77,14 +77,34 @@ export class CometEntity {
       effects.includes('long-burn') ||
       effectType === 'long-burn'
     );
-    const cometLifeMul = (preset?.starLifeMultiplier !== undefined && !isNaN(Number(preset.starLifeMultiplier)))
-      ? Math.max(0.2, Number(preset.starLifeMultiplier))
+    const rawLifeMul = Number(preset?.starLifeMultiplier);
+    const cometLifeMul = (preset?.starLifeMultiplier !== undefined && Number.isFinite(rawLifeMul) && rawLifeMul > 0)
+      ? rawLifeMul
       : (this.hasLongBurn ? 2.0 : 1.0);
+    this.starLifeMultiplier = cometLifeMul;
+    const rawShellSize = Number(preset?.shellSize);
+    this.shellSize = (preset?.shellSize !== undefined && Number.isFinite(rawShellSize) && rawShellSize > 0)
+      ? rawShellSize
+      : 1.0;
+    const rawDensity = Number(preset?.particleCountMultiplier);
+    this.particleCountMultiplier = (
+      preset?.particleCountMultiplier !== undefined
+      && Number.isFinite(rawDensity)
+      && rawDensity > 0
+    )
+      ? rawDensity
+      : 1.0;
     if (cometLifeMul !== 1.0) {
       this.maxDecayTime *= cometLifeMul;
       this.totalLifetime = this.synchronizedLifetime ?? (this.timeToApex + this.maxDecayTime);
       this.fadeStartTime = Math.max(this.fadeStartTime, this.totalLifetime - this.maxDecayTime);
     }
+
+    const sbAssignment = preset?._secondBurstAssignment || null;
+    this.isSecondBurst = Boolean(sbAssignment);
+    this.secondBurstConfig = sbAssignment?.childShell || null;
+    this.secondBurstTime = this.totalLifetime * (sbAssignment?.timingRatio ?? 0.55);
+    this.secondBurstDone = false;
 
     this.hasApexHang = Boolean(
       preset?.apexHang ||
@@ -286,7 +306,7 @@ export class CometEntity {
       );
 
       const { material } = createStarHeadMaterial({
-        size: 34 * detachedHeadScale,
+        size: 34 * detachedHeadScale * this.shellSize,
         opacity: 0.95,
         toneMapped: false,
         edgeSoftness: FIREWORK_CONFIG.PARTICLE_RENDERING?.edgeSoftness ?? 1.0,
@@ -320,7 +340,7 @@ export class CometEntity {
 
       const coreSize = (isTadpole
         ? COMET_CORE_SIZE * 1.6
-        : (isSuperBright ? COMET_CORE_SIZE * 1.6 : COMET_CORE_SIZE)) * detachedHeadScale;
+        : (isSuperBright ? COMET_CORE_SIZE * 1.6 : COMET_CORE_SIZE)) * detachedHeadScale * this.shellSize;
       const coreGeometry = new THREE.SphereGeometry(coreSize, 8, 8);
       const coreMaterial = new THREE.MeshBasicMaterial({
         color: this.coreColor,

@@ -1,7 +1,8 @@
 import {
   describe,
   it,
-  expect
+  expect,
+  vi
 } from 'vitest';
 import * as THREE from 'three';
 import { ShellPresetFactory } from '../../src/factories/ShellPresetFactory.js';
@@ -24,7 +25,11 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
 
   it('launches stars in a 3D expanding cone with wide radial dispersion and volumetric height spread', () => {
     const scene = new THREE.Scene();
-    const cometSystem = new CometSystem(scene);
+    const mockTrailSystem = {
+      spawnTrailParticle: vi.fn(),
+      spawnEffectSpark: vi.fn()
+    };
+    const cometSystem = new CometSystem(scene, mockTrailSystem);
     const factory = new ShellPresetFactory();
     const preset = factory.createPresetByKey('comet_cluster_notrail', 1);
 
@@ -87,7 +92,11 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
 
   it('spawns comet_cluster_notrail stars directly into FireworkSystem.burstParticles when fireworkSystem is attached', () => {
     const scene = new THREE.Scene();
-    const cometSystem = new CometSystem(scene);
+    const mockTrailSystem = {
+      spawnTrailParticle: vi.fn(),
+      spawnEffectSpark: vi.fn()
+    };
+    const cometSystem = new CometSystem(scene, mockTrailSystem);
     const mockFireworkSystem = { burstParticles: [] };
     cometSystem.fireworkSystem = mockFireworkSystem;
 
@@ -116,7 +125,11 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
 
   it('supports timed no-trail active effect window on comet_cluster_notrail stars', () => {
     const scene = new THREE.Scene();
-    const cometSystem = new CometSystem(scene);
+    const mockTrailSystem = {
+      spawnTrailParticle: vi.fn(),
+      spawnEffectSpark: vi.fn()
+    };
+    const cometSystem = new CometSystem(scene, mockTrailSystem);
     const mockFireworkSystem = { burstParticles: [] };
     cometSystem.fireworkSystem = mockFireworkSystem;
 
@@ -148,7 +161,11 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
 
   it('forwards triggered and active effects to comet_cluster_notrail burst stars', () => {
     const scene = new THREE.Scene();
-    const cometSystem = new CometSystem(scene);
+    const mockTrailSystem = {
+      spawnTrailParticle: vi.fn(),
+      spawnEffectSpark: vi.fn()
+    };
+    const cometSystem = new CometSystem(scene, mockTrailSystem);
     const mockFireworkSystem = { burstParticles: [] };
     cometSystem.fireworkSystem = mockFireworkSystem;
 
@@ -210,5 +227,68 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
     expect(stars.some((s) => s.isSecondBurst && s.secondBurstConfig)).toBe(true);
     expect(new Set(stars.map((s) => s.shellId)).size).toBe(1);
     expect(stars[stars.length - 1].phaseDelay).toBeGreaterThan(stars[0].phaseDelay);
+  });
+
+  it('applies shellSize, particleCountMultiplier, starLifeMultiplier, cometTrail, and secondBurst across CometEntity and comet_cluster_notrail', () => {
+    const scene = new THREE.Scene();
+    const mockTrailSystem = {
+      spawnTrailParticle: vi.fn(),
+      spawnEffectSpark: vi.fn()
+    };
+    const cometSystem = new CometSystem(scene, mockTrailSystem);
+    const mockFireworkSystem = {
+      burstParticles: [],
+      spawnSecondBurst: vi.fn()
+    };
+    cometSystem.fireworkSystem = mockFireworkSystem;
+
+    // 1. Test comet_cluster_notrail with particleCountMultiplier=0.5, shellSize=2.0, cometTrail='none'
+    const factory = new ShellPresetFactory();
+    const clusterPreset = factory.createPresetByKey('comet_cluster_notrail', 1);
+    cometSystem.launchRandom(clusterPreset, {
+      ratioX: 0.5,
+      ratioY: 0.6,
+      ratioZ: 0.5,
+      color: 0xffaa00,
+      effectOverrides: {
+        shellSize: 2.0,
+        particleCountMultiplier: 0.5,
+        starLifeMultiplier: 0.1,
+        cometTrail: 'none'
+      }
+    });
+    expect(mockFireworkSystem.burstParticles.length).toBe(Math.round(clusterPreset.clusterCount * 0.5));
+    const star = mockFireworkSystem.burstParticles[0];
+    expect(star.hasNoTrail).toBe(true);
+    expect(star.renderSize).toBeCloseTo(36, 1);
+    expect(star.trailDensityScale).toBeCloseTo(0.5, 2);
+
+    // 2. Test CometEntity (comet_cluster_cc) with un-clamped starLifeMultiplier=0.1, shellSize=2.5, secondBurst
+    cometSystem.launchRandom('comet_cluster_cc', {
+      ratioX: 0.5,
+      ratioY: 0.7,
+      ratioZ: 0.5,
+      color: 0x00ffff,
+      effectOverrides: {
+        shellSize: 2.5,
+        particleCountMultiplier: 0.5,
+        starLifeMultiplier: 0.1,
+        secondBurstEnabled: true,
+        secondBurst: {
+          enabled: true,
+          childShells: [{ ratio: 1.0, triggerTiming: 0.2, preset: 'sphere', color: '#ffffff' }]
+        }
+      }
+    });
+    expect(cometSystem.activeComets.length).toBeGreaterThanOrEqual(1);
+    const comet = cometSystem.activeComets[0];
+    expect(comet.shellSize).toBeCloseTo(2.5, 2);
+    expect(comet.particleCountMultiplier).toBeCloseTo(0.5, 2);
+    expect(comet.starLifeMultiplier).toBeCloseTo(0.1, 2);
+    expect(comet.isSecondBurst).toBe(true);
+
+    // Advance past secondBurstTime to verify CometEntity triggers spawnSecondBurst
+    cometSystem.update(comet.secondBurstTime + 0.05);
+    expect(mockFireworkSystem.spawnSecondBurst).toHaveBeenCalled();
   });
 });

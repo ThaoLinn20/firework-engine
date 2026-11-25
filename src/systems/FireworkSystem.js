@@ -4257,15 +4257,19 @@ export class FireworkSystem {
         const defaultSpawnChance = (isHalfFlashTentacle || isSplitFlashBeam || isCometRing || isChrysanthemumSpiral)
           ? 0.95
           : (lifeRatio < 0.65 ? baseSpawnChance : 0.80);
-        const spawnChance = trailSpawnChance !== undefined
-          ? trailSpawnChance
-          : defaultSpawnChance;
+        const densityScale = Number.isFinite(p.trailDensityScale) ? p.trailDensityScale : 1.0;
+        const spawnChance = Math.min(
+          1.0,
+          (trailSpawnChance !== undefined ? trailSpawnChance : defaultSpawnChance) * Math.min(2.0, densityScale)
+        );
 
         if (Math.random() < spawnChance * parentFade) {
-          const currentIntensity = (trailIntensity ?? 0.25) * parentFade;
+          const thickMul = p.trailThick ? 1.45 : (p.trailThin ? 0.55 : 1.0);
+          const currentIntensity = (trailIntensity ?? 0.25) * parentFade * thickMul;
           _scratchBurstTrailColor.copy(p.baseColor).multiplyScalar(currentIntensity);
 
-          const currentLife = (trailLife || 0.8) * (0.2 + 0.8 * parentFade);
+          const trailLifeScale = p.trailThick ? 1.25 : (p.trailThin ? 0.65 : 1.0);
+          const currentLife = (trailLife || 0.8) * (0.2 + 0.8 * parentFade) * trailLifeScale;
           _scratchBurstTrailVel.copy(p.velocity).multiplyScalar(
             isCometRing ? 0.7 : 0.25
           );

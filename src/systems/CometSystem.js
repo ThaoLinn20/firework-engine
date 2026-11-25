@@ -222,8 +222,15 @@ export class CometSystem {
       }
 
       const sizeMul = Number.isFinite(normalized.starSizeMultiplier) ? normalized.starSizeMultiplier : 1.0;
-      const baseParticleSize = Number(starPreset.particleSize ?? 18) * sizeMul;
+      const shellSizeMul = Number.isFinite(normalized.shellSize) ? normalized.shellSize : 1.0;
+      const densityMul = Number.isFinite(normalized.particleCountMultiplier) ? normalized.particleCountMultiplier : 1.0;
+      const baseParticleSize = Number(starPreset.particleSize ?? 18) * sizeMul * shellSizeMul;
       const color2 = starPreset.secondColor ? new THREE.Color(starPreset.secondColor) : null;
+
+      const isCometTrailNone = starPreset.cometTrail === 'none';
+      const isCometTrailSmoke = starPreset.cometTrail === 'smoke'
+        || starPreset.cometTrail === 'smoke_trail'
+        || Boolean(starPreset.flightSmoke);
 
       const starParticle = BurstParticleFactory.createParticle({
         position: position.clone(),
@@ -239,11 +246,12 @@ export class CometSystem {
         effectState: starEffectState,
         shellId: starPreset._clusterShellId ?? Math.floor(Math.random() * 100000000),
         effects: Array.isArray(starPreset.effects) ? starPreset.effects : [],
+        ...(isCometTrailNone || isCometTrailSmoke ? { hasNoTrail: true } : {}),
         isLongBurn: flags.isLongBurn,
         isApexHang: flags.isApexHang,
         isSlowBurst: flags.isSlowBurst,
         hasBurstSmoke: flags.hasBurstSmoke,
-        hasSmokeTrail: flags.hasSmokeTrail,
+        hasSmokeTrail: flags.hasSmokeTrail || isCometTrailSmoke,
         smokeTrailStartTime: starPreset.smokeTrailStartTime,
         smokeTrailDuration: starPreset.smokeTrailDuration,
         isCrossette: flags.isCrossetteShell,
@@ -291,6 +299,9 @@ export class CometSystem {
         smokeSystem: this.smokeSystem
       });
       starParticle.gravityScale = 0.92;
+      starParticle.trailDensityScale = densityMul;
+      starParticle.trailThick = Boolean(starPreset.thickTrail || starPreset.cometTrail === 'thick');
+      starParticle.trailThin = Boolean(starPreset.thinTrail || starPreset.cometTrail === 'thin');
       this.fireworkSystem.burstParticles.push(starParticle);
       return starParticle;
     }
@@ -348,6 +359,23 @@ export class CometSystem {
       finalPreset = { ...(resolvedPreset || {}), ...effectOverrides };
     }
 
+    const normalizedParams = normalizePresetParameters(finalPreset || {});
+    const effectiveShellSize = Number.isFinite(normalizedParams.shellSize) ? normalizedParams.shellSize : 1.0;
+    const hasUserDensity = effectOverrides && effectOverrides.particleCountMultiplier !== undefined;
+    const effectiveDensity = hasUserDensity && Number.isFinite(normalizedParams.particleCountMultiplier)
+      ? normalizedParams.particleCountMultiplier
+      : 1.0;
+    const hasUserLifeMul = effectOverrides && effectOverrides.starLifeMultiplier !== undefined;
+    const effectiveLifeMul = hasUserLifeMul && Number.isFinite(normalizedParams.starLifeMultiplier)
+      ? normalizedParams.starLifeMultiplier
+      : 1.0;
+    finalPreset = {
+      ...(finalPreset || {}),
+      shellSize: effectiveShellSize,
+      particleCountMultiplier: effectiveDensity,
+      starLifeMultiplier: effectiveLifeMul
+    };
+
     const resolvedSpiral = spiral ||
       effectOverrides?.spiral ||
       finalPreset?.spiral ||
@@ -356,8 +384,8 @@ export class CometSystem {
     const rawClusterCount = finalPreset?.clusterCount ?? 1;
     const clusterCount = rawClusterCount > 1
       ? Math.max(
-        2,
-        Math.round(rawClusterCount * this.graphicsQualityMultiplier)
+        1,
+        Math.round(rawClusterCount * effectiveDensity * this.graphicsQualityMultiplier)
       )
       : 1;
     const launchRx = launchRatioX !== undefined ? launchRatioX : ratioX;
@@ -439,7 +467,7 @@ export class CometSystem {
         const rNorm = Math.sqrt((i + 0.5) / clusterCount);
         const alpha = rNorm * halfAngleRad;
         const theta = i * goldenAngle + (Math.random() - 0.5) * 0.24;
-        const radialSpeed = starBaseVel.length() * Math.tan(alpha);
+        const radialSpeed = starBaseVel.length() * Math.tan(alpha) * Math.sqrt(effectiveShellSize);
 
         starBaseVel.addScaledVector(right, Math.cos(theta) * radialSpeed);
         starBaseVel.addScaledVector(up, Math.sin(theta) * radialSpeed);
@@ -501,11 +529,8 @@ export class CometSystem {
     }
 
     const clusterShellId = Date.now() + Math.floor(Math.random() * 10000);
-    const noTrailSecondBurstMap = new Map();
-    if (
-      isNoTrailConeCluster &&
-      (finalPreset?.secondBurst?.enabled || finalPreset?.secondBurstEnabled)
-    ) {
+    const secondBurstMap = new Map();
+    if (finalPreset?.secondBurst?.enabled || finalPreset?.secondBurstEnabled) {
       const sbConfig = resolveSecondBurstConfig(finalPreset);
       const childShells = sbConfig.childShells || [];
       const pool = Array.from({ length: clusterCount }, (_, idx) => idx);
@@ -525,7 +550,7 @@ export class CometSystem {
         cursor += targetCount;
         const baseTiming = typeof child.triggerTiming === 'number' ? child.triggerTiming : 0.55;
         assigned.forEach((pIdx) => {
-          noTrailSecondBurstMap.set(pIdx, {
+          secondBurstMap.set(pIdx, {
             childShell: child,
             timingRatio: Math.max(0.15, Math.min(0.85, baseTiming + (Math.random() - 0.5) * 0.16))
           });
@@ -616,8 +641,9 @@ export class CometSystem {
 
         // Spread the cluster laterally only when shooting multiple comets
         if (clusterCount > 1 && !isDetachedCluster && !isNoTrailConeCluster) {
-          velocity.x += (Math.random() - 0.5) * 5;
-          velocity.z += (Math.random() - 0.5) * 5;
+          const lateralSpread = 5 * Math.sqrt(effectiveShellSize);
+          velocity.x += (Math.random() - 0.5) * lateralSpread;
+          velocity.z += (Math.random() - 0.5) * lateralSpread;
           velocity.y *= (0.95 + Math.random() * 0.1);
         }
 
@@ -641,11 +667,11 @@ export class CometSystem {
       const cometPreset = {
         ...(hasStrobeTag ? { ...finalPreset, isStrobeStar: (i < strobeCount) } : finalPreset),
         ...(isDetachedCluster ? { detachedHeadScale: starHeadScale } : {}),
+        _secondBurstAssignment: secondBurstMap.get(i) || null,
         ...(isNoTrailConeCluster ? {
           _clusterShellId: clusterShellId,
           _clusterEffectState: noTrailEffectState,
           _clusterParticleIndex: i,
-          _secondBurstAssignment: noTrailSecondBurstMap.get(i) || null,
           _cascadePhaseDelay: noTrailFlags?.hasCascadeWave && clusterCount > 1
             ? (i / (clusterCount - 1)) * cascadeDuration
             : 0
@@ -1293,6 +1319,31 @@ export class CometSystem {
         );
       }
 
+      // Second burst trigger on CometEntity stars
+      if (
+        comet.isSecondBurst &&
+        !comet.secondBurstDone &&
+        comet.secondBurstConfig &&
+        comet.age >= (comet.secondBurstTime ?? comet.totalLifetime * 0.55) &&
+        this.fireworkSystem &&
+        typeof this.fireworkSystem.spawnSecondBurst === 'function'
+      ) {
+        comet.secondBurstDone = true;
+        this.fireworkSystem.spawnSecondBurst(
+          {
+            position: comet.mesh.position.clone(),
+            velocity: comet.velocity.clone(),
+            color: comet.color.clone(),
+            baseColor: comet.color.clone(),
+            maxLife: comet.totalLifetime,
+            shellId: comet.preset?._clusterShellId ?? Math.floor(Math.random() * 100000000),
+            secondBurstConfig: comet.secondBurstConfig,
+            preset: comet.preset
+          },
+          this.fireworkSystem.burstParticles
+        );
+      }
+
       // Crackle at apex
       if (
         comet.hasCrackle &&
@@ -1419,7 +1470,11 @@ export class CometSystem {
         } else if (!isTrailDisabled && !isGhostDark && !isGhostHidden) {
           const isCoreVisible = comet.coreMesh ? (comet.coreMesh.visible || comet.preset?.sparkleAtEnd) : true;
           const currentOpacity = comet.coreMesh?.material?.opacity ?? 1.0;
-          const customLife = comet.velocity.y > 0 ? (comet.velocity.y / 30) * 0.85 : 0.05;
+          const lifeMul = comet.starLifeMultiplier ?? 1.0;
+          const shellSizeScale = comet.shellSize ?? 1.0;
+          const densityScale = Math.max(0.05, comet.particleCountMultiplier ?? 1.0);
+          const baseCustomLife = comet.velocity.y > 0 ? (comet.velocity.y / 30) * 0.85 : 0.05;
+          const customLife = baseCustomLife * lifeMul;
 
           if (isStrobeActive) {
             // Hạt Strobe Star: Thả dòng hạt con lấp lánh (Glitter / Strobe Stream) độc lập lệch pha
@@ -1473,7 +1528,7 @@ export class CometSystem {
                     ? 0.36
                     : ((comet.preset?.thinTrail || isDetached) ? 1.0 : 0.64)));
 
-              const minDistSq = baseMinDistSq * clusterLoadFactor;
+              const minDistSq = (baseMinDistSq / densityScale) * clusterLoadFactor;
 
               if (comet.shouldSpawnTrail(minDistSq)) {
                 let spawnPos = comet.mesh.position;
@@ -1499,7 +1554,7 @@ export class CometSystem {
                   this.trailSystem.spawnTrailParticle(
                     comet.mesh.position,
                     comet.color,
-                    1.4,
+                    1.4 * shellSizeScale,
                     false,
                     tadpoleLife,
                     0.80,
@@ -1510,7 +1565,7 @@ export class CometSystem {
                   this.trailSystem.spawnTrailParticle(
                     spawnPos,
                     _tempParticleColor,
-                    0.5,
+                    0.5 * shellSizeScale,
                     false,
                     customLife * 0.5,
                     0.38,
@@ -1520,9 +1575,9 @@ export class CometSystem {
                   this.trailSystem.spawnTrailParticle(
                     comet.mesh.position,
                     comet.color,
-                    1.4,
+                    1.4 * shellSizeScale,
                     false,
-                    Math.min(1.5, customLife * 0.70),
+                    Math.min(1.5 * lifeMul, customLife * 0.70),
                     0.85,
                     false
                   );
@@ -1530,7 +1585,7 @@ export class CometSystem {
                   this.trailSystem.spawnTrailParticle(
                     comet.mesh.position,
                     comet.color,
-                    1.5,
+                    1.5 * shellSizeScale,
                     false,
                     customLife,
                     0.9,
@@ -1540,7 +1595,7 @@ export class CometSystem {
                   this.trailSystem.spawnTrailParticle(
                     comet.mesh.position,
                     comet.color,
-                    0.6,
+                    0.6 * shellSizeScale,
                     false,
                     customLife * 0.7,
                     0.05,
@@ -1550,7 +1605,7 @@ export class CometSystem {
                   this.trailSystem.spawnTrailParticle(
                     comet.mesh.position,
                     comet.color,
-                    1.0,
+                    1.0 * shellSizeScale,
                     true,
                     customLife,
                     0.12,
