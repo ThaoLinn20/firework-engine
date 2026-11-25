@@ -10901,41 +10901,100 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 	emitFireworkEvent(e, t) {
 		p.emit(e, t);
 	}
-	spawnComet({ position: t, velocity: n, color: r, preset: i = null, spiral: a = null, lifetime: o = null }) {
-		if (!t || !n) return null;
-		let s = r instanceof e.Color ? r.clone() : new e.Color(r ?? 16777215);
-		if ((i?.shellType === "comet_cluster_notrail" || i?.noTrail || Array.isArray(i?.effects) && i.effects.includes("no-trail")) && this.fireworkSystem && Array.isArray(this.fireworkSystem.burstParticles)) {
-			let e = Math.max(.8, n.y / 30), r = Math.max(2.2, e + (.75 + Math.random() * .45)), a = {
-				...i || {},
+	spawnComet({ position: t, velocity: r, color: i, preset: a = null, spiral: s = null, lifetime: c = null }) {
+		if (!t || !r) return null;
+		let l = i instanceof e.Color ? i.clone() : new e.Color(i ?? 16777215);
+		if ((a?.shellType === "comet_cluster_notrail" || a?.noTrail || Array.isArray(a?.effects) && a.effects.includes("no-trail")) && this.fireworkSystem && Array.isArray(this.fireworkSystem.burstParticles)) {
+			let i = o(a || {}), s = {
+				...a || {},
 				fixedGravity: !0,
 				gravityScale: .92,
 				noTrail: !0,
-				particleSize: i?.particleSize ?? 18
-			}, o = k.createParticle({
+				particleSize: a?.particleSize ?? 18
+			}, c = k.resolveActiveEffectFlags({
+				preset: s,
+				effects: s.effects,
+				dynamicsType: s.dynamicsType
+			}), u = Math.max(.8, r.y / 30), d = Math.max(2.2, u + (.75 + Math.random() * .45)), f = Number.isFinite(i.starLifeMultiplier) ? i.starLifeMultiplier : 1, p = c.isLongBurn ? n.BURST?.longBurnMultiplier ?? 2.2 : 1, m = c.isApexHang ? 1.35 : 1, h = Number.isFinite(s._cascadePhaseDelay) ? s._cascadePhaseDelay : 0, g = d * f * p * m + h, _ = c.isGhostEffect ? "ghost" : c.isCCEffect ? "crysanthemum-cc" : s.dynamicsType || s.effectType || "standard", v = !!(s.crackle || c.effectsList.includes("crackle") || _ === "crackle"), y = n.COMET_TADPOLE?.variance || {}, b = Math.random() < (y.wildDeflectionChance ?? .3) ? 1.8 + Math.random() * ((y.deflectionMax ?? 3.2) - 1.8) : (y.deflectionMin ?? .25) + Math.random() * .75, x = (y.sizeMin ?? .55) + Math.random() * ((y.sizeMax ?? 1.65) - (y.sizeMin ?? .55)), S = (y.densityMin ?? .5) + Math.random() * ((y.densityMax ?? 1.8) - (y.densityMin ?? .5)), C = c.isTadpoleFlurryShell && Math.random() < (n.COMET_TADPOLE?.burstActivationRatio ?? .35), w = c.isErraticDartShell && Math.random() < (n.ERRATIC_DART?.activationRatio ?? .4), T = s._secondBurstAssignment || null;
+			if (!T && (s.secondBurst?.enabled || s.secondBurstEnabled)) {
+				let e = z(s).childShells?.[0];
+				e && (T = {
+					childShell: e,
+					timingRatio: typeof e.triggerTiming == "number" ? e.triggerTiming : .55
+				});
+			}
+			let E = Number.isFinite(i.starSizeMultiplier) ? i.starSizeMultiplier : 1, D = Number(s.particleSize ?? 18) * E, O = s.secondColor ? new e.Color(s.secondColor) : null, A = k.createParticle({
 				position: t.clone(),
-				velocity: n.clone(),
-				baseColor: s,
-				maxLife: r,
-				preset: a,
+				velocity: r.clone(),
+				color: l,
+				baseColor: l,
+				color2: O,
+				maxLife: g,
+				effectType: _,
+				crackle: v,
+				crackleTriggered: !1,
+				preset: s,
+				shellId: s._clusterShellId ?? Math.floor(Math.random() * 1e8),
+				effects: Array.isArray(s.effects) ? s.effects : [],
+				hasNoTrail: !0,
+				isLongBurn: c.isLongBurn,
+				isApexHang: c.isApexHang,
+				isSlowBurst: c.isSlowBurst,
+				hasBurstSmoke: c.hasBurstSmoke,
+				hasSmokeTrail: c.hasSmokeTrail,
+				smokeTrailStartTime: s.smokeTrailStartTime,
+				smokeTrailDuration: s.smokeTrailDuration,
+				isCrossette: c.isCrossetteShell,
+				crossetteSplitTime: g * (.45 + Math.random() * .15),
+				crossetteSplitDone: !1,
+				isSecondBurst: !!T,
+				secondBurstConfig: T?.childShell || null,
+				secondBurstTime: g * (T?.timingRatio ?? .55),
+				secondBurstDone: !1,
+				hasTadpoleFlurry: C,
+				tadpoleColor: s.tadpoleColor || null,
+				tadpoleFlurryColor: s.tadpoleFlurryColor || s.tadpoleColor || null,
+				tadpoleArrowTimer: Math.random() * .065,
+				tadpoleDeflectionScale: b,
+				tadpoleSizeScale: x,
+				tadpoleDensityScale: S,
+				hasFlurried: !1,
+				hasErraticDart: w,
+				erraticDartTriggerRatio: (n.ERRATIC_DART?.triggerRatioMin ?? .7) + Math.random() * ((n.ERRATIC_DART?.triggerRatioMax ?? .76) - (n.ERRATIC_DART?.triggerRatioMin ?? .7)),
+				erraticDartTriggered: !1,
+				erraticDartTrailTimer: Math.random() * (n.ERRATIC_DART?.trailInterval ?? .032),
+				erraticDartFlash: 1,
+				erraticDartWigglePhase: Math.random() * Math.PI * 2,
+				erraticDartWiggleFreq: (n.ERRATIC_DART?.wobbleFreq ?? 22) * (.85 + Math.random() * .3),
+				erraticDartWiggleAmp: (n.ERRATIC_DART?.wobbleAmp ?? 26) * (.85 + Math.random() * .3),
+				phaseDelay: h,
+				hasCascadeWave: c.hasCascadeWave,
+				hasTerminalFlare: c.hasTerminalFlare,
+				terminalFlareTriggerRatio: s.terminalFlareTriggerRatio,
+				terminalFlareDuration: s.terminalFlareDuration,
+				terminalFlareIntensity: s.terminalFlareIntensity,
+				terminalFlareSizeMultiplier: s.terminalFlareSizeMultiplier,
+				terminalFlareColor: s.terminalFlareColor,
+				renderSize: D,
 				dragCoefficient: .22,
 				gravityScale: .92,
 				particleIndex: this.fireworkSystem.burstParticles.length,
-				totalParticleCount: i?.clusterCount ?? 28,
+				totalParticleCount: s.clusterCount ?? 28,
 				smokeSystem: this.smokeSystem
 			});
-			return o.gravityScale = .92, this.fireworkSystem.burstParticles.push(o), o;
+			return A.gravityScale = .92, this.fireworkSystem.burstParticles.push(A), A;
 		}
-		let c = new q({
+		let u = new q({
 			position: t.clone(),
-			velocity: n.clone(),
-			color: s,
-			preset: i,
-			spiral: a,
-			lifetime: o
+			velocity: r.clone(),
+			color: l,
+			preset: a,
+			spiral: s,
+			lifetime: c
 		});
-		return c.mesh.traverse((e) => {
+		return u.mesh.traverse((e) => {
 			e.layers.enable(1);
-		}), c.coreMesh?.isPoints && this.scene.add(c.mesh), this.smokeSystem && c.setSmokeSystem(this.smokeSystem), this.activeComets.push(c), c;
+		}), u.coreMesh?.isPoints && this.scene.add(u.mesh), this.smokeSystem && u.setSmokeSystem(this.smokeSystem), this.activeComets.push(u), u;
 	}
 	launchRandom(t = null, r = {}) {
 		let { ratioX: i, ratioY: a, ratioZ: o, launchRatioX: s, targetRatioX: c, targetRatioY: l, isTargetedTrajectory: u, sectorId: d = "center", angleOffset: f, color: p, effectOverrides: m, spiral: h } = r, g = t;
@@ -10958,41 +11017,124 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 				9055202: 16766720
 			}[e] || 16777215;
 		}
-		let w = !!(_?.strobe || Array.isArray(_?.effects) && (_.effects.includes("strobe") || _.effects.includes("white-strobe") || _.effects.includes("glitter-strobe"))), T = w ? Math.max(1, Math.min(3, Math.round(b * .3))) : 0, E = !!_?.isCascade || _?.shellType === "comet_cluster_cascade", D = E && !p ? ht[Math.floor(Math.random() * ht.length)] : null, O = !E && b > 1 && !!(_?.shellType === "comet_cluster_detached" || _?.detachedTrail || ["detached", "detached-trail"].includes(_?.cometTrail)), k = !E && !O && b > 1 && !!(_?.shellType === "comet_cluster_notrail" || _?.noTrail || Array.isArray(_?.effects) && _.effects.includes("no-trail")), A = [];
-		if (k) {
+		let w = !!(_?.strobe || Array.isArray(_?.effects) && (_.effects.includes("strobe") || _.effects.includes("white-strobe") || _.effects.includes("glitter-strobe"))), T = w ? Math.max(1, Math.min(3, Math.round(b * .3))) : 0, E = !!_?.isCascade || _?.shellType === "comet_cluster_cascade", D = E && !p ? ht[Math.floor(Math.random() * ht.length)] : null, O = !E && b > 1 && !!(_?.shellType === "comet_cluster_detached" || _?.detachedTrail || ["detached", "detached-trail"].includes(_?.cometTrail)), A = !E && !O && b > 1 && !!(_?.shellType === "comet_cluster_notrail" || _?.noTrail || Array.isArray(_?.effects) && _.effects.includes("no-trail")), ee = [];
+		if (A) {
 			let t = n.COMET_CLUSTER_NOTRAIL || {}, r = (t.coneHalfAngleDeg ?? 15) * Math.PI / 180, i = t.axialHeightMinRatio ?? .76, o = t.axialHeightMaxRatio ?? 1.06, s = Math.PI * (3 - Math.sqrt(5)), c = this.resolveBurstHeight(_, a), l = Array.from({ length: b }, (e, t) => t);
 			for (let e = l.length - 1; e > 0; e--) {
 				let t = Math.floor(Math.random() * (e + 1));
 				[l[e], l[t]] = [l[t], l[e]];
 			}
+			Date.now() + Math.floor(Math.random() * 1e4);
+			let u = /* @__PURE__ */ new Map();
+			if (A && (_?.secondBurst?.enabled || _?.secondBurstEnabled)) {
+				let e = z(_).childShells || [], t = Array.from({ length: b }, (e, t) => t);
+				for (let e = t.length - 1; e > 0; e--) {
+					let n = Math.floor(Math.random() * (e + 1));
+					[t[e], t[n]] = [t[n], t[e]];
+				}
+				let n = 0;
+				e.forEach((e) => {
+					let r = typeof e.ratio == "number" ? e.ratio : .2, i = Math.min(t.length - n, Math.max(1, Math.round(b * r)));
+					if (i <= 0) return;
+					let a = t.slice(n, n + i);
+					n += i;
+					let o = typeof e.triggerTiming == "number" ? e.triggerTiming : .55;
+					a.forEach((t) => {
+						u.set(t, {
+							childShell: e,
+							timingRatio: Math.max(.15, Math.min(.85, o + (Math.random() - .5) * .16))
+						});
+					});
+				});
+			}
+			(A ? k.resolveActiveEffectFlags({
+				preset: _,
+				effects: _?.effects,
+				dynamicsType: _?.dynamicsType
+			}) : null)?.hasCascadeWave && (Number(_?.cascadeDuration) || n.CASCADE_WAVE?.defaultDuration);
 			for (let t = 0; t < b; t++) {
 				let n = i + (l[t] + .5) / b * (o - i), a = this.resolveLaunchVelocity(c * n, f || 0), u = a.clone().normalize(), d = Math.abs(u.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), p = new e.Vector3().crossVectors(u, d).normalize(), m = new e.Vector3().crossVectors(u, p).normalize(), h = Math.sqrt((t + .5) / b) * r, g = t * s + (Math.random() - .5) * .24, _ = a.length() * Math.tan(h);
-				a.addScaledVector(p, Math.cos(g) * _), a.addScaledVector(m, Math.sin(g) * _), A.push(a);
+				a.addScaledVector(p, Math.cos(g) * _), a.addScaledVector(m, Math.sin(g) * _), ee.push(a);
 			}
 		}
-		let ee = O ? this.resolveBurstHeight(_, a) : null, j = O ? this.resolveLaunchVelocity(ee, f || 0) : null, M = [], N = null;
+		let j = O ? this.resolveBurstHeight(_, a) : null, M = O ? this.resolveLaunchVelocity(j, f || 0) : null, N = [], te = null;
 		if (O) {
-			let t = j.clone().normalize(), n = Math.abs(t.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), r = new e.Vector3().crossVectors(t, n).normalize(), i = new e.Vector3().crossVectors(t, r).normalize(), a = (e) => {
+			let t = M.clone().normalize(), r = Math.abs(t.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), i = new e.Vector3().crossVectors(t, r).normalize(), a = new e.Vector3().crossVectors(t, i).normalize(), o = (e) => {
 				for (let t = e.length - 1; t > 0; t--) {
 					let n = Math.floor(Math.random() * (t + 1));
 					[e[t], e[n]] = [e[n], e[t]];
 				}
 				return e;
-			}, o = j.length(), s = a(Array.from({ length: b }, (e, t) => {
+			}, s = M.length(), c = o(Array.from({ length: b }, (e, t) => {
 				let n = (t + Math.random()) / b, r = .22 + .94 * (.35 * n + .65 * n ** .9), i = (Math.random() - .5) * .04;
 				return Math.max(.2, r + i);
-			})), c = a(Array.from({ length: b }, (e, t) => 5 * Math.sqrt((t + Math.random()) / b))), l = a(Array.from({ length: b }, (e, t) => Math.PI * 2 * (t + Math.random()) / b));
-			for (let e = 0; e < b; e++) {
-				let t = l[e], n = s[e], a = Math.min(5, Math.max(1.5, n * o * Math.tan(.14))), u = .85 + Math.random() * .3, d = Math.min(c[e] * u, a), f = r.clone().multiplyScalar(Math.cos(t)).addScaledVector(i, Math.sin(t)).multiplyScalar(d);
-				M.push(j.clone().multiplyScalar(s[e]).add(f));
+			})), l = o(Array.from({ length: b }, (e, t) => 5 * Math.sqrt((t + Math.random()) / b))), u = o(Array.from({ length: b }, (e, t) => Math.PI * 2 * (t + Math.random()) / b));
+			Date.now() + Math.floor(Math.random() * 1e4);
+			let d = /* @__PURE__ */ new Map();
+			if (A && (_?.secondBurst?.enabled || _?.secondBurstEnabled)) {
+				let e = z(_).childShells || [], t = Array.from({ length: b }, (e, t) => t);
+				for (let e = t.length - 1; e > 0; e--) {
+					let n = Math.floor(Math.random() * (e + 1));
+					[t[e], t[n]] = [t[n], t[e]];
+				}
+				let n = 0;
+				e.forEach((e) => {
+					let r = typeof e.ratio == "number" ? e.ratio : .2, i = Math.min(t.length - n, Math.max(1, Math.round(b * r)));
+					if (i <= 0) return;
+					let a = t.slice(n, n + i);
+					n += i;
+					let o = typeof e.triggerTiming == "number" ? e.triggerTiming : .55;
+					a.forEach((t) => {
+						d.set(t, {
+							childShell: e,
+							timingRatio: Math.max(.15, Math.min(.85, o + (Math.random() - .5) * .16))
+						});
+					});
+				});
 			}
-			let u = M.map((e, t) => ({
+			(A ? k.resolveActiveEffectFlags({
+				preset: _,
+				effects: _?.effects,
+				dynamicsType: _?.dynamicsType
+			}) : null)?.hasCascadeWave && (Number(_?.cascadeDuration) || n.CASCADE_WAVE?.defaultDuration);
+			for (let e = 0; e < b; e++) {
+				let t = u[e], n = c[e], r = Math.min(5, Math.max(1.5, n * s * Math.tan(.14))), o = .85 + Math.random() * .3, d = Math.min(l[e] * o, r), f = i.clone().multiplyScalar(Math.cos(t)).addScaledVector(a, Math.sin(t)).multiplyScalar(d);
+				N.push(M.clone().multiplyScalar(c[e]).add(f));
+			}
+			let f = N.map((e, t) => ({
 				vy: e.y,
 				index: t
 			})).sort((e, t) => e.vy - t.vy);
-			N = Array(b);
-			for (let e = 0; e < u.length; e++) N[u[e].index] = b > 1 ? e / (b - 1) : 0;
+			te = Array(b);
+			for (let e = 0; e < f.length; e++) te[f[e].index] = b > 1 ? e / (b - 1) : 0;
 		}
+		let P = Date.now() + Math.floor(Math.random() * 1e4), F = /* @__PURE__ */ new Map();
+		if (A && (_?.secondBurst?.enabled || _?.secondBurstEnabled)) {
+			let e = z(_).childShells || [], t = Array.from({ length: b }, (e, t) => t);
+			for (let e = t.length - 1; e > 0; e--) {
+				let n = Math.floor(Math.random() * (e + 1));
+				[t[e], t[n]] = [t[n], t[e]];
+			}
+			let n = 0;
+			e.forEach((e) => {
+				let r = typeof e.ratio == "number" ? e.ratio : .2, i = Math.min(t.length - n, Math.max(1, Math.round(b * r)));
+				if (i <= 0) return;
+				let a = t.slice(n, n + i);
+				n += i;
+				let o = typeof e.triggerTiming == "number" ? e.triggerTiming : .55;
+				a.forEach((t) => {
+					F.set(t, {
+						childShell: e,
+						timingRatio: Math.max(.15, Math.min(.85, o + (Math.random() - .5) * .16))
+					});
+				});
+			});
+		}
+		let I = A ? k.resolveActiveEffectFlags({
+			preset: _,
+			effects: _?.effects,
+			dynamicsType: _?.dynamicsType
+		}) : null, L = I?.hasCascadeWave ? Number(_?.cascadeDuration) || (n.CASCADE_WAVE?.defaultDuration ?? .45) : 0;
 		for (let e = 0; e < b; e++) {
 			let n, r, i;
 			if (E) {
@@ -11000,14 +11142,19 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 				n = this.resolveBurstHeight(t, a) * c, r = this.resolveLaunchVelocity(n, f || 0);
 				let l = (1.2 + s * 6.8) * Math.sqrt(Math.random()), u = Math.random() * Math.PI * 2;
 				r.x += Math.cos(u) * l, r.z += Math.sin(u) * l, _?.secondColor && p ? (gt.set(p), _t.set(_.secondColor), i = gt.clone().lerp(_t, s)) : i = p ? C.clone().offsetHSL((s - .5) * .16, .05, (s - .4) * .4) : St(D, s), i.offsetHSL((Math.random() - .5) * .02, (Math.random() - .5) * .03, (Math.random() - .5) * .05);
-			} else O ? r = M[e] : k ? r = A[e] : (n = this.resolveBurstHeight(t, a) * (.97 + Math.random() * .06), r = this.resolveLaunchVelocity(n, f || 0)), b > 1 && !O && !k && (r.x += (Math.random() - .5) * 5, r.z += (Math.random() - .5) * 5, r.y *= .95 + Math.random() * .1), i = b > 1 ? C.clone().offsetHSL((Math.random() - .5) * .05, (Math.random() - .5) * .1, (Math.random() - .5) * .2) : C.clone();
+			} else O ? r = N[e] : A ? r = ee[e] : (n = this.resolveBurstHeight(t, a) * (.97 + Math.random() * .06), r = this.resolveLaunchVelocity(n, f || 0)), b > 1 && !O && !A && (r.x += (Math.random() - .5) * 5, r.z += (Math.random() - .5) * 5, r.y *= .95 + Math.random() * .1), i = b > 1 ? C.clone().offsetHSL((Math.random() - .5) * .05, (Math.random() - .5) * .1, (Math.random() - .5) * .2) : C.clone();
 			let o = Number.isFinite(_?.detachedHeadScale) && _.detachedHeadScale > 0 ? _.detachedHeadScale : .42, s = O ? o * (.8 + Math.random() * .4) : o, c = {
 				...w ? {
 					..._,
 					isStrobeStar: e < T
 				} : _,
-				...O ? { detachedHeadScale: s } : {}
-			}, l = Math.ceil(b * .25), u = O && e >= l ? .12 * (e - l + Math.random()) / (b - l) : 0, d = Number.isFinite(_?.detachedLifetime) && _.detachedLifetime > 0 ? _.detachedLifetime : 2.5, m = Number.isFinite(_?.detachedSweepDuration) && _.detachedSweepDuration > 0 ? _.detachedSweepDuration : .12, h = d - .04, g = O && N ? N[e] * m : 0, y = {
+				...O ? { detachedHeadScale: s } : {},
+				...A ? {
+					_clusterShellId: P,
+					_secondBurstAssignment: F.get(e) || null,
+					_cascadePhaseDelay: I?.hasCascadeWave && b > 1 ? e / (b - 1) * L : 0
+				} : {}
+			}, l = Math.ceil(b * .25), u = O && e >= l ? .12 * (e - l + Math.random()) / (b - l) : 0, d = Number.isFinite(_?.detachedLifetime) && _.detachedLifetime > 0 ? _.detachedLifetime : 2.5, m = Number.isFinite(_?.detachedSweepDuration) && _.detachedSweepDuration > 0 ? _.detachedSweepDuration : .12, h = d - .04, g = O && te ? te[e] * m : 0, y = {
 				position: S.clone(),
 				velocity: r,
 				color: i,
@@ -11024,7 +11171,7 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 			} else this.spawnComet(y);
 		}
 		this.pendingDetachedLaunches.sort((e, t) => e.time - t.time);
-		let te = ee ?? this.resolveBurstHeight(t, a), P = j || this.resolveLaunchVelocity(te, f || 0), F = P.lengthSq() > .001 ? P.clone().normalize() : new e.Vector3(0, 1, 0);
+		let ne = j ?? this.resolveBurstHeight(t, a), R = M || this.resolveLaunchVelocity(ne, f || 0), B = R.lengthSq() > .001 ? R.clone().normalize() : new e.Vector3(0, 1, 0);
 		this.emitFireworkEvent("firework:launch", {
 			shellId: Date.now(),
 			shellType: "comet_cluster",
@@ -11038,14 +11185,14 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 				z: S.z
 			},
 			velocity: {
-				x: P.x,
-				y: P.y,
-				z: P.z
+				x: R.x,
+				y: R.y,
+				z: R.z
 			},
 			direction: {
-				x: F.x,
-				y: F.y,
-				z: F.z
+				x: B.x,
+				y: B.y,
+				z: B.z
 			},
 			intensity: .8
 		});

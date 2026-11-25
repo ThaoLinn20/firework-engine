@@ -111,4 +111,70 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
     expect(first.dragCoefficient).toBeCloseTo(0.22, 2);
     expect(first.gravityScale).toBeCloseTo(0.92, 2);
   });
+
+  it('forwards triggered and active effects to comet_cluster_notrail burst stars', () => {
+    const scene = new THREE.Scene();
+    const cometSystem = new CometSystem(scene);
+    const mockFireworkSystem = { burstParticles: [] };
+    cometSystem.fireworkSystem = mockFireworkSystem;
+
+    const factory = new ShellPresetFactory();
+    const preset = factory.createPresetByKey('comet_cluster_notrail', 1);
+
+    cometSystem.launchRandom(
+      preset,
+      {
+        ratioX: 0.5,
+        ratioY: 0.7,
+        ratioZ: 0.5,
+        color: 0x00e5ff,
+        angleOffset: 0,
+        effectOverrides: {
+          crossette: true,
+          crackle: true,
+          starLifeMultiplier: 1.5,
+          secondBurstEnabled: true,
+          secondBurst: {
+            enabled: true,
+            childShells: [
+              {
+                ratio: 0.5,
+                triggerTiming: 0.55,
+                preset: 'sphere',
+                color: '#ffd700'
+              }
+            ]
+          },
+          effects: [
+            { type: 'strobe', startRatio: 0.1, endRatio: 0.6 },
+            { type: 'dark_phase', startRatio: 0.2, endRatio: 0.4 },
+            { type: 'terminal_flare', startRatio: 0.75, endRatio: 1.0 },
+            { type: 'cascade_wave', startRatio: 0.0, endRatio: 1.0 },
+            { type: 'smoke_trail', startRatio: 0.0, endRatio: 0.6 }
+          ]
+        }
+      }
+    );
+
+    const stars = mockFireworkSystem.burstParticles;
+    expect(stars.length).toBe(preset.clusterCount);
+    const first = stars[0];
+    expect(first.hasNoTrail).toBe(true);
+    expect(first.isCrossette).toBe(true);
+    expect(first.crackle).toBe(true);
+    expect(first.hasTerminalFlare).toBe(true);
+    expect(first.hasCascadeWave).toBe(true);
+    expect(first.hasSmokeTrail).toBe(true);
+    expect(first.effectWindows?.strobe?.length).toBeGreaterThan(0);
+    expect(first.effectWindows.strobe[0].startRatio).toBeCloseTo(0.1, 2);
+    expect(first.effectWindows.strobe[0].endRatio).toBeCloseTo(0.6, 2);
+    expect(first.strobeStart).toBeCloseTo(first.maxLife * 0.1, 2);
+    expect(first.strobeEnd).toBeCloseTo(first.maxLife * 0.6, 2);
+    expect(first.effectWindows?.dark_phase?.length).toBeGreaterThan(0);
+    expect(first.darkPhaseStart).toBeCloseTo(first.maxLife * 0.2, 2);
+    expect(first.darkPhaseEnd).toBeCloseTo(first.maxLife * 0.4, 2);
+    expect(stars.some((s) => s.isSecondBurst && s.secondBurstConfig)).toBe(true);
+    expect(new Set(stars.map((s) => s.shellId)).size).toBe(1);
+    expect(stars[stars.length - 1].phaseDelay).toBeGreaterThan(stars[0].phaseDelay);
+  });
 });
