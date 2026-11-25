@@ -4,6 +4,7 @@ import { CometEntity } from '../entities/CometEntity.js';
 import { globalEventBus } from '../core/EventBus.js';
 import { ShellPresetFactory } from '../factories/ShellPresetFactory.js';
 import { BurstParticleFactory } from '../factories/BurstParticleFactory.js';
+import { BurstEffectProcessor } from '../factories/BurstEffectProcessor.js';
 import { resolveSecondBurstConfig } from '../factories/FireworkCompositionHelper.js';
 import { normalizePresetParameters } from '../config/parameterDescriptors.js';
 import { LAYER_REFLECTION } from '../config/layers.js';
@@ -161,7 +162,6 @@ export class CometSystem {
         ...(preset || {}),
         fixedGravity: true,
         gravityScale: 0.92,
-        noTrail: true,
         particleSize: preset?.particleSize ?? 18
       };
       const flags = BurstParticleFactory.resolveActiveEffectFlags({
@@ -182,12 +182,17 @@ export class CometSystem {
         ? 'ghost'
         : (flags.isCCEffect
           ? 'crysanthemum-cc'
-          : (starPreset.dynamicsType || starPreset.effectType || 'standard'));
+          : (starPreset.dynamicsType || starPreset.effectType || 'crysanthemum-trail'));
       const crackleEnabled = Boolean(
         starPreset.crackle ||
         flags.effectsList.includes('crackle') ||
         resolvedEffectType === 'crackle'
       );
+      const starEffectState = starPreset._clusterEffectState
+        || BurstEffectProcessor.initialize(resolvedEffectType, 1, starPreset);
+      const starParticleIndex = Number.isInteger(starPreset._clusterParticleIndex)
+        ? starPreset._clusterParticleIndex
+        : 0;
 
       const tadpoleVarCfg = FIREWORK_CONFIG.COMET_TADPOLE?.variance || {};
       const isWildTadpole = Math.random() < (tadpoleVarCfg.wildDeflectionChance ?? 0.30);
@@ -231,9 +236,9 @@ export class CometSystem {
         crackle: crackleEnabled,
         crackleTriggered: false,
         preset: starPreset,
+        effectState: starEffectState,
         shellId: starPreset._clusterShellId ?? Math.floor(Math.random() * 100000000),
         effects: Array.isArray(starPreset.effects) ? starPreset.effects : [],
-        hasNoTrail: true,
         isLongBurn: flags.isLongBurn,
         isApexHang: flags.isApexHang,
         isSlowBurst: flags.isSlowBurst,
@@ -281,7 +286,7 @@ export class CometSystem {
         renderSize: baseParticleSize,
         dragCoefficient: 0.22,
         gravityScale: 0.92,
-        particleIndex: this.fireworkSystem.burstParticles.length,
+        particleIndex: starParticleIndex,
         totalParticleCount: starPreset.clusterCount ?? 28,
         smokeSystem: this.smokeSystem
       });
@@ -417,50 +422,7 @@ export class CometSystem {
         const j = Math.floor(Math.random() * (i + 1));
         [axialIndices[i], axialIndices[j]] = [axialIndices[j], axialIndices[i]];
       }
-      const clusterShellId = Date.now() + Math.floor(Math.random() * 10000);
-    const noTrailSecondBurstMap = new Map();
-    if (
-      isNoTrailConeCluster &&
-      (finalPreset?.secondBurst?.enabled || finalPreset?.secondBurstEnabled)
-    ) {
-      const sbConfig = resolveSecondBurstConfig(finalPreset);
-      const childShells = sbConfig.childShells || [];
-      const pool = Array.from({ length: clusterCount }, (_, idx) => idx);
-      for (let k = pool.length - 1; k > 0; k--) {
-        const randIdx = Math.floor(Math.random() * (k + 1));
-        [pool[k], pool[randIdx]] = [pool[randIdx], pool[k]];
-      }
-      let cursor = 0;
-      childShells.forEach((child) => {
-        const childRatio = typeof child.ratio === 'number' ? child.ratio : 0.20;
-        const targetCount = Math.min(
-          pool.length - cursor,
-          Math.max(1, Math.round(clusterCount * childRatio))
-        );
-        if (targetCount <= 0) return;
-        const assigned = pool.slice(cursor, cursor + targetCount);
-        cursor += targetCount;
-        const baseTiming = typeof child.triggerTiming === 'number' ? child.triggerTiming : 0.55;
-        assigned.forEach((pIdx) => {
-          noTrailSecondBurstMap.set(pIdx, {
-            childShell: child,
-            timingRatio: Math.max(0.15, Math.min(0.85, baseTiming + (Math.random() - 0.5) * 0.16))
-          });
-        });
-      });
-    }
-    const noTrailFlags = isNoTrailConeCluster
-      ? BurstParticleFactory.resolveActiveEffectFlags({
-        preset: finalPreset,
-        effects: finalPreset?.effects,
-        dynamicsType: finalPreset?.dynamicsType
-      })
-      : null;
-    const cascadeDuration = noTrailFlags?.hasCascadeWave
-      ? (Number(finalPreset?.cascadeDuration) || (FIREWORK_CONFIG.CASCADE_WAVE?.defaultDuration ?? 0.45))
-      : 0;
-
-    for (let i = 0; i < clusterCount; i++) {
+      for (let i = 0; i < clusterCount; i++) {
         const axialT = (axialIndices[i] + 0.5) / clusterCount;
         const heightRatio = minHeightRatio + axialT * (maxHeightRatio - minHeightRatio);
         const starBaseVel = this.resolveLaunchVelocity(
@@ -517,50 +479,7 @@ export class CometSystem {
         5 * Math.sqrt((i + Math.random()) / clusterCount)));
       const azimuths = shuffle(Array.from({ length: clusterCount }, (_, i) =>
         Math.PI * 2 * (i + Math.random()) / clusterCount));
-      const clusterShellId = Date.now() + Math.floor(Math.random() * 10000);
-    const noTrailSecondBurstMap = new Map();
-    if (
-      isNoTrailConeCluster &&
-      (finalPreset?.secondBurst?.enabled || finalPreset?.secondBurstEnabled)
-    ) {
-      const sbConfig = resolveSecondBurstConfig(finalPreset);
-      const childShells = sbConfig.childShells || [];
-      const pool = Array.from({ length: clusterCount }, (_, idx) => idx);
-      for (let k = pool.length - 1; k > 0; k--) {
-        const randIdx = Math.floor(Math.random() * (k + 1));
-        [pool[k], pool[randIdx]] = [pool[randIdx], pool[k]];
-      }
-      let cursor = 0;
-      childShells.forEach((child) => {
-        const childRatio = typeof child.ratio === 'number' ? child.ratio : 0.20;
-        const targetCount = Math.min(
-          pool.length - cursor,
-          Math.max(1, Math.round(clusterCount * childRatio))
-        );
-        if (targetCount <= 0) return;
-        const assigned = pool.slice(cursor, cursor + targetCount);
-        cursor += targetCount;
-        const baseTiming = typeof child.triggerTiming === 'number' ? child.triggerTiming : 0.55;
-        assigned.forEach((pIdx) => {
-          noTrailSecondBurstMap.set(pIdx, {
-            childShell: child,
-            timingRatio: Math.max(0.15, Math.min(0.85, baseTiming + (Math.random() - 0.5) * 0.16))
-          });
-        });
-      });
-    }
-    const noTrailFlags = isNoTrailConeCluster
-      ? BurstParticleFactory.resolveActiveEffectFlags({
-        preset: finalPreset,
-        effects: finalPreset?.effects,
-        dynamicsType: finalPreset?.dynamicsType
-      })
-      : null;
-    const cascadeDuration = noTrailFlags?.hasCascadeWave
-      ? (Number(finalPreset?.cascadeDuration) || (FIREWORK_CONFIG.CASCADE_WAVE?.defaultDuration ?? 0.45))
-      : 0;
-
-    for (let i = 0; i < clusterCount; i++) {
+      for (let i = 0; i < clusterCount; i++) {
         const angle = azimuths[i];
         // Scale maximum allowable radial offset to preserve tight column beam coherence
         const axialSpeed = speeds[i];
@@ -623,6 +542,14 @@ export class CometSystem {
     const cascadeDuration = noTrailFlags?.hasCascadeWave
       ? (Number(finalPreset?.cascadeDuration) || (FIREWORK_CONFIG.CASCADE_WAVE?.defaultDuration ?? 0.45))
       : 0;
+    const noTrailEffectType = noTrailFlags?.isGhostEffect
+      ? 'ghost'
+      : (noTrailFlags?.isCCEffect
+        ? 'crysanthemum-cc'
+        : (finalPreset?.dynamicsType || finalPreset?.effectType || 'crysanthemum-trail'));
+    const noTrailEffectState = isNoTrailConeCluster
+      ? BurstEffectProcessor.initialize(noTrailEffectType, clusterCount, finalPreset)
+      : null;
 
     for (let i = 0; i < clusterCount; i++) {
       let targetHeight;
@@ -716,6 +643,8 @@ export class CometSystem {
         ...(isDetachedCluster ? { detachedHeadScale: starHeadScale } : {}),
         ...(isNoTrailConeCluster ? {
           _clusterShellId: clusterShellId,
+          _clusterEffectState: noTrailEffectState,
+          _clusterParticleIndex: i,
           _secondBurstAssignment: noTrailSecondBurstMap.get(i) || null,
           _cascadePhaseDelay: noTrailFlags?.hasCascadeWave && clusterCount > 1
             ? (i / (clusterCount - 1)) * cascadeDuration

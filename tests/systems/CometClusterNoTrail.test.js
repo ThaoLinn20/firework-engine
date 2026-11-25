@@ -14,7 +14,8 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
     const preset = factory.createPresetByKey('comet_cluster_notrail', 1);
 
     expect(preset.shellType).toBe('comet_cluster_notrail');
-    expect(preset.noTrail).toBe(true);
+    expect(preset.noTrail).toBe(false);
+    expect(preset.effects).toEqual([]);
     expect(preset.launchTrail).toBe(false);
     expect(preset.clusterCount).toBeGreaterThanOrEqual(26);
     expect(preset.clusterCount).toBeLessThanOrEqual(32);
@@ -107,9 +108,42 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
     expect(mockFireworkSystem.burstParticles.length).toBe(preset.clusterCount);
     expect(cometSystem.activeComets.length).toBe(0);
     const first = mockFireworkSystem.burstParticles[0];
-    expect(first.hasNoTrail).toBe(true);
+    expect(first.hasNoTrail).toBe(false);
+    expect(first.effectState?.effectType).toBe('crysanthemum-trail');
     expect(first.dragCoefficient).toBeCloseTo(0.22, 2);
     expect(first.gravityScale).toBeCloseTo(0.92, 2);
+  });
+
+  it('supports timed no-trail active effect window on comet_cluster_notrail stars', () => {
+    const scene = new THREE.Scene();
+    const cometSystem = new CometSystem(scene);
+    const mockFireworkSystem = { burstParticles: [] };
+    cometSystem.fireworkSystem = mockFireworkSystem;
+
+    const factory = new ShellPresetFactory();
+    const preset = factory.createPresetByKey('comet_cluster_notrail', 1);
+
+    cometSystem.launchRandom(
+      preset,
+      {
+        ratioX: 0.5,
+        ratioY: 0.7,
+        ratioZ: 0.5,
+        color: 0xff3388,
+        angleOffset: 0,
+        effectOverrides: {
+          effects: [
+            { type: 'no-trail', startRatio: 0.2, endRatio: 0.6 }
+          ]
+        }
+      }
+    );
+
+    const first = mockFireworkSystem.burstParticles[0];
+    expect(first.hasNoTrail).toBe(true);
+    expect(first.effectWindows?.['no-trail']?.length).toBeGreaterThan(0);
+    expect(first.noTrailStart).toBeCloseTo(first.maxLife * 0.2, 2);
+    expect(first.noTrailEnd).toBeCloseTo(first.maxLife * 0.6, 2);
   });
 
   it('forwards triggered and active effects to comet_cluster_notrail burst stars', () => {
@@ -159,7 +193,7 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
     const stars = mockFireworkSystem.burstParticles;
     expect(stars.length).toBe(preset.clusterCount);
     const first = stars[0];
-    expect(first.hasNoTrail).toBe(true);
+    expect(first.hasNoTrail).toBe(false);
     expect(first.isCrossette).toBe(true);
     expect(first.crackle).toBe(true);
     expect(first.hasTerminalFlare).toBe(true);

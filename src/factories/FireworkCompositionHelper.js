@@ -156,9 +156,9 @@ export const PRESET_TEMPLATES = {
   },
   comet_cluster_notrail: {
     shape: 'sphere',
-    dynamics: 'standard',
+    dynamics: 'crysanthemum-trail',
     modifiers: { pistil: false, instantBurst: false },
-    effects: ['no-trail']
+    effects: []
   },
   comet_cluster_cc: {
     shape: 'sphere',
