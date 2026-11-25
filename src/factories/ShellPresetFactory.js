@@ -1124,7 +1124,7 @@ export class ShellPresetFactory {
       effects: ['no-trail'],
       noTrail: true,
       clusterCount: minCount + Math.floor(Math.random() * (span + 1)),
-      noTrailHeadScale: cfg.headScale ?? 0.35,
+      noTrailHeadScale: cfg.headScale ?? 0.55,
       particleCountMultiplier: 1.5,
       crackle: false,
       launchTrail: false,

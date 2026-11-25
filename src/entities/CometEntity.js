@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import { LAYER_REFLECTION } from '../config/layers.js';
 import { FIREWORK_CONFIG } from '../config/fireworks.js';
 import { BurstParticleFactory } from '../factories/BurstParticleFactory.js';
+import { BurstEffectProcessor } from '../factories/BurstEffectProcessor.js';
 import { globalEventBus } from '../core/EventBus.js';
+import { createStarHeadMaterial } from '../render/StarHeadMaterial.js';
 
 const COMET_CORE_SIZE = 1.2;
 
@@ -283,61 +285,16 @@ export class CometEntity {
         )
       );
 
-      const material = new THREE.PointsMaterial({
+      const { material } = createStarHeadMaterial({
         size: 34 * detachedHeadScale,
-        vertexColors: true,
-        transparent: true,
         opacity: 0.95,
-        depthTest: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        toneMapped: false
+        toneMapped: false,
+        edgeSoftness: FIREWORK_CONFIG.PARTICLE_RENDERING?.edgeSoftness ?? 1.0,
+        usePerParticleAttributes: false
       });
 
-      material.onBeforeCompile = (shader) => {
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <color_fragment>',
-          `
-          #include <color_fragment>
-          
-          vec2 p = gl_PointCoord - vec2(0.5, 0.38);
-          float aspect = 1.85;
-          float px = p.x * aspect;
-          float py = p.y;
-          float taper = py > 0.0 ? (1.0 + py * 1.5) : 1.0;
-          float dist = length(vec2(px * taper, py * 1.25)) * 2.0;
-          if (dist > 1.0) discard;
-          
-          vec2 coreP = gl_PointCoord - vec2(0.5, 0.34);
-          float coreDist = length(vec2(coreP.x * 2.2, coreP.y * 1.8)) * 2.0;
-          
-          vec4 stop0 = vec4(2.2, 2.2, 2.2, 1.0);
-          vec4 stop1 = vec4(diffuseColor.rgb * 1.6 + vec3(0.25), 0.85);
-          vec4 stop2 = vec4(diffuseColor.rgb * 1.2, 0.45);
-          vec4 stop3 = vec4(diffuseColor.rgb * 0.4, 0.12);
-          vec4 stop4 = vec4(0.0, 0.0, 0.0, 0.0);
-          
-          vec4 gradientColor;
-          if (coreDist < 0.08) {
-              float ct = coreDist / 0.08;
-              gradientColor = mix(stop0, stop1, ct);
-          } else if (dist < 0.28) {
-              float t = (dist - 0.08) / (0.28 - 0.08);
-              gradientColor = mix(stop1, stop2, clamp(t, 0.0, 1.0));
-          } else if (dist < 0.65) {
-              float t = (dist - 0.28) / (0.65 - 0.28);
-              gradientColor = mix(stop2, stop3, t);
-          } else {
-              float t = (dist - 0.65) / (1.0 - 0.65);
-              gradientColor = mix(stop3, stop4, t);
-          }
-          
-          diffuseColor = vec4(gradientColor.rgb, gradientColor.a * diffuseColor.a);
-          `
-        );
-      };
-
       this.coreMesh = new THREE.Points(geometry, material);
+      this.coreMesh.frustumCulled = false;
       this.mesh.add(this.coreMesh);
     } else {
       // Use a slightly vertically elongated core for motion blur feel
@@ -420,6 +377,15 @@ export class CometEntity {
     this.state = CometEntity.STATE.LAUNCHING;
     this.initialCoreOpacity = this.coreMesh.material.opacity;
     this.initialPointSize = this.coreMesh.isPoints ? this.coreMesh.material.size : null;
+    this.burstParticle = BurstParticleFactory.createParticle({
+      position,
+      velocity,
+      baseColor: color,
+      maxLife: this.totalLifetime,
+      preset: preset || {},
+      particleIndex: 0,
+      totalParticleCount: 1
+    });
   }
 
   get isGhostDarkPhase() {
@@ -680,8 +646,11 @@ export class CometEntity {
     } else if (this.state === CometEntity.STATE.DECAYING) {
       if (this.synchronizedLifetime !== null || this.isGhostFlare) this.age += deltaTime;
       this.prevPosition.copy(this.mesh.position);
-      // Triệt tiêu dần vận tốc để comet đứng im tại điểm cao nhất (apex), không bị rơi xuống do trọng lực
-      this.velocity.multiplyScalar(Math.max(0, 1.0 - 8.0 * deltaTime));
+      // Apply aerodynamic drag and natural gravity droop matching firework burst star physics
+      const decayDrag = this.hasApexHang ? 4.2 : 2.6;
+      const decayGravity = this.hasApexHang ? 6.5 : 10.5;
+      this.velocity.multiplyScalar(Math.exp(-decayDrag * deltaTime));
+      this.velocity.y -= decayGravity * this.gravityScale * deltaTime;
       this.ballisticPosition.addScaledVector(this.velocity, deltaTime);
       this.mesh.position.copy(this.ballisticPosition);
       if (this.velocity.lengthSq() > 0.01) {
@@ -729,7 +698,7 @@ export class CometEntity {
             this.innerMesh.material.opacity = opacity;
           }
           // Points sprites ignore object scale when calculating pixel size.
-          if (synchronized && this.initialPointSize !== null) {
+          if (this.initialPointSize !== null) {
             this.coreMesh.material.size = this.initialPointSize * (0.3 + 0.7 * (1 - fadeRatio));
           }
           // Shrink core
@@ -758,6 +727,29 @@ export class CometEntity {
             }
           }
         }
+      }
+    }
+
+    if (this.burstParticle) {
+      this.burstParticle.age = this.age;
+      this.burstParticle.position.copy(this.mesh.position);
+      this.burstParticle.velocity.copy(this.velocity);
+
+      const isDarkPhaseActive = BurstEffectProcessor.isEffectActive(this.burstParticle, 'dark_phase')
+        && (
+          this.burstParticle.darkPhaseStart === undefined
+          || (this.age >= this.burstParticle.darkPhaseStart && this.age <= (this.burstParticle.darkPhaseEnd ?? this.totalLifetime))
+        );
+      if (isDarkPhaseActive) {
+        this.coreMesh.visible = false;
+        if (this.innerMesh) this.innerMesh.visible = false;
+      } else if (this.burstParticle.hasBreathingPulse && this.initialPointSize !== null) {
+        const pulseScale = BurstEffectProcessor.computeBreathingScale(
+          this.age,
+          this.totalLifetime,
+          this.burstParticle.effectState
+        );
+        this.coreMesh.material.size = Math.max(2.0, this.coreMesh.material.size * pulseScale);
       }
     }
 

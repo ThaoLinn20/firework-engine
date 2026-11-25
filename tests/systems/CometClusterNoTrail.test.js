@@ -18,7 +18,7 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
     expect(preset.launchTrail).toBe(false);
     expect(preset.clusterCount).toBeGreaterThanOrEqual(26);
     expect(preset.clusterCount).toBeLessThanOrEqual(32);
-    expect(preset.noTrailHeadScale).toBeCloseTo(0.35, 2);
+    expect(preset.noTrailHeadScale).toBeCloseTo(0.55, 2);
   });
 
   it('launches stars in a 3D expanding cone with wide radial dispersion and volumetric height spread', () => {
@@ -68,17 +68,47 @@ describe('Comet Cluster No-Trail Expanding Cone', () => {
       preset: {
         shellType: 'comet_cluster_notrail',
         noTrail: true,
-        noTrailHeadScale: 0.35
+        noTrailHeadScale: 0.55
       }
     });
 
     expect(entity.coreMesh).toBeTruthy();
+    expect(entity.coreMesh.frustumCulled).toBe(false);
     expect(entity.coreMesh.material.blending).toBe(THREE.AdditiveBlending);
-    expect(entity.coreMesh.material.size).toBeGreaterThanOrEqual(10);
-    expect(entity.coreMesh.material.size).toBeLessThanOrEqual(14);
+    expect(entity.coreMesh.material.sizeAttenuation).toBe(false);
+    expect(entity.coreMesh.material.size).toBeGreaterThanOrEqual(16);
+    expect(entity.coreMesh.material.size).toBeLessThanOrEqual(22);
 
     const colorAttr = entity.coreMesh.geometry.getAttribute('color');
     expect(colorAttr.array[0]).toBeGreaterThan(2.0);
     expect(colorAttr.array[0]).toBeLessThanOrEqual(2.5);
+  });
+
+  it('spawns comet_cluster_notrail stars directly into FireworkSystem.burstParticles when fireworkSystem is attached', () => {
+    const scene = new THREE.Scene();
+    const cometSystem = new CometSystem(scene);
+    const mockFireworkSystem = { burstParticles: [] };
+    cometSystem.fireworkSystem = mockFireworkSystem;
+
+    const factory = new ShellPresetFactory();
+    const preset = factory.createPresetByKey('comet_cluster_notrail', 1);
+
+    cometSystem.launchRandom(
+      preset,
+      {
+        ratioX: 0.5,
+        ratioY: 0.7,
+        ratioZ: 0.5,
+        color: 0xff3388,
+        angleOffset: 0
+      }
+    );
+
+    expect(mockFireworkSystem.burstParticles.length).toBe(preset.clusterCount);
+    expect(cometSystem.activeComets.length).toBe(0);
+    const first = mockFireworkSystem.burstParticles[0];
+    expect(first.hasNoTrail).toBe(true);
+    expect(first.dragCoefficient).toBeCloseTo(0.22, 2);
+    expect(first.gravityScale).toBeCloseTo(0.92, 2);
   });
 });

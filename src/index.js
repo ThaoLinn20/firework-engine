@@ -59,6 +59,9 @@ export {
 export { ShellEntity } from './entities/ShellEntity.js';
 export { CometEntity } from './entities/CometEntity.js';
 
+// Renderers & Materials
+export { createStarHeadMaterial } from './render/StarHeadMaterial.js';
+
 // Systems & Renderers
 export { FireworkSystem } from './systems/FireworkSystem.js';
 export { TrailSystem } from './systems/TrailSystem.js';

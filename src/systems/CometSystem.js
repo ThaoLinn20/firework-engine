@@ -3,6 +3,7 @@ import { LAUNCH_ZONE_CONFIG } from '../config/launchZone.js';
 import { CometEntity } from '../entities/CometEntity.js';
 import { globalEventBus } from '../core/EventBus.js';
 import { ShellPresetFactory } from '../factories/ShellPresetFactory.js';
+import { BurstParticleFactory } from '../factories/BurstParticleFactory.js';
 import { LAYER_REFLECTION } from '../config/layers.js';
 import { FIREWORK_CONFIG } from '../config/fireworks.js';
 import { InstancedCometRenderer } from '../render/InstancedCometRenderer.js';
@@ -71,6 +72,7 @@ export class CometSystem {
     this.scene = scene;
     this.trailSystem = trailSystem;
     this.smokeSystem = smokeSystem;
+    this.fireworkSystem = null;
     this.activeComets = [];
     this.pendingDetachedLaunches = [];
     this.simulationTime = 0;
@@ -141,6 +143,42 @@ export class CometSystem {
     const cometColor = (color instanceof THREE.Color)
       ? color.clone()
       : new THREE.Color(color ?? 0xffffff);
+
+    const isNoTrailStar = Boolean(
+      preset?.shellType === 'comet_cluster_notrail' ||
+      preset?.noTrail ||
+      (Array.isArray(preset?.effects) && preset.effects.includes('no-trail'))
+    );
+    if (
+      isNoTrailStar &&
+      this.fireworkSystem &&
+      Array.isArray(this.fireworkSystem.burstParticles)
+    ) {
+      const ascentTime = Math.max(0.8, velocity.y / 30);
+      const starLife = Math.max(2.2, ascentTime + (0.75 + Math.random() * 0.45));
+      const starPreset = {
+        ...(preset || {}),
+        fixedGravity: true,
+        gravityScale: 0.92,
+        noTrail: true,
+        particleSize: preset?.particleSize ?? 18
+      };
+      const starParticle = BurstParticleFactory.createParticle({
+        position: position.clone(),
+        velocity: velocity.clone(),
+        baseColor: cometColor,
+        maxLife: starLife,
+        preset: starPreset,
+        dragCoefficient: 0.22,
+        gravityScale: 0.92,
+        particleIndex: this.fireworkSystem.burstParticles.length,
+        totalParticleCount: preset?.clusterCount ?? 28,
+        smokeSystem: this.smokeSystem
+      });
+      starParticle.gravityScale = 0.92;
+      this.fireworkSystem.burstParticles.push(starParticle);
+      return starParticle;
+    }
 
     const comet = new CometEntity({
       position: position.clone(),

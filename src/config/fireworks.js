@@ -721,7 +721,7 @@ export const FIREWORK_CONFIG = {
     coneHalfAngleDeg: 15,
     axialHeightMinRatio: 0.76,
     axialHeightMaxRatio: 1.06,
-    headScale: 0.35,
+    headScale: 0.55,
     hdrMultiplier: 2.3
   }
 };
