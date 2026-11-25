@@ -1079,28 +1079,66 @@ export class SmokeSystem {
       ? 14
       : (this.quality === 'high' ? 8 : (this.quality === 'low' ? 3 : 5));
 
-    const defaultWhiteSmoke = new THREE.Color(0xf2f5f9);
-    const launchSmokeColor = detail.hasCustomColor && detail.colorHex !== undefined
-      ? new THREE.Color(detail.colorHex)
-      : defaultWhiteSmoke;
+    const defaultNeutralSmoke = new THREE.Color(0xd8dee9);
+    const launchSmokeBaseColor = detail.hasCustomColor && detail.colorHex !== undefined
+      ? defaultNeutralSmoke.clone().lerp(new THREE.Color(detail.colorHex), 0.22)
+      : defaultNeutralSmoke;
 
-    const baseScale = cfg.launchBaseScale ?? 24.0;
-    const scaleVariance = cfg.launchScaleVariance ?? 8.0;
-    const nucleusBoost = cfg.launchNucleusBoost ?? 4.8;
-    const launchBuoyancy = cfg.launchBuoyancy ?? 1.1;
+    const launchDir = new THREE.Vector3(
+      detail.direction?.x ?? 0,
+      detail.direction?.y ?? 1,
+      detail.direction?.z ?? 0
+    );
+    if (launchDir.lengthSq() < 0.0001) {
+      launchDir.set(0, 1, 0);
+    } else {
+      launchDir.normalize();
+    }
+
+    const baseScale = cfg.launchBaseScale ?? 7.5;
+    const scaleVariance = cfg.launchScaleVariance ?? 9.5;
+    const nucleusBoost = cfg.launchNucleusBoost ?? 1.8;
+    const launchBuoyancy = cfg.launchBuoyancy ?? 2.2;
+    const launchDrag = cfg.launchDrag ?? 0.72;
+    const launchLifeMin = cfg.launchLifeMin ?? 2.2;
+    const launchLifeMax = cfg.launchLifeMax ?? 4.8;
+    const launchGrowth = cfg.launchGrowth ?? 2.8;
+    const launchOpacityMin = cfg.launchOpacityMin ?? 0.22;
+    const launchOpacityMax = cfg.launchOpacityMax ?? 0.34;
+    const windLoft = cfg.launchWindLoftFactor ?? 0.25;
+    const turbAmp = cfg.launchTurbulenceAmplitude ?? 0.45;
 
     for (let i = 0; i < count; i++) {
       const isNucleus = (i === 0);
-      const drift = new THREE.Vector3(
-        (Math.random() - 0.5) * 1.4,
-        2.4 + Math.random() * 1.4,
-        (Math.random() - 0.5) * 1.4
+      const tNorm = count > 1 ? i / (count - 1) : 0.5;
+      const axialOffset = 0.4 + tNorm * (4.0 + Math.random() * 5.0);
+      const radialRadius = (0.8 + tNorm * 2.4) * Math.random();
+      const radialAngle = Math.random() * Math.PI * 2;
+      const offset = launchDir.clone().multiplyScalar(axialOffset).add(
+        new THREE.Vector3(
+          Math.cos(radialAngle) * radialRadius,
+          Math.random() * 1.2,
+          Math.sin(radialAngle) * radialRadius
+        )
       );
-      const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 2.2,
-        Math.random() * 1.5,
-        (Math.random() - 0.5) * 2.2
+
+      const axialSpeed = 4.5 + tNorm * 9.5 + Math.random() * 5.0;
+      const lateralSpread = 2.6 + turbAmp * 2.2;
+      const drift = launchDir.clone().multiplyScalar(axialSpeed).add(
+        new THREE.Vector3(
+          (Math.random() - 0.5) * lateralSpread + windLoft * (Math.random() - 0.3) * 2.0,
+          Math.random() * 2.5,
+          (Math.random() - 0.5) * lateralSpread
+        )
       );
+
+      const puffColor = launchSmokeBaseColor.clone().offsetHSL(
+        0,
+        0,
+        (Math.random() - 0.5) * 0.08
+      );
+      const puffBuoyancy = launchBuoyancy * (0.65 + Math.random() * 0.85);
+
       this.spawnPuff(
         launchPos.clone().add(offset),
         drift,
@@ -1108,13 +1146,13 @@ export class SmokeSystem {
           category: 'launch',
           isNucleus: isNucleus,
           nucleusBoost: nucleusBoost,
-          life: cfg.trailLifeMin + Math.random() * (cfg.trailLifeMax - cfg.trailLifeMin),
+          life: launchLifeMin + Math.random() * (launchLifeMax - launchLifeMin),
           scale: baseScale + Math.random() * scaleVariance,
-          growth: cfg.trailGrowth,
-          drag: cfg.trailDrag,
-          buoyancy: launchBuoyancy,
-          opacity: cfg.trailOpacity + Math.random() * 0.1,
-          color: launchSmokeColor
+          growth: launchGrowth * (0.8 + Math.random() * 0.45),
+          drag: launchDrag,
+          buoyancy: puffBuoyancy,
+          opacity: launchOpacityMin + Math.random() * (launchOpacityMax - launchOpacityMin),
+          color: puffColor
         }
       );
     }

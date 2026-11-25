@@ -111,14 +111,15 @@ describe('SmokeSystem', () => {
     expect(smokeSystem.puffs.length).toBeGreaterThan(0);
     const launchPuff = smokeSystem.puffs[0];
     expect(launchPuff.category).toBe('launch');
-    expect(launchPuff.position.x).toBeGreaterThanOrEqual(7);
-    expect(launchPuff.position.x).toBeLessThanOrEqual(13);
-    expect(launchPuff.drag).toBeDefined();
-    expect(launchPuff.life).toBeGreaterThanOrEqual(FIREWORK_CONFIG.SMOKE.trailLifeMin);
-    expect(launchPuff.life).toBeLessThanOrEqual(FIREWORK_CONFIG.SMOKE.trailLifeMax);
+    expect(launchPuff.position.x).toBeGreaterThanOrEqual(6);
+    expect(launchPuff.position.x).toBeLessThanOrEqual(14);
+    expect(launchPuff.drag).toBe(FIREWORK_CONFIG.SMOKE.launchDrag);
+    expect(launchPuff.life).toBeGreaterThanOrEqual(FIREWORK_CONFIG.SMOKE.launchLifeMin);
+    expect(launchPuff.life).toBeLessThanOrEqual(FIREWORK_CONFIG.SMOKE.launchLifeMax);
     expect(launchPuff.baseScale).toBeGreaterThanOrEqual(FIREWORK_CONFIG.SMOKE.launchBaseScale);
     expect(launchPuff.nucleusBoost).toBe(FIREWORK_CONFIG.SMOKE.launchNucleusBoost);
-    expect(launchPuff.buoyancy).toBe(FIREWORK_CONFIG.SMOKE.launchBuoyancy);
+    expect(launchPuff.buoyancy).toBeGreaterThanOrEqual(FIREWORK_CONFIG.SMOKE.launchBuoyancy * 0.64);
+    expect(launchPuff.buoyancy).toBeLessThanOrEqual(FIREWORK_CONFIG.SMOKE.launchBuoyancy * 1.51);
     expect(launchPuff.velocity.y).toBeGreaterThanOrEqual(2.0);
   });
 

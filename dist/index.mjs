@@ -392,13 +392,19 @@ var t = {
 		burstDragMin: 2.8,
 		burstDragMax: 3.6,
 		trailBuoyancy: .35,
-		launchBuoyancy: 1.1,
+		launchBuoyancy: 2.2,
+		launchDrag: .72,
+		launchLifeMin: 2.2,
+		launchLifeMax: 4.8,
 		burstBuoyancyMin: .55,
 		burstBuoyancyMax: .9,
 		trailBaseScale: 14,
-		launchBaseScale: 24,
-		launchScaleVariance: 8,
-		launchNucleusBoost: 4.8,
+		launchBaseScale: 7.5,
+		launchScaleVariance: 9.5,
+		launchNucleusBoost: 1.8,
+		launchGrowth: 2.8,
+		launchOpacityMin: .22,
+		launchOpacityMax: .34,
 		launchWindLoftFactor: .25,
 		launchTurbulenceAmplitude: .45,
 		trailGrowth: 3.5,
@@ -11687,20 +11693,22 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 	}
 	onLaunch(t = {}) {
 		if (this.quality === "off") return;
-		let r = n.SMOKE, i = new e.Vector3(t.position?.x ?? 0, (t.position?.y ?? -50) + 2, t.position?.z ?? 0), a = this.unlimited ? 14 : this.quality === "high" ? 8 : this.quality === "low" ? 3 : 5, o = new e.Color(15922681), s = t.hasCustomColor && t.colorHex !== void 0 ? new e.Color(t.colorHex) : o, c = r.launchBaseScale ?? 24, l = r.launchScaleVariance ?? 8, u = r.launchNucleusBoost ?? 4.8, d = r.launchBuoyancy ?? 1.1;
+		let r = n.SMOKE, i = new e.Vector3(t.position?.x ?? 0, (t.position?.y ?? -50) + 2, t.position?.z ?? 0), a = this.unlimited ? 14 : this.quality === "high" ? 8 : this.quality === "low" ? 3 : 5, o = new e.Color(14212841), s = t.hasCustomColor && t.colorHex !== void 0 ? o.clone().lerp(new e.Color(t.colorHex), .22) : o, c = new e.Vector3(t.direction?.x ?? 0, t.direction?.y ?? 1, t.direction?.z ?? 0);
+		c.lengthSq() < 1e-4 ? c.set(0, 1, 0) : c.normalize();
+		let l = r.launchBaseScale ?? 7.5, u = r.launchScaleVariance ?? 9.5, d = r.launchNucleusBoost ?? 1.8, f = r.launchBuoyancy ?? 2.2, p = r.launchDrag ?? .72, m = r.launchLifeMin ?? 2.2, h = r.launchLifeMax ?? 4.8, g = r.launchGrowth ?? 2.8, _ = r.launchOpacityMin ?? .22, v = r.launchOpacityMax ?? .34, y = r.launchWindLoftFactor ?? .25, b = r.launchTurbulenceAmplitude ?? .45;
 		for (let t = 0; t < a; t++) {
-			let n = t === 0, a = new e.Vector3((Math.random() - .5) * 1.4, 2.4 + Math.random() * 1.4, (Math.random() - .5) * 1.4), o = new e.Vector3((Math.random() - .5) * 2.2, Math.random() * 1.5, (Math.random() - .5) * 2.2);
-			this.spawnPuff(i.clone().add(o), a, {
+			let n = t === 0, r = a > 1 ? t / (a - 1) : .5, o = .4 + r * (4 + Math.random() * 5), x = (.8 + r * 2.4) * Math.random(), S = Math.random() * Math.PI * 2, C = c.clone().multiplyScalar(o).add(new e.Vector3(Math.cos(S) * x, Math.random() * 1.2, Math.sin(S) * x)), w = 4.5 + r * 9.5 + Math.random() * 5, T = 2.6 + b * 2.2, E = c.clone().multiplyScalar(w).add(new e.Vector3((Math.random() - .5) * T + y * (Math.random() - .3) * 2, Math.random() * 2.5, (Math.random() - .5) * T)), D = s.clone().offsetHSL(0, 0, (Math.random() - .5) * .08), O = f * (.65 + Math.random() * .85);
+			this.spawnPuff(i.clone().add(C), E, {
 				category: "launch",
 				isNucleus: n,
-				nucleusBoost: u,
-				life: r.trailLifeMin + Math.random() * (r.trailLifeMax - r.trailLifeMin),
-				scale: c + Math.random() * l,
-				growth: r.trailGrowth,
-				drag: r.trailDrag,
-				buoyancy: d,
-				opacity: r.trailOpacity + Math.random() * .1,
-				color: s
+				nucleusBoost: d,
+				life: m + Math.random() * (h - m),
+				scale: l + Math.random() * u,
+				growth: g * (.8 + Math.random() * .45),
+				drag: p,
+				buoyancy: O,
+				opacity: _ + Math.random() * (v - _),
+				color: D
 			});
 		}
 	}
