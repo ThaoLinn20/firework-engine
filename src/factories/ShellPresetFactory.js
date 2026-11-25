@@ -1,4 +1,5 @@
 import { normalizePresetParameters } from '../config/parameterDescriptors.js';
+import { FIREWORK_CONFIG } from '../config/fireworks.js';
 import { sanitizeText, layoutWord } from './TextGlyphAtlas.js';
 const COLOR = {
   Red: 'red',
@@ -1111,6 +1112,10 @@ export class ShellPresetFactory {
   }
 
   cometClusterNoTrail(size = 1) {
+    const cfg = FIREWORK_CONFIG.COMET_CLUSTER_NOTRAIL || {};
+    const minCount = cfg.clusterCountMin ?? 26;
+    const maxCount = cfg.clusterCountMax ?? 32;
+    const span = Math.max(0, maxCount - minCount);
     return {
       type: 'comet_cluster',
       shellType: 'comet_cluster_notrail',
@@ -1118,7 +1123,8 @@ export class ShellPresetFactory {
       effectType: 'standard',
       effects: ['no-trail'],
       noTrail: true,
-      clusterCount: 8 + Math.floor(Math.random() * 4),
+      clusterCount: minCount + Math.floor(Math.random() * (span + 1)),
+      noTrailHeadScale: cfg.headScale ?? 0.35,
       particleCountMultiplier: 1.5,
       crackle: false,
       launchTrail: false,

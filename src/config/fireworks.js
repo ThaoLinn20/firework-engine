@@ -712,5 +712,16 @@ export const FIREWORK_CONFIG = {
       '#bf55ec',
       '#0099ff'
     ]
+  },
+
+  // Cấu hình chùm sao không đuôi tỏa hình nón 3D (Comet Cluster No-Trail)
+  COMET_CLUSTER_NOTRAIL: {
+    clusterCountMin: 26,
+    clusterCountMax: 32,
+    coneHalfAngleDeg: 15,
+    axialHeightMinRatio: 0.76,
+    axialHeightMaxRatio: 1.06,
+    headScale: 0.35,
+    hdrMultiplier: 2.3
   }
 };

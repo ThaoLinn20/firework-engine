@@ -251,6 +251,48 @@ export class CometSystem {
       finalPreset?.detachedTrail ||
       ['detached', 'detached-trail'].includes(finalPreset?.cometTrail)
     );
+    const isNoTrailConeCluster = !isCascade && !isDetachedCluster && clusterCount > 1 && Boolean(
+      finalPreset?.shellType === 'comet_cluster_notrail' ||
+      finalPreset?.noTrail ||
+      (Array.isArray(finalPreset?.effects) && finalPreset.effects.includes('no-trail'))
+    );
+    const noTrailConeVelocities = [];
+    if (isNoTrailConeCluster) {
+      const coneCfg = FIREWORK_CONFIG.COMET_CLUSTER_NOTRAIL || {};
+      const halfAngleRad = ((coneCfg.coneHalfAngleDeg ?? 15) * Math.PI) / 180;
+      const minHeightRatio = coneCfg.axialHeightMinRatio ?? 0.76;
+      const maxHeightRatio = coneCfg.axialHeightMaxRatio ?? 1.06;
+      const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+      const baseHeight = this.resolveBurstHeight(finalPreset, ratioY);
+      const axialIndices = Array.from({ length: clusterCount }, (_, idx) => idx);
+      for (let i = axialIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [axialIndices[i], axialIndices[j]] = [axialIndices[j], axialIndices[i]];
+      }
+      for (let i = 0; i < clusterCount; i++) {
+        const axialT = (axialIndices[i] + 0.5) / clusterCount;
+        const heightRatio = minHeightRatio + axialT * (maxHeightRatio - minHeightRatio);
+        const starBaseVel = this.resolveLaunchVelocity(
+          baseHeight * heightRatio,
+          angleOffset || 0
+        );
+        const dir = starBaseVel.clone().normalize();
+        const ref = Math.abs(dir.y) > 0.9
+          ? new THREE.Vector3(1, 0, 0)
+          : new THREE.Vector3(0, 1, 0);
+        const right = new THREE.Vector3().crossVectors(dir, ref).normalize();
+        const up = new THREE.Vector3().crossVectors(dir, right).normalize();
+
+        const rNorm = Math.sqrt((i + 0.5) / clusterCount);
+        const alpha = rNorm * halfAngleRad;
+        const theta = i * goldenAngle + (Math.random() - 0.5) * 0.24;
+        const radialSpeed = starBaseVel.length() * Math.tan(alpha);
+
+        starBaseVel.addScaledVector(right, Math.cos(theta) * radialSpeed);
+        starBaseVel.addScaledVector(up, Math.sin(theta) * radialSpeed);
+        noTrailConeVelocities.push(starBaseVel);
+      }
+    }
     const detachedTargetHeight = isDetachedCluster ? this.resolveBurstHeight(finalPreset, ratioY) : null;
     const detachedBaseVelocity = isDetachedCluster
       ? this.resolveLaunchVelocity(detachedTargetHeight, angleOffset || 0)
@@ -360,6 +402,8 @@ export class CometSystem {
         // Độ cao tính toán trực tiếp từ resolveBurstHeight theo ratioY, dao động nhẹ (+/- 3%)
         if (isDetachedCluster) {
           velocity = detachedDirections[i];
+        } else if (isNoTrailConeCluster) {
+          velocity = noTrailConeVelocities[i];
         } else {
           targetHeight = this.resolveBurstHeight(preset, ratioY) *
             (0.97 + Math.random() * 0.06);
@@ -367,7 +411,7 @@ export class CometSystem {
         }
 
         // Spread the cluster laterally only when shooting multiple comets
-        if (clusterCount > 1 && !isDetachedCluster) {
+        if (clusterCount > 1 && !isDetachedCluster && !isNoTrailConeCluster) {
           velocity.x += (Math.random() - 0.5) * 5;
           velocity.z += (Math.random() - 0.5) * 5;
           velocity.y *= (0.95 + Math.random() * 0.1);

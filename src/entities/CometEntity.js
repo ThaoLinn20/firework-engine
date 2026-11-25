@@ -255,11 +255,17 @@ export class CometEntity {
       || this.preset?.cometTrail === 'detached'
       || this.preset?.cometTrail === 'detached-trail'
       || this.preset?.shellType === 'comet_cluster_detached';
+    const isNoTrailHead = this.preset?.shellType === 'comet_cluster_notrail' || this.hasNoTrail;
     const detachedHeadScale = isDetached
       ? (Number.isFinite(preset?.detachedHeadScale) && preset.detachedHeadScale > 0
         ? preset.detachedHeadScale : 0.42)
-      : 1;
-    if (this.preset?.shellType === 'comet_cluster_notrail' || this.hasNoTrail) {
+      : (isNoTrailHead && Number.isFinite(preset?.noTrailHeadScale) && preset.noTrailHeadScale > 0
+        ? preset.noTrailHeadScale
+        : 1);
+    const hdrMult = isNoTrailHead
+      ? (FIREWORK_CONFIG.COMET_CLUSTER_NOTRAIL?.hdrMultiplier ?? 2.3)
+      : 4.0;
+    if (isNoTrailHead) {
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute(
         'position',
@@ -269,9 +275,9 @@ export class CometEntity {
         'color',
         new THREE.BufferAttribute(
           new Float32Array([
-            color.r * 4.0,
-            color.g * 4.0,
-            color.b * 4.0
+            color.r * hdrMult,
+            color.g * hdrMult,
+            color.b * hdrMult
           ]),
           3
         )
@@ -305,8 +311,8 @@ export class CometEntity {
           vec2 coreP = gl_PointCoord - vec2(0.5, 0.34);
           float coreDist = length(vec2(coreP.x * 2.2, coreP.y * 1.8)) * 2.0;
           
-          vec4 stop0 = vec4(4.0, 4.0, 4.0, 1.0);
-          vec4 stop1 = vec4(diffuseColor.rgb * 2.0 + vec3(0.4), 0.90);
+          vec4 stop0 = vec4(2.2, 2.2, 2.2, 1.0);
+          vec4 stop1 = vec4(diffuseColor.rgb * 1.6 + vec3(0.25), 0.85);
           vec4 stop2 = vec4(diffuseColor.rgb * 1.2, 0.45);
           vec4 stop3 = vec4(diffuseColor.rgb * 0.4, 0.12);
           vec4 stop4 = vec4(0.0, 0.0, 0.0, 0.0);
