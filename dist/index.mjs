@@ -707,7 +707,8 @@ var s = 0, c = 1, l = 2, u = {
 	launchRadiusZ: 22,
 	noEntryHalfWidth: 100,
 	noEntryHalfDepth: 200,
-	minBurstY: 75,
+	minBurstY: .5,
+	randomMinBurstY: 75,
 	maxBurstY: 300,
 	minLaunchSpeedY: 65,
 	maxLaunchSpeedY: 120,
@@ -9102,8 +9103,12 @@ var Pe = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(),
 		if (v) {
 			let t = c === void 0 ? i === void 0 ? y : i : c, r = l === void 0 ? a : l;
 			w = this.resolveBurstPosition(t, r, b, d), S = w.y;
-			let o = Math.abs(n.GRAVITY), s = Math.max(5, S - x.y), u = Math.sqrt(2 * s / o), f = Math.sqrt(2 * o * s), p = (w.x - x.x) / u, m = (w.z - x.z) / u;
-			C = new e.Vector3(p, f, m);
+			let o = Math.abs(n.GRAVITY), s = Math.max(0, S - x.y);
+			if (s < .05) C = new e.Vector3(0, 0, 0);
+			else {
+				let t = Math.sqrt(2 * s / o), n = Math.sqrt(2 * o * s), r = (w.x - x.x) / t, i = (w.z - x.z) / t;
+				C = new e.Vector3(r, n, i);
+			}
 		} else S = this.resolveBurstHeight(g, a), C = this.resolveLaunchVelocity(S, p);
 		let T = e.MathUtils.clamp((S - this.launchZone.minBurstY) / Math.max(this.launchZone.maxBurstY - this.launchZone.minBurstY, 1), 0, 1), E = e.MathUtils.lerp(.6, 1, T);
 		g.shellSize = (g.shellSize ?? 1) * E;
@@ -9224,12 +9229,14 @@ var Pe = n.SYSTEM.crackleSparkColor, Fe = new e.Vector3(), Ie = new e.Vector3(),
 		return this.launchZone.center.clone().add(new e.Vector3(f, 0, p)).setY(m);
 	}
 	resolveBurstHeight(t = null, n) {
-		if (n !== void 0) return e.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, n);
-		let r = (Math.max(1, Math.min(6, t?.shellSize ?? 1)) - 1) / 5, i = e.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, .42 + r * .32), a = e.MathUtils.lerp(16, 28, r);
-		return e.MathUtils.clamp(i + (Math.random() - .5) * a, this.launchZone.minBurstY, this.launchZone.maxBurstY);
+		if (n !== void 0) return Math.max(this.launchZone.minBurstY, e.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, n));
+		let r = this.launchZone.randomMinBurstY ?? 75, i = (Math.max(1, Math.min(6, t?.shellSize ?? 1)) - 1) / 5, a = e.MathUtils.lerp(r, this.launchZone.maxBurstY, .42 + i * .32), o = e.MathUtils.lerp(16, 28, i);
+		return e.MathUtils.clamp(a + (Math.random() - .5) * o, r, this.launchZone.maxBurstY);
 	}
 	resolveLaunchVelocity(t, r = 0) {
-		let i = Math.abs(n.GRAVITY), a = this.launchZone.center.y, o = Math.max(t - a, 5), s = Math.sqrt(2 * i * o) * 1.02, c = e.MathUtils.clamp((t - this.launchZone.minBurstY) / Math.max(this.launchZone.maxBurstY - this.launchZone.minBurstY, 1), 0, 1), l = e.MathUtils.lerp(5, 9, 1 - c), u = this._lastLaunchAngle || Math.PI / 2, d = Math.PI / 180 * 85, f = e.MathUtils.clamp(r, -d, d), p = s * Math.tan(f), m = 20 * Math.cos(u) + p * Math.sin(u) + (Math.random() - .5) * l, h = s, g = -20 * Math.sin(u) + p * Math.cos(u) + (Math.random() - .5) * l;
+		let i = Math.abs(n.GRAVITY), a = this.launchZone.center.y, o = Math.max(t - a, 0);
+		if (o < .05) return new e.Vector3(0, 0, 0);
+		let s = Math.sqrt(2 * i * o) * 1.02, c = e.MathUtils.clamp((t - this.launchZone.minBurstY) / Math.max(this.launchZone.maxBurstY - this.launchZone.minBurstY, 1), 0, 1), l = e.MathUtils.lerp(5, 9, 1 - c), u = this._lastLaunchAngle || Math.PI / 2, d = Math.PI / 180 * 85, f = e.MathUtils.clamp(r, -d, d), p = s * Math.tan(f), m = 20 * Math.cos(u) + p * Math.sin(u) + (Math.random() - .5) * l, h = s, g = -20 * Math.sin(u) + p * Math.cos(u) + (Math.random() - .5) * l;
 		return new e.Vector3(m, h, g);
 	}
 	pickFireworkShape() {
@@ -11024,7 +11031,7 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 				[l[e], l[t]] = [l[t], l[e]];
 			}
 			for (let t = 0; t < b; t++) {
-				let n = i + (l[t] + .5) / b * (o - i), a = this.resolveLaunchVelocity(c * n, f || 0), u = a.clone().normalize(), d = Math.abs(u.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), p = new e.Vector3().crossVectors(u, d).normalize(), m = new e.Vector3().crossVectors(u, p).normalize(), h = Math.sqrt((t + .5) / b) * r, g = t * s + (Math.random() - .5) * .24, _ = a.length() * Math.tan(h);
+				let n = i + (l[t] + .5) / b * (o - i), a = this.resolveLaunchVelocity(Math.max(this.launchZone.minBurstY, c * n), f || 0), u = a.clone().normalize(), d = Math.abs(u.y) > .9 ? new e.Vector3(1, 0, 0) : new e.Vector3(0, 1, 0), p = new e.Vector3().crossVectors(u, d).normalize(), m = new e.Vector3().crossVectors(u, p).normalize(), h = Math.sqrt((t + .5) / b) * r, g = t * s + (Math.random() - .5) * .24, _ = a.length() * Math.tan(h);
 				a.addScaledVector(p, Math.cos(g) * _), a.addScaledVector(m, Math.sin(g) * _), M.push(a);
 			}
 		}
@@ -11151,11 +11158,13 @@ var Ct = new e.Vector3(), wt = new e.Vector3(), Tt = new e.Vector3(), Et = new e
 		return this.launchZone.center.clone().add(new e.Vector3(d, 0, f));
 	}
 	resolveBurstHeight(t = null, n) {
-		let r = e.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, .65);
-		return n === void 0 ? e.MathUtils.lerp(30, r, .35 + Math.random() * .2) : e.MathUtils.lerp(30, r, n);
+		let r = this.launchZone.randomMinBurstY ?? 75, i = e.MathUtils.lerp(r, this.launchZone.maxBurstY, .65), a = this.launchZone.minBurstY;
+		return n === void 0 ? e.MathUtils.lerp(30, i, .35 + Math.random() * .2) : Math.max(a, e.MathUtils.lerp(a, i, n));
 	}
 	resolveLaunchVelocity(t, n = 0) {
-		let r = this.launchZone.center.y, i = Math.max(t - r, 5), a = Math.sqrt(60 * i), o = this._lastLaunchAngle || Math.PI / 2, s = a, c = Math.PI / 180 * 85, l = e.MathUtils.clamp(n, -c, c), u = a * Math.tan(l), d = 15 * Math.cos(o) + u * Math.sin(o), f = -15 * Math.sin(o) + u * Math.cos(o);
+		let r = this.launchZone.center.y, i = Math.max(t - r, 0);
+		if (i < .05) return new e.Vector3(0, 0, 0);
+		let a = Math.sqrt(60 * i), o = this._lastLaunchAngle || Math.PI / 2, s = a, c = Math.PI / 180 * 85, l = e.MathUtils.clamp(n, -c, c), u = a * Math.tan(l), d = 15 * Math.cos(o) + u * Math.sin(o), f = -15 * Math.sin(o) + u * Math.cos(o);
 		return new e.Vector3(d, s, f);
 	}
 	clear() {

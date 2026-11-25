@@ -89,4 +89,18 @@ describe('Ballistic Targeting & Exact Apex Burst', () => {
     // Shell should have bursted at apex
     expect(shell.canBurst()).toBe(true);
   });
+
+  it('allows water-level burst at minBurstY=0.5 without going underground while keeping random aerial height', () => {
+    expect(system.resolveBurstHeight(null, 0)).toBeCloseTo(0.5, 2);
+    expect(system.resolveBurstHeight(null, -0.5)).toBeCloseTo(0.5, 2);
+
+    const randomHeight = system.resolveBurstHeight({ shellSize: 1 }, undefined);
+    expect(randomHeight).toBeGreaterThanOrEqual(75);
+
+    const waterVel = system.resolveLaunchVelocity(0.5);
+    expect(waterVel.x).toBe(0);
+    expect(waterVel.y).toBe(0);
+    expect(waterVel.z).toBe(0);
+    expect(Number.isFinite(waterVel.y)).toBe(true);
+  });
 });

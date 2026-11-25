@@ -6,7 +6,8 @@ export const LAUNCH_ZONE_CONFIG = {
   launchRadiusZ: 22, // Bán kính phát sinh pháo theo trục Z (chiều dọc/sâu)
   noEntryHalfWidth: 100, // Nửa chiều ngang của vùng cấm xâm nhập (vùng an toàn)
   noEntryHalfDepth: 200, // Nửa chiều sâu của vùng cấm xâm nhập
-  minBurstY: 75, // Độ cao nổ tối thiểu (75m trên mặt nước, tạo vệt rơi phản chiếu đẹp mắt)
+  minBurstY: 0.5, // Độ cao nổ tối thiểu ngay trên mặt nước (Y = 0.5m, không bị dưới lòng đất)
+  randomMinBurstY: 75, // Độ cao nổ tối thiểu mặc định cho chế độ bắn ngẫu nhiên trên không
   maxBurstY: 300, // Độ cao nổ tối đa (vừa vặn khung nhìn 50/50 điện ảnh)
   minLaunchSpeedY: 65, // Tốc độ phóng tối thiểu
   maxLaunchSpeedY: 120, // Tốc độ phóng lên tối đa theo trục Y

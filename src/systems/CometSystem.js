@@ -426,7 +426,7 @@ export class CometSystem {
         const axialT = (axialIndices[i] + 0.5) / clusterCount;
         const heightRatio = minHeightRatio + axialT * (maxHeightRatio - minHeightRatio);
         const starBaseVel = this.resolveLaunchVelocity(
-          baseHeight * heightRatio,
+          Math.max(this.launchZone.minBurstY, baseHeight * heightRatio),
           angleOffset || 0
         );
         const dir = starBaseVel.clone().normalize();
@@ -759,22 +759,26 @@ export class CometSystem {
   }
 
   resolveBurstHeight(preset = null, ratioY) {
-    const minCometY = 30;
+    const randomMinY = this.launchZone.randomMinBurstY ?? 75;
     const maxCometY = THREE.MathUtils.lerp(
-      this.launchZone.minBurstY,
+      randomMinY,
       this.launchZone.maxBurstY,
       0.65
     );
+    const minCometY = this.launchZone.minBurstY;
     if (ratioY !== undefined) {
-      return THREE.MathUtils.lerp(
+      return Math.max(
         minCometY,
-        maxCometY,
-        ratioY
+        THREE.MathUtils.lerp(
+          minCometY,
+          maxCometY,
+          ratioY
+        )
       );
     }
-    // Default low to mid height range for comets
+    // Default low to mid height range for random comets
     return THREE.MathUtils.lerp(
-      minCometY,
+      30,
       maxCometY,
       0.35 + Math.random() * 0.2
     );
@@ -784,8 +788,11 @@ export class CometSystem {
     // Tính toán vận tốc trục Y cần thiết để đạt đến targetHeight bằng công thức vật lý:
     // v_y = sqrt(2 * g * h) với g = 30, h = burstHeight - groundY
     const gravity = 30;
-    const groundY = this.launchZone.center.y; // -50
-    const h = Math.max(burstHeight - groundY, 5); // Đảm bảo bay lên tối thiểu 5 unit
+    const groundY = this.launchZone.center.y;
+    const h = Math.max(burstHeight - groundY, 0);
+    if (h < 0.05) {
+      return new THREE.Vector3(0, 0, 0);
+    }
 
     const requiredVy = Math.sqrt(2 * gravity * h);
 

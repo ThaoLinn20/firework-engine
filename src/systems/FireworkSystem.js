@@ -348,12 +348,16 @@ export class FireworkSystem {
       targetHeight = targetPos.y;
 
       const gravity = Math.abs(FIREWORK_CONFIG.GRAVITY);
-      const deltaY = Math.max(5, targetHeight - position.y);
-      const timeToApex = Math.sqrt((2 * deltaY) / gravity);
-      const vy = Math.sqrt(2 * gravity * deltaY);
-      const vx = (targetPos.x - position.x) / timeToApex;
-      const vz = (targetPos.z - position.z) / timeToApex;
-      velocity = new THREE.Vector3(vx, vy, vz);
+      const deltaY = Math.max(0, targetHeight - position.y);
+      if (deltaY < 0.05) {
+        velocity = new THREE.Vector3(0, 0, 0);
+      } else {
+        const timeToApex = Math.sqrt((2 * deltaY) / gravity);
+        const vy = Math.sqrt(2 * gravity * deltaY);
+        const vx = (targetPos.x - position.x) / timeToApex;
+        const vz = (targetPos.z - position.z) / timeToApex;
+        velocity = new THREE.Vector3(vx, vy, vz);
+      }
     } else {
       targetHeight = this.resolveBurstHeight(shellPreset, ratioY);
       velocity = this.resolveLaunchVelocity(targetHeight, angleOffset);
@@ -632,21 +636,28 @@ export class FireworkSystem {
 
   resolveBurstHeight(preset = null, ratioY) {
     if (ratioY !== undefined) {
-      return THREE.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, ratioY);
+      return Math.max(
+        this.launchZone.minBurstY,
+        THREE.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, ratioY)
+      );
     }
 
+    const randomMinY = this.launchZone.randomMinBurstY ?? 75;
     const presetSize = Math.max(1, Math.min(6, preset?.shellSize ?? 1));
     const sizeT = (presetSize - 1) / 5;
-    const baseHeight = THREE.MathUtils.lerp(this.launchZone.minBurstY, this.launchZone.maxBurstY, 0.42 + sizeT * 0.32);
+    const baseHeight = THREE.MathUtils.lerp(randomMinY, this.launchZone.maxBurstY, 0.42 + sizeT * 0.32);
     const jitter = THREE.MathUtils.lerp(16, 28, sizeT);
 
-    return THREE.MathUtils.clamp(baseHeight + (Math.random() - 0.5) * jitter, this.launchZone.minBurstY, this.launchZone.maxBurstY);
+    return THREE.MathUtils.clamp(baseHeight + (Math.random() - 0.5) * jitter, randomMinY, this.launchZone.maxBurstY);
   }
 
   resolveLaunchVelocity(burstHeight, angleOffset = 0) {
     const gravity = Math.abs(FIREWORK_CONFIG.GRAVITY); // Trọng lực được định nghĩa là 30 trong update()
     const groundY = this.launchZone.center.y;
-    const h = Math.max(burstHeight - groundY, 5);
+    const h = Math.max(burstHeight - groundY, 0);
+    if (h < 0.05) {
+      return new THREE.Vector3(0, 0, 0);
+    }
 
     // Tính vận tốc v = sqrt(2gh). Nhân thêm 1.02 để pháo hoa khi đến điểm nổ vẫn còn một chút đà bay lên.
     const launchSpeedY = Math.sqrt(2 * gravity * h) * 1.02;
